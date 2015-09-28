@@ -1,0 +1,164 @@
+var i:integer;
+Begin
+  with dm do
+    Begin
+          SqlAux1.Close;
+          SqlAux1.SQL.Clear;
+          SqlAux1.SQL.Add('select count(sdx_seqcarga) from tbsdx02 where (sdx_dtenvio between :dtini and :dtfin) ');
+          if DBServSedex.KeyValue <> null then
+            SqlAux1.SQL.Add('and (sdx_siglaobj = '+chr(39)+SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
+          SqlAux1.Params[0].AsDate :=  DateTimePicker1.Date;
+          SqlAux1.Params[1].AsDate :=  DateTimePicker2.Date;
+          SqlAux1.Open;
+          if SqlAux1.fields[0].Value > 0 then
+            Begin
+              try
+                locarq  :=  'O:\sedex_ar\retorno\';
+
+                if (Not(DirectoryExists(locarq))) then
+                    MkDir(locarq);
+                locarq  :=  locarq  + 'RT';
+                if DBServSedex.KeyValue <> null then
+                  locarq  :=  locarq+SqlSdxServtbsdxserv_sigla.AsString;
+                locarq  :=  locarq+FormatDateTime('ddmm',DateTimePicker3.Date)+'.txt';
+                EdArq.Text  :=  locarq;
+                except
+                  begin
+                    Application.MessageBox(PChar('Erro de Conexão Rede'),'ADS',0);
+                    exit;
+                  end;
+                end;
+                AssignFile(arq,locarq);
+                try
+                Rewrite(arq);
+                except
+                  begin
+                    Application.MessageBox(PChar('Não Pode Acessar Arquivo'+linha),'ADS',0);
+                    EdSeqIni.Text  := inttostr(i);
+                    Application.MessageBox(PChar('Sua Nova Sequência é: '+inttostr(i)+' e '+EdSeqFin.Text),'ADS',0);
+                    exit;
+                  end;
+                end;
+  //                              0           1             2         3           4           5         6           7         8       9
+                sel :=  'select sdx_numobj,sdx_paisorigem,sdx_cep,sdx_seqcarga,sdx_numobj1,sdx_peso,sdx_valdec,sdx_siglaobj,sdx_cmp,sdx_bas,';
+//                                10       11         12
+                sel :=  sel + 'sdx_alt,sdx_cobdest,sdx_numobj2 from tbsdx02 where (sdx_dtenvio between :dtini and :dtfin) ';
+//              and (sdx_seqcarga between :seqini and :seqfin) ';
+                sel :=  sel + 'and (sdx_siglaobj = '+chr(39)+ SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ';
+                sel :=  sel + 'order by sdx_cep';
+                SqlAux2.Close;
+                SqlAux2.SQL.Clear;
+                SqlAux2.SQL.Add(sel);
+                SqlAux2.Params[0].AsDate :=  DateTimePicker1.Date;
+                SqlAux2.Params[1].AsDate :=  DateTimePicker2.Date;
+//                SqlAux2.Params[2].Value  :=  StrToInt(EdSeqIni.Text);
+//                SqlAux2.Params[3].Value  :=  StrToInt(EdSeqFin.Text);
+                SqlAux2.Open;
+                SqlAux2.First;
+                seqreg:=2;
+                EdQtde.Text :=  IntToStr(SqlAux2.RecordCount);
+                EdQtde.Refresh;
+                ProgBar.Max :=  SqlAux2.RecordCount;
+                ProgBar.Position  := 1;
+                ProgBar.Refresh;
+                While not SqlAux2.Eof do
+                  Begin
+{                    linha := '5'+'72'+'0000';
+                    linha := linha+FormatDateTime('ddmm',Date);
+                    linha := linha+'72618060';
+                    linha := linha+FormatDateTime('ddmm',Date);
+                    linha := linha+SqlSdxServtbsdxserv_nrocto.AsString;
+                    linha := linha+'09036539';
+                    linha := linha+SqlAux2.Fields[2].AsString;
+//                    linha := linha+'40096';
+//                  alterado conforme gestor nro 5084
+                    linha := linha+'40436';
+                    linha := linha+'55'; // cod pais
+                    //alterado à pedido dos correios para identificar o serviçco ar-sedex
+//                    if (DBServSedex.KeyValue = 1660) then
+//                       linha := linha+'00'+'00'+'00'// Cód Serviço 1 2 e 3
+//                    else
+                    linha := linha+'01'+'00'+'00';// Cód Serviço 1 2 e 3
+                    linha := linha+GeraNT(RestauraInteger(FormatFloat('#####0.00',SqlAux2.Fields[6].AsFloat)),8);  //valor
+  //                  linha := linha+GeraNT(SelecionaFormat(SqlAux2.Fields[6].AsString)+'00',8);  //valor
+                    linha := linha+GeraNt('0',9); // Cod Embalagem
+                    linha := linha+GeraNt('0',2);// Qt Embalagem
+                    linha := linha+SqlAux2.Fields[0].AsString;
+  //                  linha := linha+GeraNT(SelecionaFormat(SqlAux2.Fields[5].AsString),5);  //Peso
+  //                  linha := linha+GeraNT('40',5);  //Peso
+                    linha := linha+GeraNt(RestauraInteger(FormatFloat('00.000',SqlAux2.Fields[5].AsFloat)),5);
+                    linha := linha+GeraNt('0',8); // Valor a Pagar
+                    linha := linha+'01'; // Seq Folha
+                    linha := linha+'01'; // Seq Lancamentos
+                    linha := linha+'00000000'; // Data Processamento
+                    linha := linha+'000'; // Remessa
+                    linha := linha+'  '; // Filler
+                    linha := linha+GeraNt('0',8); // Unidade Prestadora
+                    linha := linha+FormatDateTime('ddmmyyyy',Date);
+                    linha := linha+'00';//Qtde. Doc no Lote
+                    linha := linha+GeraNt(SqlSdxServtbsdxserv_crtpst.AsString,11); //houve erro para  pegar o ultimo digito do campo
+//                    linha := linha+GeraNt('58552553',11); // Cartao de Postagem
+                    linha := linha+GeraNt('0',7); // Numero nota fiscal
+                    linha := linha+'SL'; // SIGLA DO SERVIÇO
+  //                  linha := linha+GeraNt('0',5); // Compr do Obj
+  //                  linha := linha+GeraNt('0',5); // Larg do Obj
+  //                  linha := linha+GeraNt('0',5); // Altura do Obj
+                    WriteLn(arq,linha);}
+                    linha := '3'+'00'+'0000';
+                    linha := linha+'0000';//FormatDateTime('ddmm',Date);
+                    linha := linha+'00000000';//'72618060';
+                    linha := linha+'0000';//FormatDateTime('ddmm',Date);
+                    linha := linha+GeraNt(SqlSdxServtbsdxserv_nrocto.AsString,10);
+                    linha := linha+'09036539';   //codigo administrativo
+                    linha := linha+SqlAux2.Fields[2].AsString;//cep do destino
+//                    linha := linha+'40096';
+//                  alterado conforme gestor nro 5084
+                    linha := linha+'40436';//codigo do servico (SFI)
+                    linha := linha+'55'; // grupo pais fixo cod pais
+                    //alterado à pedido dos correios para identificar o serviçco ar-sedex
+//                    if (DBServSedex.KeyValue = 1660) then
+//                       linha := linha+'00'+'00'+'00'// Cód Serviço 1 2 e 3
+//                    else
+                    linha := linha+'01'+'00'+'00';// Filler - Cód Serviço 1 2 e 3  fixo
+                    linha := linha+GeraNT(RestauraInteger(FormatFloat('#####0.00',SqlAux2.Fields[6].AsFloat)),8);  //valor declarado
+  //                  linha := linha+GeraNT(SelecionaFormat(SqlAux2.Fields[6].AsString)+'00',8);  //valor
+                    linha := linha+GeraNt('0',9); // Filler - Cod Embalagem
+                    linha := linha+GeraNt('0',2);// Filler - Qt Embalagem
+                    linha := linha+GeraNT(SqlAux2.Fields[0].AsString,9);
+  //                  linha := linha+GeraNT(SelecionaFormat(SqlAux2.Fields[5].AsString),5);  //Peso
+  //                  linha := linha+GeraNT('40',5);  //Peso
+                    linha := linha+GeraNt(RestauraInteger(FormatFloat('00.000',SqlAux2.Fields[5].AsFloat)),5);
+                    linha := linha+GeraNt('0',8); // filler - Valor a Pagar
+                    linha := linha+'00'; // Filler - Seq Folha
+                    linha := linha+'00'; // Filler - Seq Lancamentos
+                    linha := linha+'00000000'; // filler - Data Processamento
+                    linha := linha+'000'; // Filler - Remessa
+                    linha := linha+'  '; // Filler
+                    linha := linha+GeraNt('0',8); // Filler - Unidade Prestadora
+                    linha := linha+GeraNt('0',8);// Filler -  FormatDateTime('ddmmyyyy',Date);
+                    linha := linha+'00';//Filler - Qtde. Doc no Lote
+                    linha := linha+GeraNt(SqlSdxServtbsdxserv_crtpst.AsString,11); // Nro do Cartão de Postagem houve erro para  pegar o ultimo digito do campo
+//                    linha := linha+GeraNt('58552553',11); // Nro Cartao de Postagem
+                    linha := linha+GeraNt('0',7); // Filler - Numero nota fiscal
+                    linha := linha+copy(SqlAux2.Fields[12].AsString,1,2);// 'SL'; // Filler - Fixo SIGLA DO SERVIÇO
+                    linha := linha+GeraNT(SqlAux2.Fields[8].AsString,5);//  linha := linha+GeraNt('0',5); // Compr do Obj
+                    linha := linha+GeraNT(SqlAux2.Fields[9].AsString,5);//  linha := linha+GeraNt('0',5); // Larg do Obj
+                    linha := linha+GeraNT(SqlAux2.Fields[10].AsString,5);//  linha := linha+GeraNt('0',5); // Altura do Obj
+                    linha := linha+GeraNT(RestauraInteger(SqlAux2.Fields[6].AsString),8);  //valor a cobrar do destinatário
+                    WriteLn(arq,linha);
+                    seqreg:=seqreg+1;
+                    SqlAux2.Next;
+                    ProgBar.Position  :=  ProgBar.Position + 1;
+                    ProgBar.Refresh;
+                  End;
+                linha := '9';
+                linha := linha+GeraNt(IntToStr(seqreg),8); //Qtde Registros
+                GeraArquivo(' ',129);
+                WriteLn(arq,linha);
+                CloseFile(Arq);
+                Application.MessageBox(PChar('Arquivo Gerado com Sucesso!'),'ADS',0);
+            end
+          else
+          Application.MessageBox(PChar('Não Há Registros com os Parametros Informados'),'ADS - Ar-Digital',0);
+//        end;
+    end;

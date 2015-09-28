@@ -1,0 +1,319 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{9B604974-A1D4-4E72-8CA2-07997C815682}</ProjectGuid>
+			<MainSource>Ads.dpr</MainSource>
+			<Base>True</Base>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<Platform>Win32</Platform>
+			<AppType>Application</AppType>
+			<FrameworkType>VCL</FrameworkType>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+			<ProjectVersion>12.2</ProjectVersion>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_UsePackage>vcl;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOffice2k;qrpt;RLibWinD7clx;Rave65VCL;WinSkinD2006;ZParseSql;ZCore;ZDbc;ZPlain;ZComponent</DCC_UsePackage>
+			<DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
+			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
+			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_E>false</DCC_E>
+			<DCC_N>true</DCC_N>
+			<DCC_S>false</DCC_S>
+			<DCC_F>false</DCC_F>
+			<DCC_K>false</DCC_K>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+			<DCC_Optimize>false</DCC_Optimize>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="Ads.dpr">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="U_Principal.pas">
+				<Form>FrmPrincipal</Form>
+			</DCCReference>
+			<DCCReference Include="DmDados.pas">
+				<Form>Dm</Form>
+			</DCCReference>
+			<DCCReference Include="FrmExtContaCorrentePopanca.pas">
+				<Form>FrmExtContaCorrentePoupanca</Form>
+			</DCCReference>
+			<DCCReference Include="U_ExtConsolidado.pas">
+				<Form>FrmExtConsolidado</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadBaixa.pas">
+				<Form>FrmCadBaixa</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadUsu.pas">
+				<Form>FrmCadUsu</Form>
+			</DCCReference>
+			<DCCReference Include="U_Func.pas"/>
+			<DCCReference Include="U_Acesso.pas">
+				<Form>FrmAcesso</Form>
+			</DCCReference>
+			<DCCReference Include="U_Dig_Christian_Science.pas">
+				<Form>FrmDigChristianSciense</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrRel_Christian_Sience.pas">
+				<Form>FrFrm_Christian_Science</Form>
+			</DCCReference>
+			<DCCReference Include="U_PesqImp.pas">
+				<Form>FrmPesqImp</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrRel_Etiqueta.pas">
+				<Form>FrFrmImpEtiqueta</Form>
+			</DCCReference>
+			<DCCReference Include="U_Dig_Previdencia_Bradesco.pas">
+				<Form>Frm_Dig_Previdencia_Bradesco</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadAuto_Christian_Science.pas">
+				<Form>FrmCadAutoChristianSciense</Form>
+			</DCCReference>
+			<DCCReference Include="UPrepCarregAut.pas">
+				<Form>FrmPrepCarregAut</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadSucursal.pas">
+				<Form>FrmCadSucursal</Form>
+			</DCCReference>
+			<DCCReference Include="U_ImpPrev.pas">
+				<Form>FrmImpPrevidencia</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmFrBoleto.pas">
+				<Form>FrmFrBoleto</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmFrProdExtContaCorrente.pas">
+				<Form>FrmFrProdExtContaCorrente</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrRelFaturamentoExt.pas">
+				<Form>FrmFrRelFaturamentoExt</Form>
+			</DCCReference>
+			<DCCReference Include="U_RetornoExtratos.pas">
+				<Form>FrmRetornoExtratos</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmFrEtiqueta.pas">
+				<Form>FrmFrEtiqueta</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadAgencia.pas">
+				<Form>FrmCadAgBrad</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmFrRelAgExtCons.pas">
+				<Form>FrmFrRelAgExtCons</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmFrBoleto2.pas">
+				<Form>FrmFrBoleto2</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadAssinantes.pas">
+				<Form>FrmCadAssinantes</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadEdicao.pas">
+				<Form>FrmCadEdicao</Form>
+			</DCCReference>
+			<DCCReference Include="U_PesImpAssinantes.pas">
+				<Form>FrmPesImpAssinantes</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmEtqMLD.pas">
+				<Form>FrmEtqMLD</Form>
+			</DCCReference>
+			<DCCReference Include="u_FrmMkEdi.pas">
+				<Form>frmMkcadedi</Form>
+			</DCCReference>
+			<DCCReference Include="u_FrmMkFilial.pas">
+				<Form>frmMkcadfilial</Form>
+			</DCCReference>
+			<DCCReference Include="u_FrmMkCep.pas">
+				<Form>FrmMkcep</Form>
+			</DCCReference>
+			<DCCReference Include="U_Cartao.pas">
+				<Form>frm_cartao</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmFrCartao.pas">
+				<Form>FrmRelCartao</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmMkLoja.pas">
+				<Form>FrmMkLoja</Form>
+			</DCCReference>
+			<DCCReference Include="u_FrmMkdivisao.pas">
+				<Form>FrmMkdivisao</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadMakro.pas">
+				<Form>frmmkmakro</Form>
+			</DCCReference>
+			<DCCReference Include="un_frmprint.pas">
+				<Form>frmMKPrint</Form>
+			</DCCReference>
+			<DCCReference Include="u_mketiqueta.pas">
+				<Form>frmmketiqueta</Form>
+			</DCCReference>
+			<DCCReference Include="Un_cadcli.pas">
+				<Form>frmCadcli</Form>
+			</DCCReference>
+			<DCCReference Include="U_cadcliPrint.pas">
+				<Form>FrmCadcliPrint</Form>
+			</DCCReference>
+			<DCCReference Include="U_confirma.pas">
+				<Form>Frmconfirma</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmFrRelFiliais.pas">
+				<Form>FrmRelFiliais</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelProtocolosDigit.pas">
+				<Form>FrmRelProtocDigi</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelRelatProtocolos.pas">
+				<Form>FrmRelProtocolos</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelProtocAddressBrindes.pas">
+				<Form>FrmRelProtocAddress</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmDigExtratoUnificado.pas">
+				<Form>FrmDigExtratoUnificado</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelContratoLimiteCreditoEspecial.pas">
+				<Form>FrmRelContratoLimiteCreditoEspecial</Form>
+			</DCCReference>
+			<DCCReference Include="UFrTokenBradesco.pas">
+				<Form>FrmFrTokenBradesco</Form>
+			</DCCReference>
+			<DCCReference Include="U_PreCadToken.pas">
+				<Form>FrmPreCadToken</Form>
+			</DCCReference>
+			<DCCReference Include="U_AltTokens.pas">
+				<Form>FrmAltToken</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmConsulta.pas">
+				<Form>FrmConsulta</Form>
+			</DCCReference>
+			<DCCReference Include="U_CadSedex.pas">
+				<Form>FrmCadSedex</Form>
+			</DCCReference>
+			<DCCReference Include="U_PesqImpSedex.pas">
+				<Form>FrmPesqImpSedex</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelArSedex.pas">
+				<Form>FrmRelArSedex</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelArSedexLista.pas">
+				<Form>FrmRelArSedexLista</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRlTotRa.pas">
+				<Form>FrmRlTotalRa</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrRelFaturamentoToken.pas">
+				<Form>FrRelFaturamentoToken</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrRelFaturamentoTancode.pas">
+				<Form>FrRelFaturamentoTancode</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrRelFaturamentoEtica.pas">
+				<Form>FrRelFaturamentoEtica</Form>
+			</DCCReference>
+			<DCCReference Include="UFrmFrTokenLido.pas">
+				<Form>FrmRlTokenLidos</Form>
+			</DCCReference>
+			<DCCReference Include="RelCons.pas">
+				<Form>FrmRelCons</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRlResumo.pas">
+				<Form>FrmRlResumo</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmCadNLido.pas">
+				<Form>FrmCadNlido</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRlNLido.pas">
+				<Form>FrmRlNLido</Form>
+			</DCCReference>
+			<DCCReference Include="UFrmRelArSedexOL.pas">
+				<Form>FrmRelArSedexOl</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelArSedexListaOL.pas">
+				<Form>U_FrmRelArSedexListaOL</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRemessaSedex.pas">
+				<Form>FrmRemessaSedex</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmBxaSedex.pas">
+				<Form>FrmBxaSedex</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRelARPend.pas">
+				<Form>FrmRelARPend</Form>
+			</DCCReference>
+			<DCCReference Include="U_FrmRlErrobxaArSdx.pas">
+				<Form>FrmRlErroBxaArSdx</Form>
+			</DCCReference>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\8.0\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\8.0\UserTools.proj"/>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType>VCLApplication</Borland.ProjectType>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Source>
+						<Source Name="MainSource">Ads.dpr</Source>
+					</Source>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1046</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName"/>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+					</VersionInfoKeys>
+				</Delphi.Personality>
+				<Platforms>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

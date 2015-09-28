@@ -1,0 +1,21 @@
+Fatura Cartão de Crédito
+Header
+Descrição										Inicio	Final 	Qtde
+1000 (Indica Inicio Header)						1		4		4
+Data Geração do Arquivo (yyyymmdd)				5		12		8
+Filler (Brancos)								13		50		38
+
+Registros
+Descrição										Inicio	Final 	Qtde
+Filler (2 Indica Registro)						1		1		1
+Remessa											2		35		34
+Código Baixa(Motivo Devolução - Bradesco)		36		37		2
+Data (Data Geração do Arquivo yyyymmdd)			38		45		8
+Filler (Brancos)								46		50		5
+
+Trailler
+Descrição										Inicio	Final 	Qtde
+9000 (Indicando Trailler)						1		4		4
+Data (Data Geração do Arquivo yyyymmdd)			5		12		8
+Total Registros (Incluíndo Header e Trailler)	13		21		9
+Filler (Brancos)								22		50		29

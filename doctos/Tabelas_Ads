@@ -1,0 +1,48 @@
+Tabelas ADS
+Nome				Serviço
+-----------------------------------------------------------------------------------------------------------------------
+cga_acesso			Cadastro de Usuários
+cga07 				Cadastro de Edição (Arauto)
+cga10				Cadastro Assinantes(Arauto)
+cga13				Cadastro Registro de Email(Arauto)
+cga14				Cadastro de Agências(Bradesco)	
+cga20				Cadastro Motivo de Devolução(Extratos-Bradesco)
+cga33				Extrato CCP(Conta Corrente Poupança - Bradesco)
+cga035				Carta Senha Consorcio(Consorcio - Bradesco)
+cga036				Extrato Recibo Consorciado(Consorcio - Bradesco)
+cga037				Cadastro de Sub-Dptos para DRC(Cobranca,Private Label,Boleto Finasa CLI)
+cga038				Extrato Finasa PFE
+cga039				Boleto Finasa CLI
+cga040				Carta Aviso Finasa
+cga041				Extrato DRC - Private Label
+cga41				Cadastro de Sucursal(Previdência Privada - Bradesco)
+cga42				Cadastro de Dtb por Sucursal(Previdência Privada - Bradesco)
+cga67				Extrato Cartão(Bradesco)
+cga68				Extrato Unificado(Bradesco)
+cga69				Extrato CVM(Bradesco)
+cga70				Extrato Banco Postal(Bradesco)
+cga75				Extrato Consolidado(Bradesco)
+cga76				Movimento de Entrada/Saída de Token(Bradesco)
+cga77				Cadastro de Pré-Token(Sequência Inicial e Final por Ag. Movimento Token -  Bradesco)
+cga78				Extrato DRC-Aviso de Cobrança - CLLP (Bradesco)
+cga100				Extrato DRC-Cobrança(Bradesco)
+cga120				Extrato DRC-Carta Aviso(Bradesco) - Carta Convite
+cga130				Cartão de Segurança - Tan-Code(Bradesco)
+cga140				Cadastro Código de Ética(Bradesco)
+cga145				Cadastro Presente Secretária(Bradesco)
+cgafatcrtcrd		Extrato Fatura Cartão de Crédito(Bradesco)
+tbsdx				Movimento de Ar-Digital(Kit Deficiente - Bradesco)
+tbsdx02				Movimento de Ar-Digital(Oper Log,TanCode e Token)
+tbsdx_ect			Cadastro de Ranges(Ar-Digital - Bradesco)
+seqarq				Sequência de Arquivos(Ar-Digital - Bradesco Kit Visual)
+tbbraddptos			Cadastro Agencia Banco Bradesco
+tbcadcaixa			Cadastro de Dimensão da Caixa
+tbcepcap			Cadastro de faixas de cep Capital Uso para Ar-Digital
+tbcepdivisa			Cadastro de faixas de cep Divisa Uso para Ar-Digital
+tbcepinterior		Cadastro de faixas de cep Interior Uso para Ar-Digital
+tbceplocal			Cadastro de faixas de cep Local Uso para Ar-Digital
+tbsdx				Carga de Dados para gerar arquivos para Ar-Digital Kit Visual, enviar para o Correio Bradesco
+tbsdx02				Carga de Dados para gerar arquivos Ar-Digital TanCode,Token e OL enviar para o Correio e Bradesco
+
+
+-----------------------------------------------------------------------------------------------------------------------

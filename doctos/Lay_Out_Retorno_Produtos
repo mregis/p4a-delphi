@@ -1,0 +1,184 @@
+Header´s, Registros e Trailler´s de Arquivos Retorno Cliente Bradesco
+------------------------------------------------------------------------------
+Extrato Consolidado - Sem Header 
+Registros
+Descrição										Inicio	Final 	Qtde
+Agência											01		04		4
+Dv_Agência										05		05		1
+Conta											06		12		7
+Dv_Conta										13		13		1
+Data Baixa										14		21		8
+Tipo Conta										22		23		2
+Código Baixa(Motivo Devolução - Bradesco)		24		25		2
+Filler (Zeros)									26		30		5
+------------------------------------------------------------------------------
+Extrato CCP - Sem Header
+Registros
+Descrição										Inicio	Final 	Qtde
+Remessa											01		14		14
+Data Extrato									15		22		8
+Código Baixa(Motivo Devolução - Bradesco)		23		23		1
+Filler (Branco)									24		30		7
+------------------------------------------------------------------------------
+Extrato Unificado - Sem Header
+Registros
+Descrição										Inicio	Final 	Qtde
+Agência											01		04		4
+Dv_Agência										05		05		1
+Conta											06		12		7
+Dv_Conta										13		13		1
+Data Baixa										14		21		8
+Produto											22		23		2
+Código Baixa(Motivo Devolução - Bradesco)		24		25		2
+Filler(À Partir do Digito 24 de 4 da Remessa)	26		29		4
+Filler	(Zero)									30		30		1
+------------------------------------------------------------------------------
+DRC - Cobranca - Sem Header
+Registros
+Descrição										Inicio	Final 	Qtde
+Remessa											01		11		11
+Código Baixa(Motivo Devolução - Bradesco -DRC)	12		13		2	
+Obs: DRC - Cobrança Remessa pode Variar até 13 Dígitos				
+Remessa Digitos de 1 de 4 Codigo do Depto e 5 de 7 Nosso Número				
+------------------------------------------------------------------------------
+DRC - Carta Aviso - Sem Header
+Registros
+Descrição										Inicio	Final 	Qtde
+Tipo											01		01		01
+Remessa											02		16		16
+Código Baixa(Motivo Devolução - Bradesco -DRC)	18		19		2	
+------------------------------------------------------------------------------
+Cartão de Segurança - TanCode - Sem Header
+Registros
+Descrição										Inicio	Final 	Qtde
+Sequência do Registro							01		06		6		
+Remessa											07		17		11
+Data Leitura									18		25		8
+Código Baixa(Motivo Devolução - Bradesco)		26		27		2
+
+Token - Saída - Sem Header
+Registros
+Descrição										Inicio	Final 	Qtde
+Remessa											01		31		31
+Data Leitura									32		41		10
+Filler(Branco)									42		42		1
+Código da Agência								43		47		5
+Tipo de Cliente(0 - Fisica | 1 - Jurídica)		48		48		1
+DTB												49		63		15
+------------------------------------------------------------------------------
+DRC - Aviso de Cobrança CLLP com Header
+Header
+Descrição										Inicio	Final 	Qtde
+@ (Arroba Indicando Inicio Header)				1		1		1
+Address Logistica								2		22		21
+Filler (Brancos)								23		31		9	
+
+Registros
+Descrição										Inicio	Final 	Qtde
+Remessa(15 PRIMEIROS DIGITOS)					01		15		15
+Data da Leitura									16		23		08				
+Remessa(06 ÚLTIMOS DIGITOS)						24		29		06
+Código Baixa(Motivo Devolução - Bradesco)		30		31		2
+
+Trailler
+Descrição										Inicio	Final 	Qtde
+* (Asterisco Indicando Trailler)				1		1		1
+Total Registros (Menos Header)					2		10		9
+Filler (Brancos)								11		31		21
+------------------------------------------------------------------------------
+Fatura Cartão de Crédito
+Header
+Descrição										Inicio	Final 	Qtde
+1000 (Indica Inicio Header)						1		4		4
+Data Geração do Arquivo (yyyymmdd)				5		12		8
+Filler (Brancos)								13		50		38
+
+Registros
+Descrição										Inicio	Final 	Qtde
+Filler (2 Indica Registro)						1		1		1
+Remessa											2		35		34
+Código Baixa(Motivo Devolução - Bradesco)		36		37		2
+Data (Data Geração do Arquivo yyyymmdd)			38		45		8
+Filler (Brancos)								46		50		5
+
+Trailler
+Descrição										Inicio	Final 	Qtde
+9000 (Indicando Trailler)						1		4		4
+Data (Data Geração do Arquivo yyyymmdd)			5		12		8
+Total Registros (Incluíndo Header e Trailler)	13		21		9
+Filler (Brancos)								22		50		29
+------------------------------------------------------------------------------
+Carta Senha
+Header		
+@	(Arroba Indicando Inicio Header				1		1		1
+ADDRESS LOGISTICA								2		22		21
+Filler (Brancos)								23		31		9
+
+Registros
+Remessa											1		20		20
+Código de Baixa (Motivo Devolução - Bradesco)	21		2		2
+
+Trailler
+* (Asterisco Indicando Trailler)				1		1		1
+Qtde de Registros (Sem o Header e o Trailler)	2		10		9
+Filler (Brancos)								11		31		21
+------------------------------------------------------------------------------
+Extrato Consorciado
+Header		
+@	(Arroba Indicando Inicio Header				1		1		1
+ADDRESS LOGISTICA								2		22		21
+Filler (Brancos)								23		31		9
+
+Registros
+Remessa											1		20		20
+Código de Baixa (Motivo Devolução - Bradesco)	21		2		2
+
+Trailler
+* (Asterisco Indicando Trailler)				1		1		1
+Qtde de Registros (Sem o Header e o Trailler)	2		10		9
+Filler (Brancos)								11		31		21
+------------------------------------------------------------------------------
+Extrato Cartao de Crédito Bradesco - desde Agosto de 2007 não é lido esse extrato
+Header
+1058 (Indicando início do Header)				1		4		4
+Data (yyyymmdd Data da Geração do Arquivo)		5		12		8
+
+Registro
+2	(Indicando início do Header)				1		1		1
+Remessa											2		33		32
+Código de Baixa (Motivo Devolução - Bradesco)	34		35		2
+Data (yyyymmdd Data da Geração do Arquivo)		36		43		8
+
+Trailler
+9058 (Indicando início do Trailler)				1		4		4
+Data (yyyymmdd Data da Geração do Arquivo)		5		12		8
+Qtde (Qtde de Registro Selecionado)				13		21		9
+------------------------------------------------------------------------------
+CVM (Não é Gerado Arquivo de Retorno)
+1ª Remessa 										1       24      24
+2ª Remessa										1		34		34
+------------------------------------------------------------------------------
+DRC - Cobranca - Private Label Sem Header
+Registros
+Descrição										Inicio	Final 	Qtde
+Remessa											01		11		11
+Código Baixa(Motivo Devolução - Bradesco -DRC)	12		13		2	
+Obs: DRC - Private Label Remessa Digitos de 1 de 4 Codigo do Depto e 5 de 7 Nosso Número				
+------------------------------------------------------------------------------
+Boleto Finasa Cliente Com Header
+Descrição										Inicio	Final 	Qtde
+
+Header
+@	(Arroba Indicando Inicio Header)			1		1		1
+ADDRESS LOGISTICA								2		36		35
+
+Registros
+Remessa											01		11		11
+Código Baixa(Motivo Devolução - Bradesco -DRC)	12		13		2
+Filler Brancos									14		36		23
+Trailler
+*												01		01		1
+Total Registros Na Remessa						02		10		9
+Filler Brancos									11		36		26				
+Obs: Boleto Finasa Cliente Remessa Digitos de 1 de 4 Codigo do Depto e 5 de 7 Nosso Número				
+

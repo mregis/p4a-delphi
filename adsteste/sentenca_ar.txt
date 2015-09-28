@@ -1,0 +1,8 @@
+select sdx_numobj,sdx_paisorigem,sdx_cep,sdx_seqcarga,sdx_numobj1,sdx_peso,sdx_valdec,sdx_siglaobj,sdx_cmp,sdx_bas,';
+    //                                10       11         12              13
+sdx_alt,sdx_cobdest,sdx_numobj2,(SELECT to_char(CURRENT_DATE,''yyyymmdd''))  AS dtger,';
+    //                          14             15          16            17       18
+sdx_siglaobj,sdx_nomdest,sdx_endedest,sdx_cidade,sdx_uf from tbsdx02 where (sdx_dtenvio between :dtini and :dtfin) ';
+    //              and (sdx_seqcarga between :seqini and :seqfin) ';
+and (sdx_siglaobj = '+chr(39)+ SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ';
+order by sdx_cep';

@@ -1,0 +1,12 @@
+Opera��o de Cadastro Pr� Token
+
+Abrir a Planilha Recebida
+Deletar Cabe�alhos
+Coluna A C�digo da Ag�ncia
+Coluna B Nome da Ag�ncia s� pra controle
+Coluna C Indiferente
+Coluna D Indiferente
+Coluna E GRM
+Coluna F Qte de Tokens na GRM
+
+Se n�o Houver N� de GRM ou Qtde Informar Expedi��o Bradesco Urgente.

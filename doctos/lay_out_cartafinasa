@@ -1,0 +1,22 @@
+Lay-Out Carta Finasa - Leitura
+Campo 			Descrição		Inicio 	Final	Tamanho Tipo
+Codigo Barra	Nº do Contrato	01		07		07		Númerico
+
+Lay-Out Carta Finasa - Retorno
+
+Header
+Conteúdo			Descrição						Inicio Final	Tamanho	Tipo
+@					Identificação Header			01		01		01		Alfabetico
+ADDRESS LOGISTICA	Identificação Prestador			02		34		34		Alfabetico (Brancos à Direita)
+
+Registros
+Conteúdo			Descrição						Inicio Final	Tamanho	Tipo
+Código de Barras	Número do Contrato				01		07		07		Numérico (Zeros à esquerda)
+Código do Motivo	Código do Motivo de Devolução	08		09		02		Numérico (Zeros à esquerda)
+Filler				Brancos							10		36		26		Alfabetico
+
+Trailler
+Conteúdo			Descrição						Inicio Final	Tamanho	Tipo
+*					Identificação Trailler			01		01		01		Alfabetico
+Soma dos Registros	Soma dos Registros				02		10		09		Numérico (Zeros à Esquerda)
+Filler				Brancos							11		36		26		Alfabetico
