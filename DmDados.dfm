@@ -1850,6 +1850,7 @@ object Dm: TDm
     SQL.Strings = (
       'SELECT t.*, s.tbsdxserv_sigla, s.tbsdxserv_dsc '
       'FROM public.tbsdx02 t'
+      
         #9'INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj2 = e.tbsdxect_si' +
         'gla || e.tbsdxect_num || e.tbsdxect_dv || '#39'BR'#39')'
       

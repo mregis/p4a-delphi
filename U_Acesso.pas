@@ -13,8 +13,16 @@ type
     EdSenha: TEdit;
     BtnEnt: TBitBtn;
     BtnSair: TBitBtn;
-    Panel5: TPanel;
-    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Image2: TImage;
+    Label3: TLabel;
+    Image1: TImage;
+    Shape1: TShape;
+    Image3: TImage;
+    Shape2: TShape;
+    Label4: TLabel;
+    procedure EdUsuKeyPress(Sender: TObject; var Key: Char);
     procedure ambientes(nivel:integer);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnSairClick(Sender: TObject);
@@ -88,7 +96,7 @@ begin
         begin
           Dm.sqlcga_acesso.Close;
           Dm.sqlcga_acesso.SQL.Clear;
-          Dm.sqlcga_acesso.Sql.Add('select * from cga_acesso where (nome=:nome) and (senha=:senha)');
+          Dm.sqlcga_acesso.Sql.Add('select * from cga_acesso where (nome ILIKE :nome) and (senha = :senha)');
           Dm.sqlcga_acesso.Params[0].Value := trim(EdUsu.Text);
           Dm.sqlcga_acesso.Params[1].Value := Codificar(EdSenha.Text,chave);
           Dm.sqlcga_acesso.Open;
@@ -141,7 +149,13 @@ end;
 procedure TFrmAcesso.EdSenhaKeyPress(Sender: TObject; var Key: Char);
 begin
   if key = #13 then
-    BtnEnt.SetFocus;
+    BtnEnt.Click;
+end;
+
+procedure TFrmAcesso.EdUsuKeyPress(Sender: TObject; var Key: Char);
+begin
+  if key = #13 then
+    EdSenha.SetFocus;
 end;
 
 end.
