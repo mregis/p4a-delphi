@@ -1648,15 +1648,15 @@ object Dm: TDm
     end
     object SqlSdx3sdx_nomdest: TStringField
       FieldName = 'sdx_nomdest'
-      Size = 50
+      Size = 80
     end
     object SqlSdx3sdx_endedest: TStringField
       FieldName = 'sdx_endedest'
-      Size = 50
+      Size = 80
     end
     object SqlSdx3sdx_cidade: TStringField
       FieldName = 'sdx_cidade'
-      Size = 30
+      Size = 50
     end
     object SqlSdx3sdx_uf: TStringField
       FieldName = 'sdx_uf'
@@ -1736,7 +1736,8 @@ object Dm: TDm
   object SqlSdxServ: TZQuery
     Connection = Ads
     SQL.Strings = (
-      'select * from tbsdxserv order by tbsdxserv_dsc')
+      'SELECT t.* FROM public.tbsdxserv t '
+      'WHERE t.tbsdxserv_status = 1')
     Params = <>
     Left = 172
     Top = 563
@@ -1768,6 +1769,10 @@ object Dm: TDm
     object SqlSdxServtbsdxserv_crtpst: TStringField
       FieldName = 'tbsdxserv_crtpst'
       Size = 9
+    end
+    object SqlSdxServtbsdxserv_status: TSmallintField
+      DisplayWidth = 2
+      FieldName = 'tbsdxserv_status'
     end
   end
   object DtSSdxServ: TDataSource
@@ -1841,8 +1846,16 @@ object Dm: TDm
   end
   object SqlSdx4: TZQuery
     Connection = Ads
+    AutoCalcFields = False
     SQL.Strings = (
-      'select * from tbsdx02 where (0=1)')
+      'SELECT t.*, s.tbsdxserv_sigla, s.tbsdxserv_dsc '
+      'FROM public.tbsdx02 t'
+        #9'INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj2 = e.tbsdxect_si' +
+        'gla || e.tbsdxect_num || e.tbsdxect_dv || '#39'BR'#39')'
+      
+        '    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxs' +
+        'erv_prod)'
+      'LIMIT 1')
     Params = <>
     Left = 28
     Top = 619
@@ -1893,8 +1906,9 @@ object Dm: TDm
     object SqlSdx4sdx_cep: TStringField
       DisplayWidth = 9
       FieldName = 'sdx_cep'
-      EditMask = '00000\-9999;1;_'
-      Size = 8
+      EditMask = '00000\-999;0;_'
+      Size = 9
+      Transliterate = False
     end
     object SqlSdx4sdx_numseqarq: TFloatField
       FieldName = 'sdx_numseqarq'
@@ -2002,6 +2016,17 @@ object Dm: TDm
     end
     object SqlSdx4sdx_codcxa: TIntegerField
       FieldName = 'sdx_codcxa'
+    end
+    object SqlSdx4tbsdxserv_siglaproduto: TStringField
+      FieldName = 'tbsdxserv_sigla'
+      Size = 2
+    end
+    object SqlSdx4tbsdxserv_produto: TStringField
+      FieldName = 'tbsdxserv_dsc'
+      Size = 50
+    end
+    object SqlSdx4tbsdxserv_codprod: TIntegerField
+      FieldName = 'tbsdxserv_prod'
     end
   end
   object DtSSdx4: TDataSource

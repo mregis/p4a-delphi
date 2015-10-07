@@ -499,6 +499,11 @@ type
     SqlServicotbsdxserv_crtpst: TStringField;
     SqlServicotbsdxserv_txasrv: TFloatField;
     SqlAux3: TZQuery;
+    SqlSdx4tbsdxserv_siglaproduto: TStringField;
+    SqlSdx4tbsdxserv_produto: TStringField;
+    SqlSdx4tbsdxserv_codprod: TIntegerField;
+    SqlSdxServtbsdxserv_status: TSmallintField;
+    SqlSdxServtbsdxserv_txasrv: TFloatField;
     procedure DataModuleCreate(Sender: TObject);
 
 
@@ -539,9 +544,13 @@ begin
 //  Ads.User      :=  'ads';
   try
     Ads.Connected :=  True;
+    Ads.StartTransaction;
     conect        :=  true;
   Except on e: exception do
-    conect  :=  false;
+    begin
+      Ads.Rollback;
+      conect  :=  false;
+    end;
   end;
 end;
 
