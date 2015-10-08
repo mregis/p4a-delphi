@@ -2221,4 +2221,53 @@ object Dm: TDm
     Params = <>
     Left = 176
   end
+  object SqlSdx6: TZQuery
+    Connection = Ads
+    AutoCalcFields = False
+    SQL.Strings = (
+      'SELECT '
+      '  sdx02.sdx_seqcarga AS lote,'
+      '  serv.tbsdxserv_prod AS codproduto,'
+      '  serv.tbsdxserv_dsc as produto,'
+      '  COUNT(*) as qtitens,'
+      '  MIN(sdx02.sdx_dtcarga) AS dtini,'
+      '  MAX(sdx02.sdx_dtcarga) AS dtfin'
+      'FROM'
+      '  public.tbsdx02 sdx02'
+      
+        '  INNER JOIN public.tbsdx_ect e ON (sdx02.sdx_numobj2 = e.tbsdxe' +
+        'ct_sigla || e.tbsdxect_num || e.tbsdxect_dv || '#39'BR'#39')'
+      
+        '  INNER JOIN public.tbsdxserv serv ON (e.tbsdxect_prod = serv.tb' +
+        'sdxserv_prod)'
+      'GROUP BY 1, 2, 3, sdx02.sdx_dtcarga'
+      'ORDER BY sdx02.sdx_dtcarga DESC'
+      'LIMIT 5  ')
+    Params = <>
+    Left = 452
+    Top = 627
+    object SqlSdx6Lote: TLargeintField
+      FieldName = 'lote'
+    end
+    object SqlSdx6QtObjs: TLargeintField
+      FieldName = 'qtitens'
+    end
+    object SqlSdx6Dtini: TDateField
+      FieldName = 'dtini'
+    end
+    object SqlSdx6Dtfin: TDateField
+      FieldName = 'dtfin'
+    end
+    object SqlSdx6Produto: TStringField
+      FieldName = 'produto'
+    end
+    object SqlSdx6CodProduto: TIntegerField
+      FieldName = 'codproduto'
+    end
+  end
+  object DtsSdx6: TDataSource
+    DataSet = SqlSdx6
+    Left = 509
+    Top = 628
+  end
 end

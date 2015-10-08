@@ -504,6 +504,14 @@ type
     SqlSdx4tbsdxserv_codprod: TIntegerField;
     SqlSdxServtbsdxserv_status: TSmallintField;
     SqlSdxServtbsdxserv_txasrv: TFloatField;
+    SqlSdx6: TZQuery;
+    DtsSdx6: TDataSource;
+    SqlSdx6Lote: TLargeintField;
+    SqlSdx6QtObjs: TLargeintField;
+    SqlSdx6Dtfin: TDateField;
+    SqlSdx6Dtini: TDateField;
+    SqlSdx6Produto: TStringField;
+    SqlSdx6CodProduto: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
 
 
