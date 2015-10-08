@@ -86,7 +86,7 @@ begin
 end;
 
 procedure TFrmDigChristianSciense.limpa;
-var i:integer;
+
 begin
   EdPrimeiroNome.Clear;
   EdSegundoNome.Clear;
@@ -167,74 +167,64 @@ begin
 end;
 
 Function TFrmDigChristianSciense.consistencia;
-var
-  ok: boolean;
+
 begin
-  ok := true;
+  result := false;
   if DbLkVeiculo.KeyValue = null then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Veiculo','Ads',MB_OK+MB_ICONERROR);
       DbLkVeiculo.SetFocus;
       exit;
     end;
   if EdPrimeiroNome.Text = '' then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Primeiro nome','Ads',MB_OK+MB_ICONERROR);
       EdPrimeiroNome.SetFocus;
       exit;
     end;
   if EdSegundoNome.Text = '' then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Segundo nome','Ads',MB_OK+MB_ICONERROR);
       EdSegundoNome.SetFocus;
       exit;
     end;
   if MkedCep.Text = '' then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Cep','Ads',MB_OK+MB_ICONERROR);
       MkedCep.SetFocus;
       exit;
     end;
   if EdEnd.Text = '' then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Endereço','Ads',MB_OK+MB_ICONERROR);
       EdEnd.SetFocus;
       exit;
     end;
   if EdBairro.Text = '' then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Bairro','Ads',MB_OK+MB_ICONERROR);
       EdBairro.SetFocus;
       exit;
     end;
   if EdCidade.Text = '' then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Cidade','Ads',MB_OK+MB_ICONERROR);
       EdCidade.SetFocus;
       exit;
     end;
   if EdUf.Text = '' then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo UF','Ads',MB_OK+MB_ICONERROR);
       EdUf.SetFocus;
       exit;
     end;
   if (EdSexo.Text = '')or( (EdSexo.Text <> 'F') and (EdSexo.Text <> 'M'))then
     begin
-      ok := false;
       application.MessageBox('Preencha o campo Sexo','Ads',MB_OK+MB_ICONERROR);
       EdSexo.SetFocus;
       exit;
     end;
-  result := ok;
+  result := True;
 end;
 
 procedure TFrmDigChristianSciense.BitBtn1Click(Sender: TObject);

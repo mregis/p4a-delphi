@@ -39,8 +39,8 @@ type
     procedure MkedSenha2Exit(Sender: TObject);
     procedure BtnIncluirClick(Sender: TObject);
   private
-    senha1,senha2,aux: string;
-    chave,literal : integer;
+    senha1, senha2 : string;
+    chave: integer;
     codid : integer;
     { Private declarations }
   public

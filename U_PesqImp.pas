@@ -45,7 +45,7 @@ type
   msel:string;
   sel : string;
   Matriz : Array of array of String;
-  motivoant,servant:string;
+  servant : String;
   erro:boolean;
     { Private declarations }
   public
@@ -72,15 +72,16 @@ uses U_FrRel_Christian_Sience, U_Func, U_FrmFrBoleto, DmDados,
 
 procedure TFrmPesqImp.GerarExcel(Consulta:TZQuery;Tipo : integer);
 var
-  coluna, linha, lin_aux,reg : integer;
+  coluna, linha, reg : Integer;
   col_aux, col_aux1, j,i,k:integer;
   excel: variant;
   valor: string;
   anterior : string;
   codcli:string;
-  nomcpo,msel:string;
+  nomcpo : String;
 begin
   linha:=1;
+  k := 0;
   try
     excel:=CreateOleObject('Excel.Application');
 //    excel.Workbooks.add(1);
@@ -156,7 +157,7 @@ begin
                 Dm.SqlAux1.Open;
                 if (Dm.SqlAux1.RecordCount > 0) then
                   begin
-                   lin_aux:=Dm.SqlAux1.RecordCount-1;
+
                    for j:=0 to Dm.SqlAux1.RecordCount-1  do
                      begin
                       if (dm.SqlAux1.RecordCount < col_aux1) then
@@ -205,8 +206,6 @@ var
   valor : Double;
   i,j:integer;
 begin
-i:=0;
-j:=0;
   with dm do
     begin
       case FrmPesqImp.Tag of
@@ -1659,7 +1658,6 @@ j:=0;
               120 :Matriz[8,0]  :=  'Entrada/Saída';
             end;
 
-            j:=1;
             while not dm.SqlAux1.Eof do
               begin
                 if servant   =  dm.SqlAux1.Fields[1].AsString then
@@ -1718,7 +1716,6 @@ j:=0;
 
                       end;
                     //SetLength( Matriz[i], 13);
-                    j:=1;
                   end;
               end;
               criatemp;
@@ -2207,7 +2204,6 @@ j:=0;
               SqlRel.Sql.Add('select count(cg041_remes),cg041_dtbaixa from cga041');
               SqlRel.Sql.Add(' where cg041_dtbaixa between '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(MkEdDtIni.Text))+chr(39));
               SqlRel.Sql.Add(' and ' +chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(MkEdDtfin.Text))+chr(39));
-              valor :=  0;
 //              SqlRel.Params[0].Value :=  valor;
               SqlRel.Sql.Add(' group by cg041_dtbaixa order by cg041_dtbaixa');
               SqlRel.Open;
@@ -2547,12 +2543,9 @@ end;
 
 procedure TFrmPesqImp.gerplantok;
 var
-  coluna, linha, lin_aux,reg : integer;
-  col_aux, col_aux1, j,i,k:integer;
+  linha, reg : Integer;
+  j,i : Integer;
   excel: variant;
-  valor: string;
-  anterior : string;
-  codcli:string;
   nomcpo:string;
 begin
   with dm do
@@ -2575,6 +2568,7 @@ begin
           //consulta.Fields[(coluna-1)].Name;
         end;
         linha :=  2;
+        reg := 0;
         while not dm.ZROQTokExc.Eof do
           begin
             for j:=0 to dm.ZROQTokExc.FieldCount-1 do

@@ -1,3 +1,4 @@
+{$WARN UNIT_PLATFORM OFF}
 unit U_CadMakro;
 
 interface
@@ -166,7 +167,7 @@ procedure Tfrmmkmakro.BitBtn1Click(Sender: TObject);
 var
   Lista           :TextFile;
   Linha           :String;
-  Reg1,Reg2,Conta :Integer;
+  Conta :Integer;
 
 begin
   dm.SqlCgaMakro.Close;
@@ -237,8 +238,7 @@ end;
 
 procedure Tfrmmkmakro.FileListKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  tamanho : integer;
+
 begin
 if (key = 4115) or (key = 4117) then
     begin
@@ -253,8 +253,7 @@ end;
 
 procedure Tfrmmkmakro.diretorioKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
- var
-   tamanho : integer;
+
  begin
    if (key = 4115) or (key = 4117) then
       {tamanho := length(Diretorio.Path);
@@ -267,8 +266,6 @@ procedure Tfrmmkmakro.diretorioKeyUp(Sender: TObject; var Key: Word;
     end;
 procedure Tfrmmkmakro.diretorioChange(Sender: TObject; Node: TTreeNode);
 
-var
-    tamanho : integer;
 begin
       {tamanho := length(Diretorio.Path);
       tamanho := tamanho - 1;
@@ -281,11 +278,8 @@ end;
 
 procedure Tfrmmkmakro.diretorioClick(Sender: TObject);
 
-var
-  tamanho : integer;
  begin
    //tamanho := length(Diretorio.Path);
-   tamanho := tamanho - 1;
    // na linha abaixo não foi feita a conversão
    //filelist.Directory.Location := copy(Diretorio.Directory,1,tamanho);
 end;

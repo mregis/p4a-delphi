@@ -61,11 +61,8 @@ type
   private
     caracterinvalido,Corrompido : boolean;
     sim:boolean;
-    reenviados :array [0..0] of ShortInt;
     arquivo           : TextFile;
-    arquivo_separado  : TextFile;
     linha,linaux      : string;
-    separador_correto : bool;
     sel : string;
     ctareg:integer;
     { Private declarations }

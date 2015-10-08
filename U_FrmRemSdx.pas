@@ -204,7 +204,7 @@ begin
       exit;
     end;
   v_soma := 0;
-  i := 0;
+
   //    mcep  :=  MkEdCep.Text
   for i:= 1 to 8 do
     v_soma := v_soma + strtoint(copy(MkEdCep.Text,i,1));

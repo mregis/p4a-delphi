@@ -50,7 +50,6 @@ end;
 
 procedure TfrmMKPrint.btnPrintClick(Sender: TObject);
 var
-  verifica : string;
   Vez      : string;
 begin
    if (dblcloja.KeyValue = null) or (dblcdivisao.KeyValue = null) or (dblcedicao.KeyValue = null) then

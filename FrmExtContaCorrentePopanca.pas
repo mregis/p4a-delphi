@@ -86,7 +86,6 @@ type
     testa,anterior,anterior2,dtb,data               : string;
     qtde,qtdaux,calculado,digito,total,numero       : integer;
     proxretorno                                     : variant;
-    dt                                              : TDate;
     { Private declarations }
   public
     { Public declarations }

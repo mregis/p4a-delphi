@@ -88,10 +88,9 @@ var
   campo3 : array[1..3,1..43] of integer;
   campo4 : array[1..3,1..10] of integer;
   i,peso : integer;
-  aux1,aux2,numerox: string;
+  numerox: String;
   multiplica : integer;
   resultadox : integer;
-  divide : double;
 begin
   case tipo of
     0:
@@ -148,7 +147,6 @@ begin
          begin
            multiplica := multiplica + campo1[3,i];
          end;
-        divide := StrToFloat(inttostr(multiplica));
         resultadox := multiplica mod 10;
         resultadox := 10 - resultadox;
         if resultadox = 10 then
@@ -179,7 +177,7 @@ begin
           begin
             multiplica := multiplica + campo2[3,i];
           end;
-        divide := StrToFloat(inttostr(multiplica));
+
         resultadox := multiplica mod 10;
         resultadox := 10 - resultadox;
         if resultadox = 10 then
@@ -210,7 +208,7 @@ begin
           begin
             multiplica := multiplica + campo4[3,i];
           end;
-        divide := StrToFloat(inttostr(multiplica));
+
         //resultadox := multiplica mod 10;
 //        resultadox := 10 - resultadox;
         resultadox := 10 - (multiplica mod 10);
@@ -225,7 +223,7 @@ begin
           begin
             campo3[1,i] := strtoint(copy(numero,i,1));
             campo3[2,i] := peso;
-            multiplica := multiplica + campo3[1,i] * campo3[2,i];
+
             if peso = 2 then
               peso := 9
             else
@@ -237,7 +235,7 @@ begin
            campo3[3,i] := campo3[1,i] * campo3[2,i];
            multiplica := multiplica + campo3[3,i];
          end;
-        divide := StrToFloat(inttostr(multiplica));
+
         resultadox := multiplica mod 11;
         resultadox := 11 - resultadox;
         if (resultadox <= 1) or (resultadox > 9)then
@@ -251,7 +249,6 @@ function  acerta(entrada:string):string;
 var
   retorno : string;
   i : integer;
-  x : string;
 begin
   i := 1;
   while i <= length(entrada) do
@@ -840,10 +837,11 @@ Begin
           showmessage('O código digitado está incorreto!!!');
         end;
   end;
+
 Function vernum(Str: string):boolean;
 Const Num = '0123456789';
 Var
-  X,digito,resto: Integer;
+  X: Integer;
   Aux : String;
   flag:boolean;
 Begin

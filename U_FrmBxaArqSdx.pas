@@ -1,3 +1,4 @@
+{$WARN UNIT_PLATFORM OFF}
 unit U_FrmBxaArqSdx;
 
 interface
@@ -38,10 +39,7 @@ type
    K, X, Y : Integer;
    RangeMatrix : Variant;
    FileName : WideString;
-   WorkSheet2 : _WorkSheet;
    dtrecebe  : Variant;//TDate;//
-   dia,mes,ano:Word;
-  erro:boolean;
   arqrel           :TextFile;
   arqtxt           :TextFile;
   Lin001           :String;
@@ -95,7 +93,7 @@ begin
   //self.Painel.Caption  :=  'Arquivo de erros:'+dirrel;
 end;
 procedure TFrmBxaArqSdx.bxasdx;
-var R:Integer;
+
 begin
   EdLido.Text     :=  '0';
   edGrava.Text    :=  '0';
@@ -217,7 +215,7 @@ begin
     procrel;
 end;}
 procedure TFrmBxaArqSdx.bxasdxexcel;
-var r:Integer;
+
 begin
     indrel    :=  3;
     dtrecebe  :=  '';

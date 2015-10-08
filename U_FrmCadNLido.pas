@@ -53,7 +53,7 @@ type
   private
   aux:integer;
   erro:boolean;
-  sel,par0,par1,par2 :string;
+  par0, par1 : String;
     { Private declarations }
   public
     { Public declarations }
