@@ -35,10 +35,7 @@ type
   private
     chave : integer;
     acesso_ok : boolean;
-    senhadig : string;
     conta : integer;
-    literal:integer;
-    aux,senha : string;
     { Private declarations }
   public
     { Public declarations }
@@ -85,9 +82,7 @@ end;
 procedure TFrmAcesso.BtnEntClick(Sender: TObject);
 var
   chave : integer;
-  chr : char;
 begin
-  chr:=#39;
   chave := 128;
   acesso_ok := false;
   if conta <> 2 then
