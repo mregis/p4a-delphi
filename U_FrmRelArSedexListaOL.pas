@@ -25,7 +25,6 @@ type
     RLLabel9: TRLLabel;
     RLLabel10: TRLLabel;
     RLLabel11: TRLLabel;
-    RLLabel12: TRLLabel;
     RLLabel13: TRLLabel;
     RLLabel14: TRLLabel;
     RLLabel15: TRLLabel;
@@ -41,10 +40,8 @@ type
     RLLabel27: TRLLabel;
     RLLabel28: TRLLabel;
     QTDE: TRLLabel;
-    RLLabel29: TRLLabel;
     RLLabel30: TRLLabel;
     RLLabel31: TRLLabel;
-    RLLabel32: TRLLabel;
     RLLabel33: TRLLabel;
     Label34: TRLLabel;
     RLLabel34: TRLLabel;
@@ -55,10 +52,8 @@ type
     RLDBText2: TRLDBText;
     RLDBText3: TRLDBText;
     RLDBText4: TRLDBText;
-    RLDBText7: TRLDBText;
     RLDBText8: TRLDBText;
     ordem: TRLLabel;
-    RLLabel42: TRLLabel;
     RLBand3: TRLBand;
     RLLabel22: TRLLabel;
     RLLabel23: TRLLabel;
@@ -85,6 +80,9 @@ type
     RLDraw4: TRLDraw;
     RLLabel49: TRLLabel;
     RLDBText5: TRLDBText;
+    RLDBText6: TRLDBText;
+    RLDBText7: TRLDBText;
+    RLDBText9: TRLDBText;
     procedure RLBand2BeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure RLBand2AfterPrint(Sender: TObject);
     procedure RLBand1BeforePrint(Sender: TObject; var PrintIt: Boolean);
