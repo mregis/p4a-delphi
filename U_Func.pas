@@ -50,7 +50,9 @@ function RestauraInteger(Valor: string): string;
 Function ValorMonetario(Armazena: string; key:char):string;
 function strtran(Str: String; Antigo: String; Novo: variant): string;
 Function VirgPonto2(Valor: string): string;
+Function Moeda2Float(Valor: string): Double;
 Function procarqconf(conf:string):String;
+Function IntToDateTime(DateInteger : integer) : TDateTime;
 implementation
 
 uses DmDados;
@@ -592,6 +594,27 @@ if Valor <> ' ' then
        end;
    end;
    Result := Valor;
+end;
+
+Function Moeda2Float(Valor: string): Double;
+Var
+  i: Integer;
+  s: String;
+begin
+  s := '';
+  if Trim(Valor) <> '' then
+    begin
+      for i := 0 to Length(Valor) do
+        begin
+          if AnsiPos(Valor[i], '0123456789,') > 0 then
+            s := s + Valor[i];
+        end;
+      Valor := StringReplace(s, ',', DecimalSeparator, [rfReplaceAll, rfIgnoreCase]);
+    end
+  else
+    Valor := '0';
+
+  Result := StrToFloat(Valor);
 end;
 
 function VirgPonto(Valor: string): string;
@@ -1388,6 +1411,47 @@ begin
         end;
      end;
    result := configura.Strings[indice];
+end;
+
+
+{*
+  Converte Um número representando o número de dias desde 01-01-1900
+  em um objeto do tipo TDateTime
+*}
+Function IntToDateTime(DateInteger : integer) : TDateTime;
+var
+  nDay, nMonth, nYear : integer;
+  i, j, l, n : integer;
+begin
+{
+    // Excel/Lotus 123 has a bug with 29-02-1900. 1900 is not a
+    // leap year, but Excel/Lotus 123 thinks it is...
+    if (DateInteger = 60) then
+    begin
+        nDay   := 29;
+        nMonth := 2;
+        nYear  := 1900;
+    end;
+}
+    if (DateInteger < 60) then
+    begin
+        // Because of the 29-02-1900 bug, any serial date
+        // under 60 is one off... Compensate.
+        DateInteger := dateInteger + 1;
+    end;
+
+    // Modified Julian to DMY calculation with an addition of 2415019
+    l := DateInteger + 68569 + 2415019;
+    n := ( 4 * l ) div 146097;
+    l := l - (( 146097 * n + 3 ) div 4);
+    i := (( 4000 * ( l + 1 ) ) div 1461001);
+    l := l - (( 1461 * i ) div 4) + 31;
+    j := (( 80 * l ) div 2447);
+    nDay := l - (( 2447 * j ) div 80);
+    l := (j div 11);
+    nMonth := j + 2 - ( 12 * l );
+    nYear := 100 * ( n - 49 ) + i + l;
+    Result := EncodeDate(nYear,nMonth,nDay);
 end;
 
 end.
