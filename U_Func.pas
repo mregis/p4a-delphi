@@ -32,7 +32,7 @@ Function Verifica(Str: string):string;
 Function Codificar(Armazena: string; Chave:Integer):string;
 Function Decodificar(Armazena: string; Chave:Integer):string;
 Function GeraCodigo(numero:string;tipo:integer):string;
-function acerta(entrada:string):string;
+Function acerta(entrada:string):string;
 Function VerificaDigito11(Valor: String; Base: Integer = 11; Resto: boolean = false) :String;
 Function VerificaValidade_Codigo(verifica: String) :String;
 Function vernum(Str: string):boolean;
@@ -42,13 +42,13 @@ Function GeraArquivo(Texto:Variant;Tamanho:Integer):String;
 Function Remove(Str:String):String;
 Function RemCaract(Str:String):String;
 Function criadir(texto:String):String;
-function tamlookcbo(tipo:integer):integer;
-function VerificaDigito7(Valor: String; Base: Integer = 7; Resto: boolean = false) :String;
-function VerDvCpf(Valor: String; Base: Integer = 11) :boolean;
+Function tamlookcbo(tipo:integer):integer;
+Function VerificaDigito7(Valor: String; Base: Integer = 7; Resto: boolean = false) :String;
+Function VerDvCpf(Valor: String; Base: Integer = 11) :boolean;
 Function SelecionaFormat(Valor : String):String;
-function RestauraInteger(Valor: string): string;
+Function RestauraInteger(Valor: string): string;
 Function ValorMonetario(Armazena: string; key:char):string;
-function strtran(Str: String; Antigo: String; Novo: variant): string;
+Function strtran(Str: String; Antigo: String; Novo: variant): string;
 Function VirgPonto2(Valor: string): string;
 Function Moeda2Float(Valor: string): Double;
 Function procarqconf(conf:string):String;
@@ -868,15 +868,15 @@ Var
   Aux : String;
   flag:boolean;
 Begin
- Aux := '';
- flag:=true;
+  Aux := '';
+  flag := true;
   For x:= 1 To Length(Str) do
-     Begin
-       If Pos(Str[X],Num) = 0 Then
-           flag := false
-    end;
-    Result := flag;
+    If Pos(Str[X],Num) = 0 Then
+           flag := false;
+
+  Result := flag;
 End;
+
 Function verzero(Str: string):boolean;
 Const Num = '000';
 Var
