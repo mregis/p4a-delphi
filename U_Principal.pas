@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Types, Classes, Variants, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Menus, ExtCtrls, ComCtrls, WinSkinData;
+  Dialogs, StdCtrls, Menus, ExtCtrls, ComCtrls, WinSkinData, Buttons;
 
 type
     TFrmPrincipal = class(TForm)
@@ -30,7 +30,6 @@ type
     ExtratoConsolidado2: TMenuItem;
     Extrato1: TMenuItem;
     Sair1: TMenuItem;
-    Fechar1: TMenuItem;
     Baixa: TMenuItem;
     Usuarios: TMenuItem;
     ChristianSciense: TMenuItem;
@@ -123,7 +122,6 @@ type
     RelProdToken: TMenuItem;
     RetCadCodEtica: TMenuItem;
     RetBxaCodEtica: TMenuItem;
-    PreToken: TMenuItem;
     ImpCadCodEtica: TMenuItem;
     ImpBxaCodEtica: TMenuItem;
     ImpBxaTanCode: TMenuItem;
@@ -176,14 +174,10 @@ type
     SedexOLTkTC2: TMenuItem;
     PlanSedex: TMenuItem;
     BxaSedex: TMenuItem;
-    PreTanCode: TMenuItem;
     ReenvArTk: TMenuItem;
     ARPend: TMenuItem;
     RetEntreg: TMenuItem;
     Sair: TMenuItem;
-    RAROL: TMenuItem;
-    RARTC: TMenuItem;
-    RARTK: TMenuItem;
     ExtratoFinasa: TMenuItem;
     ExtratoPFE: TMenuItem;
     ImpExFinasa: TMenuItem;
@@ -205,7 +199,6 @@ type
     ProdDrcPrv: TMenuItem;
     DRCPrvLbl: TMenuItem;
     FatDrcPrv: TMenuItem;
-    PreOL: TMenuItem;
     DRCs1: TMenuItem;
     RFatSdx: TMenuItem;
     SedexKV: TMenuItem;
@@ -227,6 +220,15 @@ type
     RelPredDrcAmex: TMenuItem;
     IFatDrcAmex: TMenuItem;
     PlanilhaGeral1: TMenuItem;
+    Image1: TImage;
+    precargamenuitem: TMenuItem;
+    ARs1: TMenuItem;
+    BtnCargaAR: TBitBtn;
+    BitBtn1: TBitBtn;
+    procedure ARs1Click(Sender: TObject);
+    procedure precargamenuitemClick(Sender: TObject);
+    procedure ReenvArTkClick(Sender: TObject);
+    procedure Sair1Click(Sender: TObject);
     procedure PlanilhaGeral1Click(Sender: TObject);
     procedure IFatDrcAmexClick(Sender: TObject);
     procedure IFatDRCZogMcsiClick(Sender: TObject);
@@ -428,7 +430,7 @@ uses U_ExtConsolidado, FrmExtContaCorrentePopanca, U_CadBaixa,
   un_frmprint, Un_cadcli, U_FrmDigExtratoUnificado, UFrTokenBradesco,
   U_PreCadToken, U_AltTokens, U_FrmConsulta, U_CadSedex, U_PesqImpSedex,
   U_FrmRelArSedexLista, U_FrmRlTotRa, DmDados, U_FrmCadNLido, U_FrmRemessaSedex,
-  U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral;
+  U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr;
 
 {$R *.dfm}
 procedure TFrmPrincipal.AbreBaixa(tipo:Integer);
@@ -732,9 +734,9 @@ procedure TFrmPrincipal.Timer1Timer(Sender: TObject);
 begin
   StsMenu.Panels[1].text:='Usuário: '+Dm.sqlcga_acessonome.AsString;
   StsMenu.Panels[2].text:=saudacao+' '+'Hoje é '+formatdatetime('dddddd',date);
-  StsMenu.Panels[3].text:='Versão: 1.4';
-  StsMenu.Panels[4].text:='Horário: '+timetostr(time);
-  StsMenu.Panels[4].text:='17/02/2012 17:45';
+  StsMenu.Panels[3].text:='Versão: 2.0.0';
+  StsMenu.Panels[4].text:='Horário: ' + timetostr(time);
+  StsMenu.Panels[4].text:='23/09/2015 17:45';
 end;
 
 procedure TFrmPrincipal.DRCCobClick(Sender: TObject);
@@ -1260,9 +1262,21 @@ Begin
   setfocus;
 End;
 
+procedure TFrmPrincipal.Sair1Click(Sender: TObject);
+begin
+  close;
+end;
+
 procedure TFrmPrincipal.SairClick(Sender: TObject);
 begin
   close;
+end;
+
+procedure TFrmPrincipal.ReenvArTkClick(Sender: TObject);
+begin
+  Application.CreateForm(TFrmRemessaSedex,FrmRemessaSedex);
+  FrmRemessaSedex.ShowModal;
+  SetFocus;
 end;
 
 procedure TFrmPrincipal.RelAgeClick(Sender: TObject);
@@ -1717,6 +1731,13 @@ begin
   setfocus;
 end;
 
+procedure TFrmPrincipal.precargamenuitemClick(Sender: TObject);
+begin
+  Application.CreateForm(TFrmPreCadToken, FrmPreCadToken);
+  FrmPreCadToken.ShowModal;
+  setfocus;
+end;
+
 procedure TFrmPrincipal.PreTanCodeClick(Sender: TObject);
 begin
   Application.CreateForm(TFrmPreCadToken,FrmPreCadToken);
@@ -1788,7 +1809,7 @@ end;
 
 procedure TFrmPrincipal.PreOLClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPreCadToken,FrmPreCadToken);
+ Application.CreateForm(TFrmPreCadToken,FrmPreCadToken);
   FrmPreCadToken.tag  :=  1;
   FrmPreCadToken.Caption  :=  'Cadastro Pré-OL';
   FrmPreCadToken.ShowModal;
@@ -1880,6 +1901,14 @@ begin
   FrmPesqImpSedex.Panel3.Visible  :=  true;
   FrmPesqImpSedex.ShowModal;
   SetFocus;
+
+end;
+
+procedure TFrmPrincipal.ARs1Click(Sender: TObject);
+begin
+  Application.CreateForm(TFrmPrintAr, FrmPrintAr);
+
+  FrmPrintAr.ShowModal;
 
 end;
 
