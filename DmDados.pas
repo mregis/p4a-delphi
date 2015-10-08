@@ -546,6 +546,13 @@ begin
     Ads.Connected :=  True;
     Ads.StartTransaction;
     conect        :=  true;
+        // Forçando o DateStyle a ser sempre o mesmo, independente do
+    // que foi configurado no servidor, devido a Bug da Lib Zeos
+    SqlAux2.Close;
+    SqlAux2.SQL.Clear;
+    SqlAux2.SQL.Add(FORMAT('SET DATESTYLE TO %s', [QuotedStr('ISO, DMY')]));
+    SqlAux2.Open;
+
   Except on e: exception do
     begin
       Ads.Rollback;

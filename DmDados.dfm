@@ -1621,7 +1621,18 @@ object Dm: TDm
   object SqlSdx3: TZQuery
     Connection = Ads
     SQL.Strings = (
-      'select * from tbsdx02 where sdx_siglaobj = '#39'OL'#39)
+      'SELECT sdx02.*, serv.* '
+      'FROM'
+      '  public.tbsdx02 sdx02'
+      
+        '  INNER JOIN public.tbsdx_ect e ON (sdx02.sdx_numobj2 = e.tbsdxe' +
+        'ct_sigla || e.tbsdxect_num || e.tbsdxect_dv || '#39'BR'#39')'
+      
+        '  INNER JOIN public.tbsdxserv serv ON (e.tbsdxect_prod = serv.tb' +
+        'sdxserv_prod)'
+      'WHERE sdx02.sdx_dtcarga > CURRENT_DATE - 1'
+      'ORDER BY sdx02.sdx_dtcarga DESC'
+      '')
     Params = <>
     Left = 28
     Top = 563
