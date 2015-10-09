@@ -324,12 +324,13 @@ object FrmPesqImpSedex: TFrmPesqImpSedex
     end
     object CboBoxTipoPostal: TComboBox
       Left = 288
-      Top = 68
+      Top = 66
       Width = 97
       Height = 21
       CharCase = ecUpperCase
       Enabled = False
       ItemHeight = 13
+      ItemIndex = 0
       TabOrder = 3
       Text = 'SY'
       Items.Strings = (
@@ -391,10 +392,13 @@ object FrmPesqImpSedex: TFrmPesqImpSedex
       Top = 130
       Width = 97
       Height = 21
+      Ctl3D = True
       DropDownRows = 10
       KeyField = 'tbsdxserv_prod'
-      ListField = 'tbsdxserv_sigla;tbsdxserv_dsc'
+      ListField = 'tbsdxserv_dsc'
+      ListFieldIndex = -1
       ListSource = Dm.DtSSdxServ
+      ParentCtl3D = False
       TabOrder = 7
       OnEnter = DBServSedexEnter
     end
@@ -520,11 +524,13 @@ object FrmPesqImpSedex: TFrmPesqImpSedex
       Height = 21
       CharCase = ecUpperCase
       ItemHeight = 13
+      ItemIndex = 2
       TabOrder = 13
-      Text = 'CORREIO'
+      Text = 'AR DIGITAL'
       Items.Strings = (
         'CORREIO'
-        'NORMAL')
+        'NORMAL'
+        'AR DIGITAL')
     end
     object Panel14: TPanel
       Left = 16
@@ -561,5 +567,11 @@ object FrmPesqImpSedex: TFrmPesqImpSedex
     Enabled = False
     TabOrder = 2
     Visible = False
+  end
+  object SaveDialog1: TSaveDialog
+    InitialDir = 'o:\sedex_ar'
+    Title = 'Salvar Arquivo de Postagem'
+    Left = 352
+    Top = 344
   end
 end

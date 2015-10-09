@@ -5,8 +5,8 @@ interface
 uses
   Windows, Messages,Types, Controls, StdCtrls, ComCtrls, Buttons, ExtCtrls, Classes,
   Forms , SysUtils, Variants, Graphics, Dialogs, Mask, DB,OleServer,OleCtrls,
-  ComObj, ActiveX, OleDB,OfficeXP,ExcelXP,Math,SysConst,ShlObj,OleConst, FileCtrl,
-  DBCtrls;
+  ComObj, ActiveX, OleDB,OfficeXP,ExcelXP,Math,SysConst,ShlObj,OleConst,
+  DBCtrls, DateUtils, StrUtils;
 type
   TFrmPesqImpSedex = class(TForm)
     fff: TScrollBox;
@@ -41,6 +41,7 @@ type
     MkEdHrF: TMaskEdit;
     Panel14: TPanel;
     OpcRel: TComboBox;
+    SaveDialog1: TSaveDialog;
     procedure DBServSedexEnter(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure EdSeqFinEnter(Sender: TObject);
@@ -49,6 +50,7 @@ type
     procedure BtnFecharClick(Sender: TObject);
     procedure BtnSalvarClick(Sender: TObject);
     procedure gerimp;
+    procedure gerimp2;
     procedure gerret;
     procedure gerretol;
     procedure inivars;
@@ -68,7 +70,7 @@ type
     arq:TextFile;
     seqreg,lin:integer;
     dtaux: Tdate;
-    OpenOffice, OpenDesktopOppenOffice, calcopen, sheetsOpen, sheetopen,corerefl,param,document,mexcel:variant;
+    document,mexcel:variant;
     vlsigla,totgeral,vldata:Real;
   public
   qtdar,totfol,ind : integer;
@@ -103,7 +105,7 @@ begin
     EdSeqFin.Text := EdSeqIni.Text;
         case tag of
           00..02: gerimp;   // Impressão Protocolo e Resumo Ar-Digital Kit Def. Visual
-          06..07: gerimp;   // Impressão Protocolo e Resumo Ar-OL-TC-TK
+          06..07: gerimp2;   // Impressão Protocolo e Resumo Ar-OL-TC-TK
           03    : gerret;    // Arquivo de Previsão de Postagem Ar-Digital Kit Def. Visual
           04    : gerfat;    // Arquivo de Faturamento Kit Visual;
 
@@ -143,7 +145,8 @@ begin
       case tag of
         3:
           begin
-          if (strtoint(EdSeqIni.Text) > strtoint(EdSeqFin.Text)) then
+          if (EdSeqIni.Text <> '') and (EdSeqFin.Text <> '') and
+            (StrToInt64(EdSeqIni.Text) > StrToInt64(EdSeqFin.Text)) then
              EdSeqIni.SetFocus;
           end;
       end;
@@ -152,11 +155,16 @@ end;
 
 procedure TFrmPesqImpSedex.gerimp;
 
-var i:integer;
+var s1, dbg, tblname, dtfldname:string;
 
 Begin
-  if (EdArObjeto.Text <> '') and (DBServSedex.KeyValue = 1953) then
-    EdArObjeto.Text  :=  'AR'+copy(EdArObjeto.Text,3,9)+'KB';
+  if (DBServSedex.KeyValue = NULL) then
+    begin
+      ShowMessage('Selecione um produto!');
+      DBServSedex.SetFocus;
+      exit;
+    end;
+
   qtdfxa01   :=  0;
   qtdfxa02   :=  0;
   qtdfxa03   :=  0;
@@ -167,279 +175,358 @@ Begin
   qtdfxa08   :=  0;
   qtdfxa09   :=  0;
   qtdfxa10   :=  0;
+  dtfldname := 'sdx_dtcarga'; // Valor padrão
   With Dm do
-     Begin
-        For i := 0 to 27 do
+    Begin
+      case FrmPesqImpSedex.Tag  of
+        0..2:
+            tblname := 'tbsdx';
+
+        6..7:
+          begin
+            tblname := 'tbsdx02';            
+            if (FrmPesqImpSedex.Tag = 7) then
+                dtfldname := 'sdx_dtenvio';            
+          end;
+      End;
+      sel := 'SELECT COUNT(t.sdx_numobj) AS qt_post, t.sdx_uf, ' + 
+        'SUBSTRING(t.sdx_cep, 1, 1) as prefixo FROM ' + 
+        tblname + ' t INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ' +
+          ' INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ' +
+          'WHERE s.tbsdxserv_prod = :codproduto AND t.' + dtfldname + ' BETWEEN :dt1 AND :dt2 ';        
+      // Iniciando interação com o Banco
+      SqlAux1.Close;
+      SqlAux1.SQL.Clear;
+      SqlAux1.SQL.Add(sel);
+      SqlAux1.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+      SqlAux1.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+      SqlAux1.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+      
+      If (Trim(EdSeqIni.Text) <> '') then
+        begin
+          if ( (Trim(EdSeqFin.Text) <> '') and
+            (StrToInt64(EdSeqFin.Text) < StrToInt64(EdSeqIni.Text)) ) then
+            begin
+              Application.MessageBox(Pchar('Sequencial Final deve ser maior ou igual a Sequencial Inicial.'), 'Ads', IDOK);
+              EdSeqFin.SetFocus;
+              exit;
+            end
+          else 
+            EdSeqFin.Text := EdSeqIni.Text;
+
+          SqlAux1.SQL.Add('  AND t.sdx_seqcarga between :seq1 AND :seq2 ');
+          SqlAux1.ParamByName('seq1').AsInteger := StrToInt64(EdSeqIni.Text);
+          SqlAux1.ParamByName('seq2').AsInteger := StrToInt64(EdSeqFin.Text);
+        end;
+
+      if (Trim(EdArObjeto.Text) <> '') then
+        begin
+          SqlAux1.SQL.Add('  AND sdx_numobj4 = :numobj ');
+          SqlAux1.ParamByName('numobj').AsString := EdArObjeto.Text;
+        end;
+      if ((FrmPesqImpSedex.Tag in [6,7]) and
+        (MkEdHrI.Text <> '  :  :  ') ) then
+        begin
+          if ((MkEdHrF.Text = '  :  :  ') OR 
+            (CompareTime(StrToTime(MkEdHrI.Text), StrToTime(MkEdHrF.Text) ) > 0)) then
+            begin
+              Application.MessageBox(Pchar('Hora Final deve ser maior ou igual a Hora Inicial.'), 'Ads', IDOK);
+              exit;            
+            end;          
+          SqlAux1.SQL.Add('  AND sdx_horaenvio between :hr1 AND :hr2 ');
+          SqlAux1.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+          SqlAux1.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+        end;
+          
+      SqlAux1.SQL.Add('GROUP BY 2, 3');                                                                                                                                              
+      SqlAux1.Open;
+      if (SqlAux1.RecordCount < 1) then
+        begin
+          ShowMessage('Não há registros com os parâmetros informados.');
+          exit;
+        end;
+      
+      while not SqlAux1.Eof do
+        begin
+          // Delphi não tem Switch CASE para Strings
+          // Por isso é necessário ser criativo para 
+          // Instruções que dependem de um valor em uma lista
+          s1 := SqlAux1.FieldByName('sdx_uf').AsString;
+          if ( s1 = 'SP') then                  
+            if (SqlAux1.FieldByName('prefixo').AsString = '0') then                     
+              qtdfxa01 := qtdfxa01 + SqlAux1.FieldByName('qt_post').AsInteger
+            else
+              qtdfxa02 := qtdfxa02 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['RJ', 'MG', 'PR', 'SC']) > -1) then
+            qtdfxa03 := qtdfxa03 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['ES', 'DF', 'MS', 'RS']) > -1) then
+            qtdfxa04 := qtdfxa04 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['GO', 'TO']) > -1) then
+            qtdfxa05 := qtdfxa05 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['BA', 'MT']) > -1) then
+            qtdfxa06 := qtdfxa06 + SqlAux1.FieldByName('qt_post').AsInteger                    
+          else if (AnsiIndexStr(s1, ['SE', 'AL']) > -1) then
+            qtdfxa07 := qtdfxa07 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['PE', 'PB', 'PI', 'RO']) > -1) then
+            qtdfxa08 := qtdfxa08 + SqlAux1.FieldByName('qt_post').AsInteger  
+          else if (s1 = 'RR') then
+            qtdfxa10 := qtdfxa10 + SqlAux1.FieldByName('qt_post').AsInteger  
+          else // Todos os outros [RN, CE, MA, PA, AP, AM, AC 
+            qtdfxa09 := qtdfxa09 + SqlAux1.FieldByName('qt_post').AsInteger;
+
+          SqlAux1.Next;
+        end;                          
+      SqlAux1.Close;
+      SqlAux1.SQL.Clear;
+
+      Case FrmPesqImpSedex.Tag  of
+        0..2:          
+          SqlAux1.SQL.Add('SELECT COUNT(t.sdx_codcli) FROM tbsdx t ' +
+              'WHERE t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ');
+        
+        6..7:
           Begin
-            case FrmPesqImpSedex.Tag  of
-              0..2: sel:= 'select count(sdx_cep) from tbsdx where ';
-              6..7: sel:= 'select count(sdx_cep) from tbsdx02 where ';
-            End;
-            Case i of
-              00:sel:=sel+'(sdx_cep between '+chr(39)+'01000000' + chr(39)+' and '+ chr(39)+'09999999'+chr(39)+') ';
-              01:sel:=sel+'(sdx_cep between '+chr(39)+'10000000' + chr(39)+' and '+ chr(39)+'19999999'+chr(39)+') ';
-              02:sel:=sel+'(sdx_cep between '+chr(39)+'20000000' + chr(39)+' and '+ chr(39)+'28999999'+chr(39)+') ';
-              03:sel:=sel+'(sdx_cep between '+chr(39)+'29000000' + chr(39)+' and '+ chr(39)+'29999999'+chr(39)+') ';
-              04:sel:=sel+'(sdx_cep between '+chr(39)+'30000000' + chr(39)+' and '+ chr(39)+'39999999'+chr(39)+') ';
-              05:sel:=sel+'(sdx_cep between '+chr(39)+'40000000' + chr(39)+' and '+ chr(39)+'48999999'+chr(39)+') ';
-              06:sel:=sel+'(sdx_cep between '+chr(39)+'49000000' + chr(39)+' and '+ chr(39)+'49999999'+chr(39)+') ';
-              07:sel:=sel+'(sdx_cep between '+chr(39)+'50000000' + chr(39)+' and '+ chr(39)+'56999999'+chr(39)+') ';
-              08:sel:=sel+'(sdx_cep between '+chr(39)+'57000000' + chr(39)+' and '+ chr(39)+'57999999'+chr(39)+') ';
-              09:sel:=sel+'(sdx_cep between '+chr(39)+'58000000' + chr(39)+' and '+ chr(39)+'58999999'+chr(39)+') ';
-              10:sel:=sel+'(sdx_cep between '+chr(39)+'59000000' + chr(39)+' and '+ chr(39)+'59999999'+chr(39)+') ';
-              11:sel:=sel+'(sdx_cep between '+chr(39)+'60000000' + chr(39)+' and '+ chr(39)+'63999999'+chr(39)+') ';
-              12:sel:=sel+'(sdx_cep between '+chr(39)+'64000000' + chr(39)+' and '+ chr(39)+'64999999'+chr(39)+') ';
-              13:sel:=sel+'(sdx_cep between '+chr(39)+'65000000' + chr(39)+' and '+ chr(39)+'65999999'+chr(39)+') ';
-              14:sel:=sel+'(sdx_cep between '+chr(39)+'66000000' + chr(39)+' and '+ chr(39)+'68899999'+chr(39)+') ';
-              15:sel:=sel+'(sdx_cep between '+chr(39)+'68900000' + chr(39)+' and '+ chr(39)+'68999999'+chr(39)+') ';
-              16:sel:=sel+'((sdx_cep between '+chr(39)+'69000000' + chr(39)+' and '+ chr(39)+'69299999'+chr(39)+') or (sdx_cep between '+chr(39)+'69400000' + chr(39)+' and '+ chr(39)+'69899999'+chr(39)+')) ';
-              17:sel:=sel+'(sdx_cep between '+chr(39)+'69300000' + chr(39)+' and '+ chr(39)+'69399999'+chr(39)+') ';
-              18:sel:=sel+'(sdx_cep between '+chr(39)+'69900000' + chr(39)+' and '+ chr(39)+'69999999'+chr(39)+') ';
-              19:sel:=sel+'((sdx_cep between '+chr(39)+'70000000' + chr(39)+' and '+ chr(39)+'72799999'+chr(39)+')  or (sdx_cep between '+chr(39)+'73000000' + chr(39)+' and '+ chr(39)+'73699999'+chr(39)+')) ';
-              20:sel:=sel+'((sdx_cep between '+chr(39)+'72800000' + chr(39)+' and '+ chr(39)+'72999999'+chr(39)+')  or (sdx_cep between '+chr(39)+'73700000' + chr(39)+' and '+ chr(39)+'76799999'+chr(39)+'))';
-              21:sel:=sel+'(sdx_cep between '+chr(39)+'76800000' + chr(39)+' and '+ chr(39)+'76999999'+chr(39)+') ';
-              22:sel:=sel+'(sdx_cep between '+chr(39)+'77000000' + chr(39)+' and '+ chr(39)+'77999999'+chr(39)+') ';
-              23:sel:=sel+'(sdx_cep between '+chr(39)+'78000000' + chr(39)+' and '+ chr(39)+'78899999'+chr(39)+') ';
-              24:sel:=sel+'(sdx_cep between '+chr(39)+'79000000' + chr(39)+' and '+ chr(39)+'79999999'+chr(39)+') ';
-              25:sel:=sel+'(sdx_cep between '+chr(39)+'80000000' + chr(39)+' and '+ chr(39)+'87999999'+chr(39)+') ';
-              26:sel:=sel+'(sdx_cep between '+chr(39)+'88000000' + chr(39)+' and '+ chr(39)+'89999999'+chr(39)+') ';
-              27:sel:=sel+'(sdx_cep between '+chr(39)+'90000000' + chr(39)+' and '+ chr(39)+'99999999'+chr(39)+') ';
-            End;
-            Case FrmPesqImpSedex.Tag  of
-              0..2: sel:=sel+'and (tbsdx.sdx_dtcarga between :dt1 and :dt2) ';
-              6: sel:=sel+'and (tbsdx02.sdx_dtcarga between :dt1 and :dt2) and (sdx_siglaobj = '+chr(39)+SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ';
-              7: sel:=sel+'and (tbsdx02.sdx_dtenvio between :dt1 and :dt2) and (sdx_siglaobj = '+chr(39)+SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ';
-            End;
-            If ((EdSeqIni.Text <> '') and (EdSeqFin.Text <> ''))  then
-              Case FrmPesqImpSedex.Tag  of
-                 0..2: sel:=sel+'and (tbsdx.sdx_seqcarga between :seq1 and :seq2) ';
-                 6..7: sel:=sel+'and (tbsdx02.sdx_seqcarga between :seq1 and :seq2) ';
-              End;
-            if (Trim(EdArObjeto.Text) <> '') then
-              Case FrmPesqImpSedex.Tag  of
-                 0..2: sel:=sel+'and (sdx_numobj4 = :numobj) ';
-                 6..7: sel:=sel+'and (sdx_numobj4 = :numobj) ';
-              End;
-            if ((FrmPesqImpSedex.Tag in [6,7]) and ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  '))) then
+            SqlAux1.SQL.Add('SELECT COUNT(t.sdx_codcli) FROM tbsdx02 t ');
+            SqlAux1.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
+            SqlAux1.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+            SqlAux1.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+            SqlAux1.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+            if FrmPesqImpSedex.Tag = 6 then
+              SqlAux1.SQL.Add(' AND t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ')
+            else
+              SqlAux1.SQL.Add(' AND t.sdx_dtenvio BETWEEN :dt1 AND :dt2 ');
+            
+            if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
               begin
-                sel:=sel+'and (sdx_horaenvio between '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrI.Text))+chr(39);
-                sel:=sel+' and '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrF.Text))+chr(39)+') ';
+                SqlAux1.SQL.Add(' AND sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                SqlAux1.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                SqlAux1.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
               end;
-                                                                                                                                    SqlAux1.Close;
-              SqlAux1.SQL.Clear;
-              SqlAux1.SQL.Add(sel);
-              SqlAux1.Params[0].AsDate := DateTimePicker1.Date;
-              SqlAux1.Params[1].AsDate := DateTimePicker2.Date;
-              If ((EdSeqIni.Text <> '') and (EdSeqFin.Text <> ''))  then
-                Begin
-                  SqlAux1.Params[2].Text   := EdSeqIni.Text;
-                  SqlAux1.Params[3].Text   := EdSeqFin.Text;
-                  if (trim(EdArObjeto.Text) <> '') then
-                  SqlAux1.Params[4].Text   := EdArObjeto.Text;
-                End
-              else if (trim(EdArObjeto.Text) <> '') then
-                  SqlAux1.Params[2].Text  :=  EdArObjeto.Text;
-              SqlAux1.Open;
-                Case i of
-                  00:                     qtdfxa01   :=  SqlAux1.Fields[0].Value;
-                  01:                     qtdfxa02   :=  SqlAux1.Fields[0].Value;
-                  2,4,25,26:              qtdfxa03   :=  qtdfxa03+SqlAux1.Fields[0].Value;
-                  3,19,24,27:             qtdfxa04   :=  qtdfxa04+SqlAux1.Fields[0].Value;
-                  20,22:                  qtdfxa05   :=  qtdfxa05+SqlAux1.Fields[0].Value;
-                  05,23:                  qtdfxa06   :=  qtdfxa06+SqlAux1.Fields[0].Value;
-                  06,08:                  qtdfxa07   :=  qtdfxa07+SqlAux1.Fields[0].Value;
-                  7,9,12,21:              qtdfxa08   :=  qtdfxa08+SqlAux1.Fields[0].Value;
-                  10,11,13,14,15,16,18:   qtdfxa09   :=  qtdfxa09+SqlAux1.Fields[0].Value;
-                  17:                     qtdfxa10   :=  qtdfxa10+SqlAux1.Fields[0].Value;
-                End;
           End;
-          SqlAux1.Close;
-          SqlAux1.SQL.Clear;
+      End;
+      SqlAux1.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+      SqlAux1.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+      Case FrmPesqImpSedex.Tag  of
+        0..2:
+          Begin
+            SqlAux2.Close;
+            SqlAux2.SQL.Clear;
+            SqlAux2.SQL.Add('SELECT DISTINCT t.sdx_numobj5 FROM tbsdx t ' +
+                  'WHERE t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ');
+          End;
+        6..7:
+          Begin
+            SqlAux2.Close;
+            SqlAux2.SQL.Clear;
+            SqlAux2.SQL.Add('SELECT DISTINCT o.sdx_numobj FROM public.tbsdx_ect e ');
+            SqlAux2.SQL.Add('INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+            SqlAux2.SQL.Add('INNER JOIN public.tbsdx02 o ON (CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER) = o.sdx_numobj) ');
+            SqlAux2.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+            SqlAux2.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+            if FrmPesqImpSedex.Tag = 6 then
+              SqlAux2.SQL.Add('AND o.sdx_dtcarga BETWEEN :dt1 AND :dt2 ')
+            else
+              SqlAux2.SQL.Add(' AND o.sdx_dtenvio BETWEEN :dt1 AND :dt2 ');
+
+            if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+              begin
+                SqlAux2.SQL.Add(' AND o.sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                SqlAux2.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                SqlAux2.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+              end;
+
+          End;
+      End;
+      SqlAux2.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+      SqlAux2.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+      SqlSdx2.Close;
+      SqlSdx2.SQL.Clear;
+      Case FrmPesqImpSedex.Tag  of
+        0..2:
+          Begin
+            SqlSdx2.SQL.Add('SELECT sdx_codcli, sdx_idcli, sdx_siglaobj, sdx_numobj,');
+            SqlSdx2.SQL.Add('sdx_paisorigem, sdx_codoperacao, sdx_numobj3, sdx_nomdest, sdx_endedest, sdx_cidade, ');
+            SqlSdx2.SQL.Add('sdx_uf, sdx_cep, sdx_numseqarq, sdx_numseqreg, sdx_dtcarga, sdx_seqcarga, ');
+            SqlSdx2.SQL.Add('sdx_numobj2, sdx_cepnet, sdx_numobj1, sdx_numobj4, sdx_numobj5');
+            SqlSdx2.SQL.Add('FROM tbsdx WHERE sdx_dtcarga between :dt1 and :dt2 ');
+            SqlSdx2.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+            SqlSdx2.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+          End;
+        6..7:
+          Begin
+            SqlSdx3.Close;
+            SqlSdx3.SQL.Clear;
+            SqlSdx3.SQL.Add('SELECT sdx_codcli, sdx_idcli, sdx_siglaobj, sdx_numobj,');
+            SqlSdx3.SQL.Add('sdx_paisorigem, sdx_codoperacao, sdx_numobj3, sdx_nomdest, sdx_endedest, sdx_cidade, ');
+            SqlSdx3.SQL.Add('sdx_uf, sdx_cep, sdx_numseqarq, sdx_numseqreg, sdx_dtcarga, sdx_seqcarga, ');
+            SqlSdx3.SQL.Add('sdx_numobj2, sdx_cepnet, sdx_numobj1, sdx_numobj4, sdx_numobj5, sdx_peso, sdx_valor, sdx_qtde, sdx_tvalor, sdx_valdec, ');
+            SqlSdx3.SQL.Add('p.tbsdxserv_nrocto, p.tbsdxserv_crtpst ');
+            SqlSdx3.SQL.Add('FROM public.tbsdx_ect e ');
+            SqlSdx3.SQL.Add('  INNER JOIN public.tbsdxserv p ON (e.tbsdxect_prod = p.tbsdxserv_prod) ');
+            SqlSdx3.SQL.Add('  INNER JOIN public.tbsdx02 t ON (CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER) = t.sdx_numobj)');
+            SqlSdx3.SQL.Add('WHERE p.tbsdxserv_prod = :codproduto ');
+            SqlSdx3.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+          if FrmPesqImpSedex.Tag = 6 then
+            SqlSdx3.SQL.Add('AND sdx_dtcarga BETWEEN :dt1 AND :dt2 ')
+          else
+            SqlSdx3.SQL.Add('AND t.sdx_dtenvio BETWEEN :dt1 AND :dt2 ');
+            SqlSdx3.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+            SqlSdx3.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+          if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+            begin
+              SqlSdx3.SQL.Add('AND sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+              SqlSdx3.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+              SqlSdx3.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+            end;
+
+          End;
+      End;
+
+      If ((EdSeqIni.Text <> '') and (EdSeqFin.Text <> ''))  then
+        Begin
+          // Validando os dados do formulário
+          if (StrToInt64(EdSeqIni.Text) > StrToInt64(EdSeqFin.Text)) then
+            begin
+              Application.MessageBox('Informações de Sequência inválidos. ' +
+                    'Sequencial Final deve ser superior ao sequencial inicial','ADS',IDOK);
+              exit;
+            end;
+
+          if (Trim(EdSeqIni.Text) <> '') then          
+            begin
+              if (Trim(EdSeqFin.Text) = '') then
+                EdSeqFin.Text := EdSeqIni.Text;
+              SqlAux1.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2');
+              SqlAux2.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2');
+              SqlAux1.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+              SqlAux1.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+              SqlAux2.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+              SqlAux2.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+            end;
+
+          if (Trim(EdArObjeto.Text) <> '') then
+            begin
+              SqlAux1.SQL.Add(' AND sdx_numobj4 = :numobj ');
+              SqlAux2.SQL.Add(' AND sdx_numobj4 = :numobj ');
+              SqlAux1.ParamByName('numobj').AsString := EdArObjeto.Text;
+              SqlAux2.ParamByName('numobj').AsString := EdArObjeto.Text;
+            End;
+
           Case FrmPesqImpSedex.Tag  of
             0..2:
               Begin
-                SqlAux1.SQL.Add('select count(sdx_codcli) from tbsdx');
-                SqlAux1.SQL.Add('where tbsdx.sdx_dtcarga between :dt1 and :dt2' );
-              End;
-            6..7:
-              Begin
-                SqlAux1.SQL.Add('select count(sdx_codcli) from tbsdx02 where ');
-                if FrmPesqImpSedex.Tag = 6 then
-                  SqlAux1.SQL.Add('(tbsdx02.sdx_dtcarga between :dt1 and :dt2) ')
-                else
-                  SqlAux1.SQL.Add('(tbsdx02.sdx_dtenvio between :dt1 and :dt2) ');
-                SqlAux1.SQL.Add('and (sdx_siglaobj = '+chr(39)+ SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
-                if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+                SqlSdx2.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2 ');
+                SqlSdx2.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                SqlSdx2.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+
+                if (Trim(EdArObjeto.Text) <> '') then
                   begin
-                    SqlAux1.SQL.Add('and (sdx_horaenvio between '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrI.Text))+chr(39));
-                    SqlAux1.SQL.Add(' and '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrF.Text))+chr(39)+') ');
+                    SqlSdx2.SQL.Add(' AND sdx_numobj4 = :numobj ');
+                    SqlSdx2.ParamByName('numobj').AsString := EdArObjeto.Text;
                   end;
 
+                SqlSdx2.SQL.Add('ORDER BY sdx_cep ');
               End;
-          End;
-          Case FrmPesqImpSedex.Tag  of
-            0..2:
-              Begin
-                SqlAux2.Close;
-                SqlAux2.SQL.Clear;
-                SqlAux2.SQL.Add('select tbsdx.sdx_numobj5 from tbsdx where (sdx_dtcarga between :dt1 and :dt2) ');
-              End;
+
             6..7:
               Begin
-                SqlAux2.Close;
-                SqlAux2.SQL.Clear;
-                SqlAux2.SQL.Add('select tbsdx02.sdx_numobj from tbsdx02 where ');
-                if FrmPesqImpSedex.Tag = 6 then
-                  SqlAux2.SQL.Add('(sdx_dtcarga between :dt1 and :dt2) ')
-                else
-                  SqlAux2.SQL.Add('(tbsdx02.sdx_dtenvio between :dt1 and :dt2) ');
-                SqlAux2.SQL.Add('and (sdx_siglaobj = '+chr(39)+SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
-                if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+                if (Trim(EdSeqIni.Text) <> '')  and ( Trim(EdSeqFin.Text) <> '') then
                   begin
-                    SqlAux2.SQL.Add('and (sdx_horaenvio between '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrI.Text))+chr(39));
-                    SqlAux2.SQL.Add(' and '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrF.Text))+chr(39)+') ');
+                    SqlSdx3.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2');
+                    SqlSdx3.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                    SqlSdx3.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+                  end
+                else if (Trim(EdSeqIni.Text) <> '') then
+                  begin
+                    SqlSdx3.SQL.Add(' AND sdx_seqcarga = :seq1 ');
+                    SqlSdx3.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                  end
+                else if (Trim(EdSeqFin.Text) <> '') then
+                  begin
+                    SqlSdx3.SQL.Add(' AND sdx_seqcarga = :seq2');
+                    SqlSdx3.ParamByName('seq2').AsInteger := StrToInt64(EdSeqFin.Text);
                   end;
 
-              End;
-          End;
-          SqlSdx2.Close;
-          SqlSdx2.SQL.Clear;
-          Case FrmPesqImpSedex.Tag  of
-            0..2:
-              Begin
-                SqlSdx2.SQL.Add('select sdx_codcli,sdx_idcli,sdx_siglaobj,sdx_numobj,');
-                SqlSdx2.SQL.Add('sdx_paisorigem,sdx_codoperacao,sdx_numobj3,sdx_nomdest,sdx_endedest,sdx_cidade,');
-                SqlSdx2.SQL.Add('sdx_uf,sdx_cep,sdx_numseqarq,sdx_numseqreg,sdx_dtcarga,sdx_seqcarga,');
-                SqlSdx2.SQL.Add('sdx_numobj2,sdx_cepnet,sdx_numobj1,sdx_numobj4,sdx_numobj5');
-                SqlSdx2.SQL.Add('from tbsdx');
-                SqlSdx2.SQL.Add('where (sdx_dtcarga between :dt1 and :dt2) ');
-              End;
-            6..7:
-              Begin
-                SqlSdx3.Close;
-                SqlSdx3.SQL.Clear;
-                SqlSdx3.SQL.Add('select sdx_codcli,sdx_idcli,sdx_siglaobj,sdx_numobj,');
-                SqlSdx3.SQL.Add('sdx_paisorigem,sdx_codoperacao,sdx_numobj3,sdx_nomdest,sdx_endedest,sdx_cidade,');
-                SqlSdx3.SQL.Add('sdx_uf,sdx_cep,sdx_numseqarq,sdx_numseqreg,sdx_dtcarga,sdx_seqcarga,');
-                SqlSdx3.SQL.Add('sdx_numobj2,sdx_cepnet,sdx_numobj1,sdx_numobj4,sdx_numobj5,sdx_peso,sdx_valor,sdx_qtde,sdx_tvalor,sdx_valdec ');
-                SqlSdx3.SQL.Add('from tbsdx02 where ');
-                if FrmPesqImpSedex.Tag = 6 then
-                  SqlSdx3.SQL.Add('(sdx_dtcarga between :dt1 and :dt2) ')
-                else
-                  SqlSdx3.SQL.Add('(tbsdx02.sdx_dtenvio between :dt1 and :dt2) ');
-                SqlSdx3.SQL.Add('and (sdx_siglaobj = '+chr(39)+ SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
-                if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+                if (Trim(EdArObjeto.Text) <> '') then
                   begin
-                    SqlSdx3.SQL.Add('and (sdx_horaenvio between '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrI.Text))+chr(39));
-                    SqlSdx3.SQL.Add(' and '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrF.Text))+chr(39)+') ');
+                    SqlSdx3.SQL.Add('AND sdx_numobj4 = :numobj ');
+                    SqlSdx3.ParamByName('numobj').AsString := EdArObjeto.Text;
                   end;
 
+                if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+                  begin
+                    SqlSdx3.SQL.Add(' AND sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                    SqlSdx3.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                    SqlSdx3.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+                  end;
+
+                if FrmPesqImpSedex.Tag = 6 then
+                  SqlSdx3.SQL.Add('ORDER BY sdx_nomdest ')
+                else
+                  SqlSdx3.SQL.Add('ORDER BY sdx_cep ');
               End;
           End;
-          If ((EdSeqIni.Text <> '') and (EdSeqFin.Text <> ''))  then
-            Begin
-              SqlAux1.SQL.Add('and (sdx_seqcarga between :seq1 and :seq2) ');
-              SqlAux2.SQL.Add('and (sdx_seqcarga between :seq1 and :seq2) ');
-              SqlAux1.Params[0].AsDate := DateTimePicker1.Date;
-              SqlAux1.Params[1].AsDate := DateTimePicker2.Date;
-              SqlAux1.Params[2].Text   := EdSeqIni.Text;
-              SqlAux1.Params[3].Text   := EdSeqFin.Text;
-              SqlAux2.Params[0].AsDate := DateTimePicker1.Date;
-              SqlAux2.Params[1].AsDate := DateTimePicker2.Date;
-              SqlAux2.Params[2].Text   := EdSeqIni.Text;
-              SqlAux2.Params[3].Text   := EdSeqFin.Text;
-              if (Trim(EdArObjeto.Text) <> '') then
+        End
+      Else
+        Begin
+          if (Trim(EdArObjeto.Text) <> '') then
                 begin
-                  SqlAux1.SQL.Add('and (sdx_numobj4 = :numobj)' );
-                  SqlAux2.SQL.Add('and (sdx_numobj4 = :numobj)' );
-                  SqlAux1.Params[4].Text  := EdArObjeto.Text;
-                  SqlAux2.Params[4].Text  := EdArObjeto.Text;
-                End;
-
-              Case FrmPesqImpSedex.Tag  of
-                0..2:
-                  Begin
-                    SqlSdx2.SQL.Add('and (sdx_seqcarga between :seq1 and :seq2) ');
-                    if (Trim(EdArObjeto.Text) <> '') then
-                      begin
-                        SqlSdx2.SQL.Add('and (sdx_numobj4 = :numobj)' );
-                        SqlSdx2.Params[4].Text   := EdArObjeto.Text;
-                      end;
-                    SqlSdx2.SQL.Add('order by sdx_cep ');
-                    SqlSdx2.Params[0].AsDate := DateTimePicker1.Date;
-                    SqlSdx2.Params[1].AsDate := DateTimePicker2.Date;
-                    SqlSdx2.Params[2].Text   := EdSeqIni.Text;
-                    SqlSdx2.Params[3].Text   := EdSeqFin.Text;
-                  End;
-                6..7:
-                  Begin
-                    if (trim(EdSeqIni.Text) <> '')  and (trim(EdSeqFin.Text) <> '') then
-                    SqlSdx3.SQL.Add('and (sdx_seqcarga between '+chr(39)+EdSeqIni.Text+chr(39)+' and '+chr(39)+ EdSeqFin.Text+chr(39)+')' )
-                    else if (trim(EdSeqIni.Text) <> '') and (trim(EdSeqFin.Text) = '') then
-                    SqlSdx3.SQL.Add('and (sdx_seqcarga = '+chr(39)+EdSeqIni.Text+chr(39)+')' )
-                    else if (trim(EdSeqIni.Text) = '') and (trim(EdSeqFin.Text) <> '') then
-                    SqlSdx3.SQL.Add('and (sdx_seqcarga = '+chr(39)+ EdSeqFin.Text+chr(39)+')' );
-                    SqlSdx3.SQL.Add('and (sdx_siglaobj = '+chr(39)+ SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
-                    if (Trim(EdArObjeto.Text) <> '') then
-                      SqlSdx3.SQL.Add('and (sdx_numobj4 = '+chr(39)+EdArObjeto.Text+chr(39)+') ');
-                    if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
-                      begin
-                        SqlSdx3.SQL.Add('and (sdx_horaenvio between '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrI.Text))+chr(39));
-                        SqlSdx3.SQL.Add(' and '+chr(39)+FormatDateTime('hh:mm:ss',StrToTime(MkEdHrF.Text))+chr(39)+') ');
-                      end;
-                    if FrmPesqImpSedex.Tag = 6 then
-                      SqlSdx3.SQL.Add('order by sdx_nomdest ')
-                    else
-                      SqlSdx3.SQL.Add('order by sdx_cep ');
-                    SqlSdx3.Params[0].AsDate := DateTimePicker1.Date;
-                    SqlSdx3.Params[1].AsDate := DateTimePicker2.Date;
-                  End;
-              End;
-            End
-          Else
-            Begin
-              if (Trim(EdArObjeto.Text) <> '') then
-                begin
-                  SqlAux1.SQL.Add('and (sdx_numobj4 = '+chr(39)+EdArObjeto.Text+chr(39)+') ');
-                  SqlAux2.SQL.Add('and (sdx_numobj4 = '+chr(39)+EdArObjeto.Text+chr(39)+') ');
+                  SqlAux1.SQL.Add(' AND sdx_numobj4 = :numobj ');
+                  SqlAux2.SQL.Add(' AND sdx_numobj4 = :numobj ');
+                  SqlAux1.ParamByName('numobj').AsString := EdArObjeto.Text;
+                  SqlAux2.ParamByName('numobj').AsString := EdArObjeto.Text;
                 end;
-              SqlAux2.SQL.Add('order by sdx_numobj');
-              SqlAux1.Params[0].AsDate := DateTimePicker1.Date;
-              SqlAux1.Params[1].AsDate := DateTimePicker2.Date;
-              SqlAux2.Params[0].AsDate := DateTimePicker1.Date;
-              SqlAux2.Params[1].AsDate := DateTimePicker2.Date;
+              SqlAux2.SQL.Add('ORDER BY sdx_numobj');
               Case FrmPesqImpSedex.Tag  of
                 0..2:
                   Begin
                     if (Trim(EdArObjeto.Text) <> '') then
-                      SqlSdx2.SQL.Add('and (sdx_numobj4 = '+chr(39)+EdArObjeto.Text+chr(39)+') ');
-                    SqlSdx2.SQL.Add('order by sdx_cep ');
-                    SqlSdx2.Params[0].AsDate := DateTimePicker1.Date;
-                    SqlSdx2.Params[1].AsDate := DateTimePicker2.Date;
+                      begin
+                        SqlSdx2.SQL.Add('AND sdx_numobj4 = :numobj ');
+                       SqlSdx2.ParamByName('numobj').AsString := EdArObjeto.Text;
+                      end;
+                    SqlSdx2.SQL.Add('ORDER BY sdx_cep ');
                   End;
                 6..7:
                   Begin
                     if (Trim(EdArObjeto.Text) <> '') then
-                      SqlSdx3.SQL.Add('and (sdx_numobj4 = '+chr(39)+EdArObjeto.Text+chr(39)+') ');
+                      begin
+                        SqlSdx3.SQL.Add('AND sdx_numobj4 = :numobj ');
+                        SqlSdx3.ParamByName('numobj').AsString := EdArObjeto.Text;
+                      end;
                     if FrmPesqImpSedex.Tag = 6 then
                       begin
                         if DBServSedex.KeyValue = 1953 then
-                          SqlSdx3.SQL.Add('order by sdx_cep ')
+                          SqlSdx3.SQL.Add('ORDER BY sdx_cep ')
                         else
-                          SqlSdx3.SQL.Add('order by sdx_nomdest ')
+                          SqlSdx3.SQL.Add('ORDER BY sdx_nomdest ')
                       end
                     else
-                      SqlSdx3.SQL.Add('order by sdx_cep ');
-                    SqlSdx3.Params[0].AsDate := DateTimePicker1.Date;
-                    SqlSdx3.Params[1].AsDate := DateTimePicker2.Date;
+                      SqlSdx3.SQL.Add('ORDER BY sdx_cep ');
                   End;
               End;
           End;
+        dbg := SqlAux1.SQL.getText;
+        dbg := SqlAux2.SQL.getText;
+
         SqlAux1.Open;
         SqlAux2.Open;
         Case FrmPesqImpSedex.Tag  of
-          0..2:SqlSdx2.Open;
-          6..7:SqlSdx3.Open;
+          0..2:
+            begin
+              SqlSdx2.Open;
+            end;
+          6..7:
+          begin
+            dbg := SqlSdx3.SQL.getText;
+            SqlSdx3.Open;
+          end;
         End;
         case   FrmPesqImpSedex.Tag of
           0:
@@ -472,12 +559,10 @@ Begin
           6:
             Begin
              Caminho := ExtractFilePath(Application.ExeName);
-            //             if (DBServSedex.KeyValue = 1953) or (DBServSedex.KeyValue = 1660) then
+             
               case OpcRel.ItemIndex of
                0 :
                 begin
-                 //Application.CreateForm(TFrmRelSedex,FrmRelSedex);
-                 //FrmRelSedex.RLSedex.PreviewModal;
                  RvRelatorios.ProjectFile := Caminho+'RelatoriosAds.rav';
                  RvRelatorios.ExecuteReport('RpSedexArOl');
                  RvRelatorios.Close;
@@ -488,32 +573,49 @@ Begin
                   RvRelatorios.ExecuteReport('RpSedexArOl');
                   RvRelatorios.Close;
                 end;
-                else Application.MessageBox('Não foi definido','ADS',ID_OK);
+               2:  // Ar Digital
+                begin
+                  RvRelatorios.ProjectFile := Caminho + 'ARDigital.rav';
+                  RvRelatorios.ExecuteReport('RpSedexArOl');
+                  RvRelatorios.Close;
+                end
+               else Application.MessageBox('Não foi definido','ADS',ID_OK);
               end;
             End;
           7:
              Begin
                SqlAux3.Close;
                SqlAux3.SQL.Clear;
-               SqlAux3.SQL.Add('select sum(sdx_peso),sum(sdx_valdec) from tbsdx02 ');
-               SqlAux3.SQL.Add('where (sdx_dtenvio between :dt1 and :dt2) ');
-               SqlAux3.Params[0].AsDate     :=  DateTimePicker1.Date;
-               SqlAux3.Params[1].AsDate     :=  DateTimePicker2.Date;
+               SqlAux3.SQL.Add('SELECT SUM(t.sdx_peso) AS sdx_peso, SUM(t.sdx_valdec) AS sdx_valdec ');
+               SqlAux3.SQL.Add('FROM tbsdx02 t ');
+               SqlAux3.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
+               SqlAux3.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+               SqlAux3.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+               SqlAux3.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+               SqlAux3.SQL.Add('AND t.sdx_dtenvio BETWEEN :dt1 and :dt2 ');
+               SqlAux3.ParamByName('dt1').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+               SqlAux3.ParamByName('dt2').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
                if (trim(EdSeqIni.Text) <> '') and (Trim(EdSeqFin.Text) <> '')then
                  begin
-                   SqlAux3.SQL.Add('and (sdx_seqcarga between :seq1 and :seq2) ');
-                   SqlAux3.Params[2].AsString   :=  EdSeqIni.Text;
-                   SqlAux3.Params[3].AsString   :=  EdSeqFin.Text;
+                   SqlAux3.SQL.Add(' AND t.sdx_seqcarga BETWEEN :seq1 AND :seq2 ');
+                   SqlAux3.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                   SqlAux3.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
                  end;
                 if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
                   begin
-                    SqlAux3.SQL.Add('and (sdx_horaenvio between '+chr(39)+FormatDateTime('hh:mm',StrToTime(MkEdHrI.Text))+chr(39));
-                    SqlAux3.SQL.Add(' and '+chr(39)+FormatDateTime('hh:mm',StrToTime(MkEdHrF.Text))+chr(39)+') ');
+                    SqlAux3.SQL.Add(' AND t.sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                    SqlAux3.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                    SqlAux3.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
                   end;
-               SqlAux3.SQL.Add('and(sdx_siglaobj = '+chr(39)+SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
                if (Trim(EdArObjeto.Text) <> '') then
-                SqlAux3.SQL.Add('and (sdx_numobj4='+chr(39)+EdArObjeto.Text+chr(39)+') ');
+                begin
+                  SqlAux3.SQL.Add(' AND t.sdx_numobj4 = :numobj ');
+                  SqlAux3.ParamByName('numobj').AsString := EdArObjeto.Text;
+                end;
+                
                SqlAux3.Open;
+
                Application.CreateForm(TFrmRelArSedexListaOL,FrmRelArSedexListaOL);
                qtdar  :=  SqlAux1.Fields[0].Value;
                SqlAux2.Last;
@@ -521,18 +623,6 @@ Begin
                SqlAux2.First;
                fxaini  :=  SqlAux2.Fields[0].Text;
                totfol  :=  round(qtdar/3);
-               if DBServSedex.KeyValue = 1953 then
-                 begin
-                   FrmRelArSedexListaOL.RLLabel32.Caption :=  '4464117';
-                   FrmRelArSedexListaOL.RLLabel29.Caption :=  '7277018800';
-                   FrmRelArSedexListaOL.RLLabel48.Caption :=   '00';
-                 end;
-               if DBServSedex.KeyValue = 1660 then
-                 begin
-                   FrmRelArSedexListaOL.RLLabel32.Caption :=  '4464117';
-                   FrmRelArSedexListaOL.RLLabel29.Caption :=  '7277018800';
-                   FrmRelArSedexListaOL.RLLabel48.Caption :=   '00';
-                 end;
                FrmRelArSedexListaOL.RLReport1.PreviewModal;
                FrmRelArSedexListaOL.RLReport1.Destroy;
                SqlSdx3.First;
@@ -552,7 +642,21 @@ begin
   DateTimePicker1.Date  := Date;
   DateTimePicker2.Date  := Date;
   DateTimePicker3.Date  := Date;
-  dm.SqlSdxServ.Open;
+
+  With Dm Do
+    begin
+      SqlSdxServ.Close;
+      SqlSdxServ.SQL.Clear;
+      SqlSdxServ.SQL.Add('SELECT * FROM public.tbsdxserv t ');
+      SqlSdxServ.SQL.Add('WHERE t.tbsdxserv_status = 1 AND ');
+      SqlSdxServ.SQL.Add('(t.tbsdxserv_dsc ILIKE ''%TOKEN%'' OR ');
+      SqlSdxServ.SQL.Add('t.tbsdxserv_dsc ILIKE ''%TANCODE%'' OR ');
+      SqlSdxServ.SQL.Add('t.tbsdxserv_dsc ILIKE ''% OL %'')');
+
+      SqlSdxServ.Open;
+      DBServSedex.Refresh;
+    end;
+
   case TAG of
     0..2: ProgBar.Enabled :=  FALSE;
     3..4: begin
@@ -572,7 +676,7 @@ begin
   with dm do
     begin
       dtaux := DateTimePicker1.Date;
-      for I := strtoint(EdSeqIni.Text) to strtoint(EdSeqFin.Text) do
+      for I := StrToInt64(EdSeqIni.Text) to StrToInt64(EdSeqFin.Text) do
         begin
           SqlAux1.Close;
           SqlAux1.SQL.Clear;
@@ -666,121 +770,170 @@ begin
 end;
 
 procedure TFrmPesqImpSedex.gerretol;
-var i:integer;
+var i: integer;
+  s: String;
 Begin
+  i := 0;
   with dm do
     Begin
           SqlAux1.Close;
           SqlAux1.SQL.Clear;
-          SqlAux1.SQL.Add('select count(sdx_seqcarga) from tbsdx02 where (sdx_dtenvio between :dtini and :dtfin) ');
-          if DBServSedex.KeyValue <> null then
-            SqlAux1.SQL.Add('and (sdx_siglaobj = '+chr(39)+SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
-          SqlAux1.Params[0].AsDate :=  DateTimePicker1.Date;
-          SqlAux1.Params[1].AsDate :=  DateTimePicker2.Date;
+          SqlAux1.SQL.Add('SELECT COUNT(t.sdx_numobj2) as qt_regs ');
+          SqlAux1.SQL.Add('FROM public.tbsdx02 t ');
+          SqlAux1.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
+          SqlAux1.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+          SqlAux1.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+          SqlAux1.SQL.Add(' AND t.sdx_dtenvio BETWEEN :dtini AND :dtfin ');
+          SqlAux1.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+          SqlAux1.ParamByName('dtini').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+          SqlAux1.ParamByName('dtfin').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+          if EdSeqIni.Text <> '' then
+            begin
+              if (EdSeqFin.Text = '') then
+                EdSeqFin.Text := EdSeqIni.Text;
+              if (StrToInt64(EdSeqFin.Text) > StrToInt64(EdSeqIni.Text)) then
+                begin
+                  ShowMessage('Número Sequencial Final deve ser maior que o Inicial');
+                  exit;
+                end;
+              s := ' AND t.sdx_seqcarga BETWEEN :seqini AND :seqfin ';
+              SqlAux1.SQL.Add(s);
+              SqlAux1.ParamByName('seqini').AsString := EdSeqIni.Text;
+              SqlAux1.ParamByName('seqfin').AsString := EdSeqFin.Text;
+            end;
+
           SqlAux1.Open;
-          if SqlAux1.fields[0].Value > 0 then
+          if (SqlAux1.FieldByName('qt_regs').AsInteger > 0) then
             Begin
               try
-                locarq  :=  'O:\sedex_ar\retorno\';
+                // Há registros para gerar o arquivo. Criando-o...
+                //locarq  :=  'O:\sedex_ar\retorno\';
+                SaveDialog1.InitialDir := 'O:\sedex_ar\retorno\';
+                SaveDialog1.FileName := 'RT' + SqlSdxServtbsdxserv_sigla.AsString +
+                      FormatDateTime('ddmm', DateTimePicker3.Date ) + '.txt';
 
-                if (Not(DirectoryExists(locarq))) then
-                    MkDir(locarq);
-                locarq  :=  locarq  + 'RT';
-                if DBServSedex.KeyValue <> null then
-                  locarq  :=  locarq+SqlSdxServtbsdxserv_sigla.AsString;
-                locarq  :=  locarq+FormatDateTime('ddmm',DateTimePicker3.Date)+'.txt';
-                EdArq.Text  :=  locarq;
-                except
+                if (SaveDialog1.Execute) then
+                  EdArq.Text  :=  SaveDialog1.FileName
+                else
                   begin
-                    Application.MessageBox(PChar('Erro de Conexão Rede'),'ADS',0);
+                    ShowMessage('Não foi selecionado um arquivo de destino. ' +
+                        'O Processo foi abortado!');
                     exit;
                   end;
+
+              except
+                begin
+                  Application.MessageBox(PChar('Erro de Conexão Rede'),'ADS',0);
+                  exit;
                 end;
-                AssignFile(arq,locarq);
-                try
+              end;
+              AssignFile(arq, EdArq.Text);
+              try
                 Rewrite(arq);
-                except
-                  begin
-                    Application.MessageBox(PChar('Não Pode Acessar Arquivo'+linha),'ADS',0);
-                    EdSeqIni.Text  := inttostr(i);
-                    Application.MessageBox(PChar('Sua Nova Sequência é: '+inttostr(i)+' e '+EdSeqFin.Text),'ADS',0);
-                    exit;
-                  end;
+              except
+                begin
+                  Application.MessageBox(PChar('Não foi possível criar o arquivo de registros.'), 'ADS', 0);
+                  EdSeqIni.Text  := intToStr(i);
+                  Application.MessageBox(PChar('Sua Nova Sequência é: ' +
+                      IntToStr(i) + ' e ' + EdSeqFin.Text), 'ADS', 0);
+                  exit;
                 end;
-  //                              0           1             2         3           4           5         6           7         8       9
-                sel :=  'select sdx_numobj,sdx_paisorigem,sdx_cep,sdx_seqcarga,sdx_numobj1,sdx_peso,sdx_valdec,sdx_siglaobj,sdx_cmp,sdx_bas,';
-//                                10       11         12
-                sel :=  sel + 'sdx_alt,sdx_cobdest,sdx_numobj2 from tbsdx02 where (sdx_dtenvio between :dtini and :dtfin) ';
-//              and (sdx_seqcarga between :seqini and :seqfin) ';
-                sel :=  sel + 'and (sdx_siglaobj = '+chr(39)+ SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ';
-                sel :=  sel + 'order by sdx_cep';
-                SqlAux2.Close;
-                SqlAux2.SQL.Clear;
-                SqlAux2.SQL.Add(sel);
-                SqlAux2.Params[0].AsDate :=  DateTimePicker1.Date;
-                SqlAux2.Params[1].AsDate :=  DateTimePicker2.Date;
-                SqlAux2.Open;
-                SqlAux2.First;
-                seqreg:=2;
-                EdQtde.Text :=  IntToStr(SqlAux2.RecordCount);
-                EdQtde.Refresh;
-                ProgBar.Max :=  SqlAux2.RecordCount;
-                ProgBar.Position  := 1;
-                ProgBar.Refresh;
-                While not SqlAux2.Eof do
-                  Begin
-                    linha := '3'+'00'+'0000';
-                    linha := linha+'0000';//FormatDateTime('ddmm',Date);
-                    linha := linha+'00000000';//'72618060';
-                    linha := linha+'0000';//FormatDateTime('ddmm',Date);
-                    linha := linha+GeraNt(SqlSdxServtbsdxserv_nrocto.AsString,10);
-                    linha := linha+'09036539';   //codigo administrativo
-                    linha := linha+SqlAux2.Fields[2].AsString;//cep do destino
+              end;
+
+              SqlAux2.Close;
+              SqlAux2.SQL.Clear;
+              //                                  0           1
+              SqlAux2.SQL.Add('SELECT DISTINCT sdx_numobj, sdx_paisorigem, ');
+              //                  2           3           4           5
+              SqlAux2.SQL.Add('sdx_cep, sdx_seqcarga, sdx_numobj1, sdx_peso, ');
+              //                6           7                8          9
+              SqlAux2.SQL.Add('sdx_valdec, sdx_siglaobj, sdx_cmp, sdx_bas, ');
+              //                   10       11            12          13                14
+              SqlAux2.SQL.Add('sdx_alt, sdx_cobdest, sdx_numobj2, tbsdxserv_nrocto, tbsdxserv_crtpst ');
+              SqlAux2.SQL.Add('FROM public.tbsdx02 t ');
+              SqlAux2.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
+              SqlAux2.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+              SqlAux2.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+              SqlAux2.SQL.Add('    AND t.sdx_dtenvio between :dtini AND :dtfin ');
+
+              if (s <> '') then
+                begin
+                   SqlAux2.SQL.Add(s);
+                   SqlAux2.ParamByName('seqini').AsString := EdSeqIni.Text;
+                   SqlAux2.ParamByName('seqfin').AsString :=  EdSeqFin.Text;
+                end;
+
+              SqlAux2.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+              SqlAux2.ParamByName('dtini').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+              SqlAux2.ParamByName('dtfin').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+              SqlAux2.SQL.Add('ORDER BY sdx_cep');
+
+
+
+              SqlAux2.Open;
+              SqlAux2.First;
+              seqreg := 2;
+              EdQtde.Text :=  IntToStr(SqlAux2.RecordCount);
+              EdQtde.Refresh;
+              ProgBar.Max :=  SqlAux2.RecordCount;
+              ProgBar.Position  := 1;
+              ProgBar.Refresh;
+              While not SqlAux2.Eof do
+                Begin
+                  linha := '3' + '00' + '0000';
+                  linha := linha + '0000';//FormatDateTime('ddmm',Date);
+                  linha := linha + '00000000';//'72618060';
+                  linha := linha + '0000';//FormatDateTime('ddmm',Date);
+                  linha := linha + GeraNt(SqlSdxServtbsdxserv_nrocto.AsString,10);
+                  linha := linha + '09036539';   //codigo administrativo
+                  linha := linha + SqlAux2.Fields[2].AsString;//cep do destino
 //                    linha := linha+'40096';
 //                  alterado conforme gestor nro 5084
-                    linha := linha+'40436';//codigo do servico (SFI)
-                    linha := linha+'55'; // grupo pais fixo cod pais
+                  linha := linha + '40436';//codigo do servico (SFI)
+                  linha := linha + '55'; // grupo pais fixo cod pais
                     //alterado à pedido dos correios para identificar o serviçco ar-sedex
 //                    if (DBServSedex.KeyValue = 1660) then
 //                       linha := linha+'00'+'00'+'00'// Cód Serviço 1 2 e 3
 //                    else
-                    linha := linha+'01'+'00'+'00';// Filler - Cód Serviço 1 2 e 3  fixo
-                    linha := linha+GeraNT(RestauraInteger(FormatFloat('#####0.00',SqlAux2.Fields[6].AsFloat)),8);  //valor declarado
-                    linha := linha+GeraNt('0',9); // Filler - Cod Embalagem
-                    linha := linha+GeraNt('0',2);// Filler - Qt Embalagem
-                    linha := linha+GeraNT(SqlAux2.Fields[0].AsString,9);
-                    linha := linha+GeraNt(RestauraInteger(FormatFloat('00.000',SqlAux2.Fields[5].AsFloat)),5);
-                    linha := linha+GeraNt('0',8); // filler - Valor a Pagar
-                    linha := linha+'00'; // Filler - Seq Folha
-                    linha := linha+'00'; // Filler - Seq Lancamentos
-                    linha := linha+'00000000'; // filler - Data Processamento
-                    linha := linha+'000'; // Filler - Remessa
-                    linha := linha+'  '; // Filler
-                    linha := linha+GeraNt('0',8); // Filler - Unidade Prestadora
-                    linha := linha+GeraNt('0',8);// Filler -  FormatDateTime('ddmmyyyy',Date);
-                    linha := linha+'00';//Filler - Qtde. Doc no Lote
-                    linha := linha+GeraNt(SqlSdxServtbsdxserv_crtpst.AsString,11); // Nro do Cartão de Postagem houve erro para  pegar o ultimo digito do campo
-                    linha := linha+GeraNt('0',7); // Filler - Numero nota fiscal
-                    linha := linha+copy(SqlAux2.Fields[12].AsString,1,2);// 'SL'; // Filler - Fixo SIGLA DO SERVIÇO
-                    linha := linha+GeraNT(SqlAux2.Fields[8].AsString,5);//  linha := linha+GeraNt('0',5); // Compr do Obj
-                    linha := linha+GeraNT(SqlAux2.Fields[9].AsString,5);//  linha := linha+GeraNt('0',5); // Larg do Obj
-                    linha := linha+GeraNT(SqlAux2.Fields[10].AsString,5);//  linha := linha+GeraNt('0',5); // Altura do Obj
-                    linha := linha+GeraNT(RestauraInteger(SqlAux2.Fields[6].AsString),8);  //valor a cobrar do destinatário
-                    WriteLn(arq,linha);
-                    seqreg:=seqreg+1;
-                    SqlAux2.Next;
-                    ProgBar.Position  :=  ProgBar.Position + 1;
-                    ProgBar.Refresh;
-                  End;
-                linha := '9';
-                linha := linha+GeraNt(IntToStr(seqreg),8); //Qtde Registros
-                GeraArquivo(' ',129);
-                WriteLn(arq,linha);
-                CloseFile(Arq);
-                Application.MessageBox(PChar('Arquivo Gerado com Sucesso!'),'ADS',0);
+                  linha := linha + '01' + '00' + '00';// Filler - Cód Serviço 1 2 e 3  fixo
+                  linha := linha + GeraNT(RestauraInteger(FormatFloat('#####0.00', SqlAux2.Fields[6].AsFloat)), 8);  //valor declarado
+                  linha := linha + GeraNt('0', 9); // Filler - Cod Embalagem
+                  linha := linha + GeraNt('0', 2);// Filler - Qt Embalagem
+                  linha := linha + GeraNT(SqlAux2.Fields[0].AsString, 9);
+                  linha := linha + GeraNt(RestauraInteger(FormatFloat('00.000', SqlAux2.Fields[5].AsFloat)), 5);
+                  linha := linha + GeraNt('0', 8); // filler - Valor a Pagar
+                  linha := linha + '00'; // Filler - Seq Folha
+                  linha := linha + '00'; // Filler - Seq Lancamentos
+                  linha := linha + '00000000'; // filler - Data Processamento
+                  linha := linha + '000'; // Filler - Remessa
+                  linha := linha + '  '; // Filler
+                  linha := linha + GeraNt('0', 8); // Filler - Unidade Prestadora
+                  linha := linha + GeraNt('0', 8);// Filler -  FormatDateTime('ddmmyyyy',Date);
+                  linha := linha + '00';//Filler - Qtde. Doc no Lote
+                  linha := linha + GeraNt(SqlSdxServtbsdxserv_crtpst.AsString, 11); // Nro do Cartão de Postagem houve erro para  pegar o ultimo digito do campo
+                  linha := linha + GeraNt('0',7); // Filler - Numero nota fiscal
+                  linha := linha + copy(SqlAux2.Fields[12].AsString, 1, 2);// 'SL'; // Filler - Fixo SIGLA DO SERVIÇO
+                  linha := linha + GeraNT(SqlAux2.Fields[8].AsString, 5);//  linha := linha+GeraNt('0',5); // Compr do Obj
+                  linha := linha + GeraNT(SqlAux2.Fields[9].AsString, 5);//  linha := linha+GeraNt('0',5); // Larg do Obj
+                  linha := linha + GeraNT(SqlAux2.Fields[10].AsString, 5);//  linha := linha+GeraNt('0',5); // Altura do Obj
+                  linha := linha + GeraNT(RestauraInteger(SqlAux2.Fields[6].AsString), 8);  //valor a cobrar do destinatário
+                  WriteLn(arq, linha);
+                  seqreg := seqreg + 1;
+                  SqlAux2.Next;
+                  ProgBar.Position  :=  ProgBar.Position + 1;
+                  ProgBar.Refresh;
+                End;
+
+              linha := '9';
+              linha := linha + GeraNt(IntToStr(seqreg), 8); //Qtde Registros
+              GeraArquivo(' ', 129);
+              WriteLn(arq, linha);
+              CloseFile(Arq);
+              Application.MessageBox(PChar('Arquivo Gerado com Sucesso!'), 'ADS', 0);
             end
           else
-          Application.MessageBox(PChar('Não Há Registros com os Parametros Informados'),'ADS - Ar-Digital',0);
+            Application.MessageBox(PChar('Não Há Registros com os Parametros Informados'), 'ADS - Ar-Digital', 0);
     end;
 End;
 
@@ -796,10 +949,6 @@ begin
 end;
 procedure TFrmPesqImpSedex.gerexcel;
 var
-  linha,coluna : integer;
-  arquivo :string;
-  excel: variant;
-  valor : string;
   XL : TDataSetToExcel;
 begin
 
@@ -811,6 +960,7 @@ begin
       XL.Free;
     end;
 end;
+
 procedure TFrmPesqImpSedex.prevarol;
 {var
 i:integer;
@@ -912,6 +1062,7 @@ begin
 
 var i:integer;
 Begin
+  i := 0;
   with dm do
     Begin
       try
@@ -953,8 +1104,8 @@ Begin
                 SqlAux2.SQL.Add(sel);
                 SqlAux2.Params[0].AsDate :=  DateTimePicker1.Date;
                 SqlAux2.Params[1].AsDate :=  DateTimePicker2.Date;
-    //                SqlAux2.Params[2].Value  :=  StrToInt(EdSeqIni.Text);
-    //                SqlAux2.Params[3].Value  :=  StrToInt(EdSeqFin.Text);
+    //                SqlAux2.Params[2].Value  :=  StrToInt64(EdSeqIni.Text);
+    //                SqlAux2.Params[3].Value  :=  StrToInt64(EdSeqFin.Text);
                 SqlAux2.Open;
                 SqlAux2.First;
                 locarq  :=  locarq+'\'+ SqlSdxServtbsdxserv_sigla.AsString+'1'+formatdatetime('ddmm',DateTimePicker3.Date)+EdSeqIni.Text+'.SD1';
@@ -968,9 +1119,9 @@ Begin
                 ProgBar.Position  := 1;
                 ProgBar.Refresh;
                 linha := '8'+format('%4.4d',[SqlSdxServtbsdxserv_prod.AsInteger])+StringOfChar('0',15);
-                linha := linha+ format('%-40.40s%',['BRADESCO SA'])+  SqlAux2.Fields[13].AsString+format('%6.6d',[(SqlAux2.RecordCount+1)]);
-                linha := linha+ StringOfChar('0',94);
-                linha := linha+format('%5.5d',[StrToInt(EdSeqIni.Text)])+format('%7.7d',[1]);
+                linha := linha + format('%-40.40s%',['BRADESCO SA'])+  SqlAux2.Fields[13].AsString+format('%6.6d',[(SqlAux2.RecordCount+1)]);
+                linha := linha + StringOfChar('0',94);
+                linha := linha + format('%5.5d',[StrToInt64(EdSeqIni.Text)])+format('%7.7d',[1]);
                 WriteLn(arq,linha);
                 While not SqlAux2.Eof do
                   Begin
@@ -981,7 +1132,7 @@ Begin
                     linha:= linha+format('%-16.16s%',[SqlSdxServtbsdxserv_dsc.AsString]);
                     linha:= linha+format('%-40.40s%',[SqlAux2.Fields[15].AsString])+format('%-40.40s%',[SqlAux2.Fields[16].AsString]);
                     linha:= linha+format('%-30.30s%',[copy(SqlAux2.Fields[17].AsString,1,30)])+format('%-10.10s%',[SqlAux2.Fields[18].AsString+SqlAux2.Fields[2].AsString]);
-                    linha:= linha+format('%8.8d',[0])+format('%5.5d',[StrToInt(EdSeqIni.Text)])+format('%7.7d',[seqreg]);
+                    linha:= linha+format('%8.8d',[0])+format('%5.5d',[StrToInt64(EdSeqIni.Text)])+format('%7.7d',[seqreg]);
                     WriteLn(arq,linha);
                     Inc(seqreg,1);
                     SqlAux2.Next;
@@ -1035,15 +1186,6 @@ Begin
 
 end;
 procedure TFrmPesqImpSedex.repoltctk;
-var
-//   WorkBk : WorkBook;
-//   WorkSheet : WorkSheet;
-   K, R, X, Y : Integer;
-   RangeMatrix : Variant;
-//   excel  : TExcelOLEObject;
-   fileName : WideString;
-//   ExcelApplication : TExcelApplication;
-
 begin
   with dm do
     begin
@@ -1230,10 +1372,6 @@ begin
 end;
 procedure TFrmPesqImpSedex.plansedex; // Arquivo em Excel Para o Manuseio
 var
-  linha,coluna : integer;
-  arquivo :string;
-  excel: variant;
-  valor : string;
   XL : TDataSetToExcel;
 begin
   with dm do
@@ -1302,9 +1440,7 @@ begin
 end;
 procedure TFrmPesqImpSedex.retoltctk ;// Arquivo de Retorno de AR-Sedex Ol-Tc-Tk Entregues
 var
-   K, R, X, Y : Integer;
-   RangeMatrix : Variant;
-   fileName : WideString;
+   R, Y : Integer;
 begin
   ind :=  -1;
   with dm do
@@ -1666,49 +1802,74 @@ begin
 end;
 procedure TFrmPesqImpSedex.gerlisoltctk;
 var
-  excel: variant;
   XL : TDataSetToExcel;
 begin
   with Dm do
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('select sdx_siglaobj as "Tipo",sdx_numobj2 as "AR", ');
-      SqlAux1.SQL.Add('substr(sdx_nomdest,1,4) as "AG.",substr(sdx_nomdest,7,40) as "Destino",sdx_endedest as "Endereço",sdx_cidade as "Cidade",');
-      SqlAux1.SQL.Add('sdx_uf as "UF",sdx_cep as "Cep",sdx_dtmov as "Data Envio",sdx_peso as "Peso" ');
-      SqlAux1.SQL.Add('from tbsdx02 where (sdx_dtenvio between :dt1 and :dt2) ');
-      SqlAux1.Params[0].AsDate := DateTimePicker1.Date;
-      SqlAux1.Params[1].AsDate := DateTimePicker2.Date;
+      SqlAux1.SQL.Add('SELECT DISTINCT t.sdx_siglaobj as "TIPO", t.sdx_numobj2 as "AR", ');
+      SqlAux1.SQL.Add('SUBSTR(t.sdx_nomdest, 1, 4) AS "AG.", SUBSTR(t.sdx_nomdest, 7, 40) AS "DESTINO", ') ;
+      SqlAux1.SQL.Add('t.sdx_endedest as "ENDERECO", t.sdx_cidade as "CIDADE",');
+      SqlAux1.SQL.Add('t.sdx_uf as "UF", t.sdx_cep as "CEP", t.sdx_dtmov as "DATA ENVIO", ');
+      SqlAux1.SQL.Add('t.sdx_peso as "PESO" ');
+      SqlAux1.SQL.Add('FROM tbsdx02 t ');
+      SqlAux1.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
+      SqlAux1.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+      SqlAux1.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+      SqlAux1.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+      SqlAux1.SQL.Add('AND t.sdx_dtenvio BETWEEN :dt1 and :dt2 ');
+      SqlAux1.ParamByName('dt1').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+      SqlAux1.ParamByName('dt2').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+      if (trim(EdSeqFin.Text) <> '') then
+        EdSeqFin.Text := EdSeqIni.Text;
+        
       if (trim(EdSeqIni.Text) <> '')  and (trim(EdSeqFin.Text) <> '') then
-        SqlAux1.SQL.Add('and (sdx_seqcarga between '+chr(39)+EdSeqIni.Text+chr(39)+' and '+chr(39)+ EdSeqFin.Text+chr(39)+')' )
-      else if (trim(EdSeqIni.Text) <> '') and (trim(EdSeqFin.Text) = '') then
-        SqlAux1.SQL.Add('and (sdx_seqcarga = '+chr(39)+EdSeqIni.Text+chr(39)+')' )
-      else if (trim(EdSeqIni.Text) = '') and (trim(EdSeqFin.Text) <> '') then
-        SqlAux1.SQL.Add('and (sdx_seqcarga = '+chr(39)+ EdSeqFin.Text+chr(39)+')' );
-      SqlAux1.SQL.Add('and (sdx_siglaobj = '+chr(39)+ SqlSdxServtbsdxserv_sigla.AsString+chr(39)+') ');
+        begin
+          SqlAux1.SQL.Add('AND sdx_seqcarga BETWEEN :seq1 AND :seq2 ');
+          SqlAux1.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+          SqlAux1.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+        end;
+
       if (Trim(EdArObjeto.Text) <> '') then
-        SqlAux1.SQL.Add('and (sdx_numobj4 = '+chr(39)+EdArObjeto.Text+chr(39)+') ');
-      SqlAux1.SQL.Add('order by sdx_cep ');
+        begin
+          SqlAux1.SQL.Add('AND sdx_numobj4 = :numobj');
+          SqlAux1.ParamByName('numobj').AsString := EdArObjeto.Text;
+        end;
+        
+      SqlAux1.SQL.Add('ORDER BY t.sdx_cep ');
       SqlAux1.Open;
-      cab:='LISTA DE POSTAGEM - CONTRATO ESPECIAL - SEDEX: '+SqlSdxServtbsdxserv_sigla.AsString+' - '+FormatDateTime('ddmmyyyy',DateTimePicker3.Date )+FormatDateTime('hhmmss',DateTimePicker3.Time)+'.xls';
-      EdArq.Text  :='o:\sedex_ar\';
-      if not(DirectoryExists(EdArq.Text)) then
-        MkDir(EdArq.Text);
-      EdArq.Text  :=EdArq.Text  + 'Sdx'+SqlSdxServtbsdxserv_sigla.AsString+FormatDateTime('ddmmyyyy',DateTimePicker3.Date )+FormatDateTime('hhmmss',DateTimePicker3.Time);
+      cab:='LISTA DE POSTAGEM - CONTRATO ESPECIAL - SEDEX: ' +
+        SqlSdxServtbsdxserv_sigla.AsString + ' - ' +
+        FormatDateTime('ddmmyyyy', DateTimePicker3.Date ) +
+        FormatDateTime('hhmmss', DateTimePicker3.Time) +'.xls';
 
-      SqlAux1.First;
-      XL := TDataSetToExcel.Create(SqlAux1,EdArq.Text,cab);
-      XL.WriteFile;
-      XL.Free;
-      ShowMessage('Arquivo gerado em '+EdArq.Text);
+      // Salvando o arquivo
+      SaveDialog1.InitialDir := 'o:\sedex_ar\';
+      SaveDialog1.FileName := 'Sdx' + SqlSdxServtbsdxserv_sigla.AsString +
+        FormatDateTime('ddmmyyyy', DateTimePicker3.Date ) +
+        FormatDateTime('hhmmss', DateTimePicker3.Time);
 
+      if (SaveDialog1.Execute) then
+        begin
+          SqlAux1.First;
+          XL := TDataSetToExcel.Create(SqlAux1, EdArq.Text, cab);
+          XL.WriteFile;
+          XL.Free;
+          ShowMessage('Arquivo ' + saveDialog1.Filename + ' criado.');
+        end
+      else 
+        ShowMessage('O Arquivo de postagem não foi criado.');
+      
     end;
 end;
 procedure TFrmPesqImpSedex.gerfat;
 begin
   with Dm do
     begin
-      sel :=  'select sdx_numobj2,sdx_paisorigem,sdx_nomdest,sdx_endedest,sdx_cidade,sdx_uf,sdx_cep,sdx_seqcarga,sdx_numobj5,sdx_dtcarga,cast(substr(sdx_numobj2,3,9) as Integer),sdx_numobj2,sdx_peso,sdx_qtd from tbsdx ';
+      sel :=  'select DISTINCT sdx_numobj2,sdx_paisorigem,sdx_nomdest,sdx_endedest,sdx_cidade,sdx_uf,sdx_cep,sdx_seqcarga,sdx_numobj5,sdx_dtcarga,cast(substr(sdx_numobj2,3,9) as Integer),sdx_numobj2,sdx_peso,sdx_qtd from tbsdx ';
       //                  0            1               2          3            4         5       6       7         8            9           10                                      11           12       13
       sel :=  sel +  'where (sdx_dtcarga between :dtini and :dtfin) and (sdx_seqcarga between :seqini and :seqfim) order by sdx_cep';
       //Parametros Condicao                         0         1                                 2           3
@@ -1718,8 +1879,8 @@ begin
       SqlAux1.SQL.Add(sel);
       SqlAux1.Params[0].AsDate :=  DateTimePicker1.Date;
       SqlAux1.Params[1].AsDate :=  DateTimePicker2.Date;
-      SqlAux1.Params[2].Value  :=  StrToInt(EdSeqIni.Text);
-      SqlAux1.Params[3].Value  :=  StrToInt(EdSeqFin.Text);
+      SqlAux1.Params[2].Value  :=  StrToInt64(EdSeqIni.Text);
+      SqlAux1.Params[3].Value  :=  StrToInt64(EdSeqFin.Text);
       SqlAux1.Open;
       //              inputbox('','',selexcel);
       SqlAux1.First;
@@ -1838,6 +1999,523 @@ begin
         Application.MessageBox(Pchar('Nenhum Registro Encontrado com esses Parametros!'),'ADS',ID_OK);
     end;
     DateTimePicker1.SetFocus;
+end;
+
+procedure TFrmPesqImpSedex.gerimp2;
+var i:integer; s1, s2, s3, dbg, dtfldname : string;
+args : Array of String;
+lotes : TStringList;
+Begin
+
+  // Preenchimento do Período para pesquisa é obrigatório
+  if (CompareDate(DateTimePicker1.Date, DateTimePicker2.Date) > 0) then
+    begin
+      ShowMessage('A data final não pode ser inferior a data inicial.');
+      exit;
+    end;
+
+  qtdfxa01 := 0;
+  qtdfxa02 := 0;
+  qtdfxa03 := 0;
+  qtdfxa04 := 0;
+  qtdfxa05 := 0;
+  qtdfxa06 := 0;
+  qtdfxa07 := 0;
+  qtdfxa08 := 0;
+  qtdfxa09 := 0;
+  qtdfxa10 := 0;
+  dtfldname := 'sdx_dtcarga'; // Valor padrão
+
+  if (FrmPesqImpSedex.Tag = 7) then
+    dtfldname := 'sdx_dtenvio';
+
+      {
+    A impressão das etiquetas de AR precisam seguir o proposto
+    pela operação.
+    No caso de TOKENS e TANCODES o processo é mais simples, podendo
+    ser utilizado filtro por Data + Lote, vinculado ao produto, porém
+    para o OL, que engloba 15 produtos (pagantes) diferentes não devemos
+    utilizar o filtro por produto, para que seja possível imprimir todas as
+    etiquetas de um mesmo lote ou envio.
+    Para tanto deve ser permitido filtros mais simples como DATA+LOTE
+}
+    // SQL Básica para verificação de existência de elementos a serem impressos
+    // Com as condições passadas
+    sel := 'SELECT COUNT(t.sdx_numobj) AS qt_post, t.sdx_uf, ' +
+            'SUBSTRING(t.sdx_cep, 1, 1) as prefixo FROM public.tbsdx02 t ' + #13#10 +
+            '    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj2 = e.tbsdxect_sigla e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ' +
+            ' INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ' +
+          'WHERE t.' + dtfldname + ' BETWEEN :dt1 AND :dt2 ';
+    // Inicializando lista para Campo de Números de Lote
+    lotes := TStringList.Create;
+    // ##### Verificando as condições
+    // Número de Lote preenchido?
+    If (Trim(EdSeqIni.Text) <> '') then  // ### Números de Lotes
+      begin
+        lotes.CommaText := Trim(EdSeqIni.Text);
+        if (lotes.Count > 0) then
+          begin
+            sel := sel +
+              Format(#13#10 + '   AND t.sdx_seqcarga IN (E' + QuotedStr('%s') +
+                DupeString(', E' + QuotedStr('%s'), lotes.Count - 1) + ')',
+                [lotes.GetEnumerator]
+              );
+
+          end;
+      end;
+
+    // Número de Objeto Preenchido??
+    if (Trim(EdArObjeto.Text) <> '') then
+      begin
+        sel := sel + Format(#13#10 +
+            '  AND sdx_numobj2 = %s ', [QuotedStr(trim(EdArObjeto.Text))]);
+      end;
+
+    With dm do
+      begin
+        // Iniciando interação com o Banco
+        SqlAux1.Close;
+        SqlAux1.SQL.Clear;
+        SqlAux1.SQL.Add(sel);
+        SqlAux1.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+        SqlAux1.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+
+        // Produto Preenchido
+        if (DBServSedex.KeyValue <> null) then
+          begin
+            // A lista de produtos ficará
+            if AnsiPos(' OL ', SqlSdxServtbsdxserv_dsc.Value) < 1 then
+              begin // Pagantes de TOKEN OU TANCODE
+                SqlAux1.SQL.Add('  AND e.tbsdxect_prod = :codproduto ');
+                SqlAux1.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+              end
+            // else // Demais pagantes nao utilizar filtro
+          end;
+
+      // Horário de Postagem
+      if ((MkEdHrF.Text = '  :  :  ') OR
+            (CompareTime(StrToTime(MkEdHrI.Text), StrToTime(MkEdHrF.Text) ) > 0)) then
+            begin
+              Application.MessageBox(Pchar('Hora Final deve ser maior ou igual a Hora Inicial.'), 'Ads', IDOK);
+              exit;
+            end;
+          SqlAux1.SQL.Add('  AND sdx_horaenvio between :hr1 AND :hr2 ');
+          SqlAux1.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+          SqlAux1.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+
+
+
+
+
+
+
+      if ((FrmPesqImpSedex.Tag in [6,7]) and
+        (MkEdHrI.Text <> '  :  :  ') ) then
+        begin
+          if ((MkEdHrF.Text = '  :  :  ') OR
+            (CompareTime(StrToTime(MkEdHrI.Text), StrToTime(MkEdHrF.Text) ) > 0)) then
+            begin
+              Application.MessageBox(Pchar('Hora Final deve ser maior ou igual a Hora Inicial.'), 'Ads', IDOK);
+              exit;
+            end;
+          SqlAux1.SQL.Add('  AND sdx_horaenvio between :hr1 AND :hr2 ');
+          SqlAux1.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+          SqlAux1.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+        end;
+
+      SqlAux1.SQL.Add('GROUP BY 2, 3');
+      SqlAux1.Open;
+      if (SqlAux1.RecordCount < 1) then
+        begin
+          ShowMessage('Não há registros com os parâmetros informados.');
+          exit;
+        end;
+
+      while not SqlAux1.Eof do
+        begin
+          // Delphi não tem Switch CASE para Strings
+          // Por isso é necessário ser criativo para
+          // Instruções que dependem de um valor em uma lista
+          s1 := SqlAux1.FieldByName('sdx_uf').AsString;
+          if ( s1 = 'SP') then
+            if (SqlAux1.FieldByName('prefixo').AsString = '0') then
+              qtdfxa01 := qtdfxa01 + SqlAux1.FieldByName('qt_post').AsInteger
+            else
+              qtdfxa02 := qtdfxa02 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['RJ', 'MG', 'PR', 'SC']) > -1) then
+            qtdfxa03 := qtdfxa03 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['ES', 'DF', 'MS', 'RS']) > -1) then
+            qtdfxa04 := qtdfxa04 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['GO', 'TO']) > -1) then
+            qtdfxa05 := qtdfxa05 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['BA', 'MT']) > -1) then
+            qtdfxa06 := qtdfxa06 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['SE', 'AL']) > -1) then
+            qtdfxa07 := qtdfxa07 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (AnsiIndexStr(s1, ['PE', 'PB', 'PI', 'RO']) > -1) then
+            qtdfxa08 := qtdfxa08 + SqlAux1.FieldByName('qt_post').AsInteger
+          else if (s1 = 'RR') then
+            qtdfxa10 := qtdfxa10 + SqlAux1.FieldByName('qt_post').AsInteger
+          else // Todos os outros [RN, CE, MA, PA, AP, AM, AC
+            qtdfxa09 := qtdfxa09 + SqlAux1.FieldByName('qt_post').AsInteger;
+
+          SqlAux1.Next;
+        end;
+      SqlAux1.Close;
+      SqlAux1.SQL.Clear;
+
+      Case FrmPesqImpSedex.Tag  of
+        0..2:
+          SqlAux1.SQL.Add('SELECT COUNT(t.sdx_codcli) FROM tbsdx t ' +
+              'WHERE t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ');
+
+        6..7:
+          Begin
+            SqlAux1.SQL.Add('SELECT COUNT(t.sdx_codcli) FROM tbsdx02 t ');
+            SqlAux1.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
+            SqlAux1.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+            SqlAux1.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+            SqlAux1.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+            if FrmPesqImpSedex.Tag = 6 then
+              SqlAux1.SQL.Add(' AND t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ')
+            else
+              SqlAux1.SQL.Add(' AND t.sdx_dtenvio BETWEEN :dt1 AND :dt2 ');
+
+            if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+              begin
+                SqlAux1.SQL.Add(' AND sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                SqlAux1.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                SqlAux1.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+              end;
+          End;
+      End;
+      SqlAux1.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+      SqlAux1.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+      Case FrmPesqImpSedex.Tag  of
+        0..2:
+          Begin
+            SqlAux2.Close;
+            SqlAux2.SQL.Clear;
+            SqlAux2.SQL.Add('SELECT DISTINCT t.sdx_numobj5 FROM tbsdx t ' +
+                  'WHERE t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ');
+          End;
+        6..7:
+          Begin
+            SqlAux2.Close;
+            SqlAux2.SQL.Clear;
+            SqlAux2.SQL.Add('SELECT DISTINCT o.sdx_numobj FROM public.tbsdx_ect e ');
+            SqlAux2.SQL.Add('INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+            SqlAux2.SQL.Add('INNER JOIN public.tbsdx02 o ON (CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER) = o.sdx_numobj) ');
+            SqlAux2.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+            SqlAux2.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+            if FrmPesqImpSedex.Tag = 6 then
+              SqlAux2.SQL.Add('AND o.sdx_dtcarga BETWEEN :dt1 AND :dt2 ')
+            else
+              SqlAux2.SQL.Add(' AND o.sdx_dtenvio BETWEEN :dt1 AND :dt2 ');
+
+            if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+              begin
+                SqlAux2.SQL.Add(' AND o.sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                SqlAux2.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                SqlAux2.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+              end;
+
+          End;
+      End;
+      SqlAux2.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+      SqlAux2.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+      SqlSdx2.Close;
+      SqlSdx2.SQL.Clear;
+      Case FrmPesqImpSedex.Tag  of
+        0..2:
+          Begin
+            SqlSdx2.SQL.Add('SELECT sdx_codcli, sdx_idcli, sdx_siglaobj, sdx_numobj,');
+            SqlSdx2.SQL.Add('sdx_paisorigem, sdx_codoperacao, sdx_numobj3, sdx_nomdest, sdx_endedest, sdx_cidade, ');
+            SqlSdx2.SQL.Add('sdx_uf, sdx_cep, sdx_numseqarq, sdx_numseqreg, sdx_dtcarga, sdx_seqcarga, ');
+            SqlSdx2.SQL.Add('sdx_numobj2, sdx_cepnet, sdx_numobj1, sdx_numobj4, sdx_numobj5');
+            SqlSdx2.SQL.Add('FROM tbsdx WHERE sdx_dtcarga between :dt1 and :dt2 ');
+            SqlSdx2.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+            SqlSdx2.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+          End;
+        6..7:
+          Begin
+            SqlSdx3.Close;
+            SqlSdx3.SQL.Clear;
+            SqlSdx3.SQL.Add('SELECT sdx_codcli, sdx_idcli, sdx_siglaobj, sdx_numobj,');
+            SqlSdx3.SQL.Add('sdx_paisorigem, sdx_codoperacao, sdx_numobj3, sdx_nomdest, sdx_endedest, sdx_cidade, ');
+            SqlSdx3.SQL.Add('sdx_uf, sdx_cep, sdx_numseqarq, sdx_numseqreg, sdx_dtcarga, sdx_seqcarga, ');
+            SqlSdx3.SQL.Add('sdx_numobj2, sdx_cepnet, sdx_numobj1, sdx_numobj4, sdx_numobj5, sdx_peso, sdx_valor, sdx_qtde, sdx_tvalor, sdx_valdec, ');
+            SqlSdx3.SQL.Add('p.tbsdxserv_nrocto, p.tbsdxserv_crtpst ');
+            SqlSdx3.SQL.Add('FROM public.tbsdx_ect e ');
+            SqlSdx3.SQL.Add('  INNER JOIN public.tbsdxserv p ON (e.tbsdxect_prod = p.tbsdxserv_prod) ');
+            SqlSdx3.SQL.Add('  INNER JOIN public.tbsdx02 t ON (CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER) = t.sdx_numobj)');
+            SqlSdx3.SQL.Add('WHERE p.tbsdxserv_prod = :codproduto ');
+            SqlSdx3.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+          if FrmPesqImpSedex.Tag = 6 then
+            SqlSdx3.SQL.Add('AND sdx_dtcarga BETWEEN :dt1 AND :dt2 ')
+          else
+            SqlSdx3.SQL.Add('AND t.sdx_dtenvio BETWEEN :dt1 AND :dt2 ');
+            SqlSdx3.ParamByName('dt1').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+            SqlSdx3.ParamByName('dt2').AsString := FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+
+          if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+            begin
+              SqlSdx3.SQL.Add('AND sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+              SqlSdx3.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+              SqlSdx3.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+            end;
+
+          End;
+      End;
+
+      If ((EdSeqIni.Text <> '') and (EdSeqFin.Text <> ''))  then
+        Begin
+          // Validando os dados do formulário
+          if (StrToInt64(EdSeqIni.Text) > StrToInt64(EdSeqFin.Text)) then
+            begin
+              Application.MessageBox('Informações de Sequência inválidos. ' +
+                    'Sequencial Final deve ser superior ao sequencial inicial','ADS',IDOK);
+              exit;
+            end;
+
+          if (Trim(EdSeqIni.Text) <> '') then          
+            begin
+              if (Trim(EdSeqFin.Text) = '') then
+                EdSeqFin.Text := EdSeqIni.Text;
+              SqlAux1.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2');
+              SqlAux2.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2');
+              SqlAux1.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+              SqlAux1.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+              SqlAux2.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+              SqlAux2.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+            end;
+
+          if (Trim(EdArObjeto.Text) <> '') then
+            begin
+              SqlAux1.SQL.Add(' AND sdx_numobj4 = :numobj ');
+              SqlAux2.SQL.Add(' AND sdx_numobj4 = :numobj ');
+              SqlAux1.ParamByName('numobj').AsString := EdArObjeto.Text;
+              SqlAux2.ParamByName('numobj').AsString := EdArObjeto.Text;
+            End;
+
+          Case FrmPesqImpSedex.Tag  of
+            0..2:
+              Begin
+                SqlSdx2.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2 ');
+                SqlSdx2.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                SqlSdx2.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+
+                if (Trim(EdArObjeto.Text) <> '') then
+                  begin
+                    SqlSdx2.SQL.Add(' AND sdx_numobj4 = :numobj ');
+                    SqlSdx2.ParamByName('numobj').AsString := EdArObjeto.Text;
+                  end;
+
+                SqlSdx2.SQL.Add('ORDER BY sdx_cep ');
+              End;
+
+            6..7:
+              Begin
+                if (Trim(EdSeqIni.Text) <> '')  and ( Trim(EdSeqFin.Text) <> '') then
+                  begin
+                    SqlSdx3.SQL.Add(' AND sdx_seqcarga BETWEEN :seq1 AND :seq2');
+                    SqlSdx3.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                    SqlSdx3.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+                  end
+                else if (Trim(EdSeqIni.Text) <> '') then
+                  begin
+                    SqlSdx3.SQL.Add(' AND sdx_seqcarga = :seq1 ');
+                    SqlSdx3.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                  end
+                else if (Trim(EdSeqFin.Text) <> '') then
+                  begin
+                    SqlSdx3.SQL.Add(' AND sdx_seqcarga = :seq2');
+                    SqlSdx3.ParamByName('seq2').AsInteger := StrToInt64(EdSeqFin.Text);
+                  end;
+
+                if (Trim(EdArObjeto.Text) <> '') then
+                  begin
+                    SqlSdx3.SQL.Add('AND sdx_numobj4 = :numobj ');
+                    SqlSdx3.ParamByName('numobj').AsString := EdArObjeto.Text;
+                  end;
+
+                if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+                  begin
+                    SqlSdx3.SQL.Add(' AND sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                    SqlSdx3.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                    SqlSdx3.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+                  end;
+
+                if FrmPesqImpSedex.Tag = 6 then
+                  SqlSdx3.SQL.Add('ORDER BY sdx_nomdest ')
+                else
+                  SqlSdx3.SQL.Add('ORDER BY sdx_cep ');
+              End;
+          End;
+        End
+      Else
+        Begin
+          if (Trim(EdArObjeto.Text) <> '') then
+                begin
+                  SqlAux1.SQL.Add(' AND sdx_numobj4 = :numobj ');
+                  SqlAux2.SQL.Add(' AND sdx_numobj4 = :numobj ');
+                  SqlAux1.ParamByName('numobj').AsString := EdArObjeto.Text;
+                  SqlAux2.ParamByName('numobj').AsString := EdArObjeto.Text;
+                end;
+              SqlAux2.SQL.Add('ORDER BY sdx_numobj');
+              Case FrmPesqImpSedex.Tag  of
+                0..2:
+                  Begin
+                    if (Trim(EdArObjeto.Text) <> '') then
+                      begin
+                        SqlSdx2.SQL.Add('AND sdx_numobj4 = :numobj ');
+                       SqlSdx2.ParamByName('numobj').AsString := EdArObjeto.Text;
+                      end;
+                    SqlSdx2.SQL.Add('ORDER BY sdx_cep ');
+                  End;
+                6..7:
+                  Begin
+                    if (Trim(EdArObjeto.Text) <> '') then
+                      begin
+                        SqlSdx3.SQL.Add('AND sdx_numobj4 = :numobj ');
+                        SqlSdx3.ParamByName('numobj').AsString := EdArObjeto.Text;
+                      end;
+                    if FrmPesqImpSedex.Tag = 6 then
+                      begin
+                        if DBServSedex.KeyValue = 1953 then
+                          SqlSdx3.SQL.Add('ORDER BY sdx_cep ')
+                        else
+                          SqlSdx3.SQL.Add('ORDER BY sdx_nomdest ')
+                      end
+                    else
+                      SqlSdx3.SQL.Add('ORDER BY sdx_cep ');
+                  End;
+              End;
+          End;
+        dbg := SqlAux1.SQL.getText;
+        dbg := SqlAux2.SQL.getText;
+
+        SqlAux1.Open;
+        SqlAux2.Open;
+        Case FrmPesqImpSedex.Tag  of
+          0..2:
+            begin
+              SqlSdx2.Open;
+            end;
+          6..7:
+          begin
+            dbg := SqlSdx3.SQL.getText;
+            SqlSdx3.Open;
+          end;
+        End;
+        case   FrmPesqImpSedex.Tag of
+          0:
+           Begin
+             Application.CreateForm(TFrmRelArSedex,FrmRelArSedex);
+             frmRelArSedex.RLReport1.PreviewModal;
+           End;
+          1:
+           Begin
+             Application.CreateForm(TFrmRelArSedexLista,FrmRelArSedexLista);
+             qtdar  :=  SqlAux1.Fields[0].Value;
+             SqlAux2.Last;
+             fxafim  :=  SqlAux2.Fields[0].Text ;
+             SqlAux2.First;
+             fxaini  :=  SqlAux2.Fields[0].Text;
+             totfol  :=  round(qtdar/3);
+             FrmRelArSedexLista.RLReport1.PreviewModal;
+             FrmRelArSedexLista.RLReport1.Destroy;
+             SqlSdx2.First;
+             Application.CreateForm(TFrmRlTotalRa,FrmRlTotalRa);
+             FrmRlTotalRa.RLRTotalRa.PreviewModal;
+             FrmRlTotalRa.RLRTotalRa.Destroy;
+           End;
+          2:
+           Begin
+             Application.CreateForm(TFrmRlTotalRa,FrmRlTotalRa);
+             FrmRlTotalRa.RLRTotalRa.PreviewModal;
+             FrmRlTotalRa.RLRTotalRa.Destroy;
+           End;
+          6:
+            Begin
+             Caminho := ExtractFilePath(Application.ExeName);
+             
+              case OpcRel.ItemIndex of
+               0 :
+                begin
+                 RvRelatorios.ProjectFile := Caminho+'RelatoriosAds.rav';
+                 RvRelatorios.ExecuteReport('RpSedexArOl');
+                 RvRelatorios.Close;
+                end;
+               1:
+                begin
+                  RvRelatorios.ProjectFile := Caminho+'RelatoriosAds01.rav';
+                  RvRelatorios.ExecuteReport('RpSedexArOl');
+                  RvRelatorios.Close;
+                end;
+               2:  // Ar Digital
+                begin
+                  RvRelatorios.ProjectFile := Caminho + 'ARDigital.rav';
+                  RvRelatorios.ExecuteReport('RpSedexArOl');
+                  RvRelatorios.Close;
+                end
+               else Application.MessageBox('Não foi definido','ADS',ID_OK);
+              end;
+            End;
+          7:
+             Begin
+               SqlAux3.Close;
+               SqlAux3.SQL.Clear;
+               SqlAux3.SQL.Add('SELECT SUM(t.sdx_peso) AS sdx_peso, SUM(t.sdx_valdec) AS sdx_valdec ');
+               SqlAux3.SQL.Add('FROM tbsdx02 t ');
+               SqlAux3.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
+               SqlAux3.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+               SqlAux3.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
+               SqlAux3.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
+
+               SqlAux3.SQL.Add('AND t.sdx_dtenvio BETWEEN :dt1 and :dt2 ');
+               SqlAux3.ParamByName('dt1').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
+               SqlAux3.ParamByName('dt2').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+               if (trim(EdSeqIni.Text) <> '') and (Trim(EdSeqFin.Text) <> '')then
+                 begin
+                   SqlAux3.SQL.Add(' AND t.sdx_seqcarga BETWEEN :seq1 AND :seq2 ');
+                   SqlAux3.ParamByName('seq1').AsInteger   := StrToInt64(EdSeqIni.Text);
+                   SqlAux3.ParamByName('seq2').AsInteger   := StrToInt64(EdSeqFin.Text);
+                 end;
+                if ((MkEdHrI.Text <> '  :  :  ') and (MkEdHrF.Text <> '  :  :  ')) then
+                  begin
+                    SqlAux3.SQL.Add(' AND t.sdx_horaenvio BETWEEN :hr1 AND :hr2 ');
+                    SqlAux3.ParamByName('hr1').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrI.Text));
+                    SqlAux3.ParamByName('hr2').AsString := FormatDateTime('hh:mm:ss', StrToTime(MkEdHrF.Text));
+                  end;
+               if (Trim(EdArObjeto.Text) <> '') then
+                begin
+                  SqlAux3.SQL.Add(' AND t.sdx_numobj4 = :numobj ');
+                  SqlAux3.ParamByName('numobj').AsString := EdArObjeto.Text;
+                end;
+
+               SqlAux3.Open;
+
+               Application.CreateForm(TFrmRelArSedexListaOL,FrmRelArSedexListaOL);
+               qtdar  :=  SqlAux1.Fields[0].Value;
+               SqlAux2.Last;
+               fxafim  :=  SqlAux2.Fields[0].Text;
+               SqlAux2.First;
+               fxaini  :=  SqlAux2.Fields[0].Text;
+               totfol  :=  round(qtdar/3);
+               FrmRelArSedexListaOL.RLReport1.PreviewModal;
+               FrmRelArSedexListaOL.RLReport1.Destroy;
+               SqlSdx3.First;
+               gerlisoltctk;
+             End;
+        End;
+     End;
 end;
 
 end.
