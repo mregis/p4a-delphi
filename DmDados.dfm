@@ -1785,6 +1785,9 @@ object Dm: TDm
       DisplayWidth = 2
       FieldName = 'tbsdxserv_status'
     end
+    object SqlSdxServtbsdxserv_txasrv: TFloatField
+      FieldName = 'tbsdxserv_txasrv'
+    end
   end
   object DtSSdxServ: TDataSource
     DataSet = SqlSdxServ
