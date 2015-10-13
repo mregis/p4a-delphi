@@ -247,6 +247,9 @@ begin
     end;
     DBMacroProd.Refresh;
     DBGridLotes.Refresh;
+    // Ajustando data de exibição
+    DtPickerDtIni.Date := Date;
+    DtPickerDtFin.Date := Date;
 
 
 end;
