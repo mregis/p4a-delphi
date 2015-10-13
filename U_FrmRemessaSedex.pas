@@ -296,7 +296,7 @@ begin
       sigla_obj := SqlAux3.Fields[2].AsString;
       sigla_prod := SqlAux3.Fields[3].AsString;
 
-      // Pegando dados do Novo destino
+      // Pegando dados do destino para o Novo Envio
       SqlTbBradDeptos.Close;
       SqlTbBradDeptos.SQL.Clear;
       SqlTbBradDeptos.SQL.Add('SELECT * FROM tbbraddptos WHERE juncao = :juncao');
@@ -333,8 +333,7 @@ begin
       SqlAux1.ParamByName('enddest').AsString := SqlTbBradDeptosender.AsString;
       SqlAux1.ParamByName('ciddest').AsString := SqlTbBradDeptoscidade.Text;
       SqlAux1.ParamByName('ufdest').AsString := SqlTbBradDeptosuf.Text;
-      SqlAux1.ParamByName('cepdest').AsString := SqlTbBradDeptoscep.Text;
-
+      SqlAux1.ParamByName('cepdest').AsString := StringReplace(SqlTbBradDeptoscep.Text, '-', '', [rfReplaceAll, rfIgnoreCase]);
       EdNovReg.Text := GeraNt(inttostr(random(999)), 3) +
             FormatDateTime('yyyymmdd', date) + FormatDateTime('hhmmss', Time) +
             GeraNT(sqlcga_acessocodigo.AsString, 4) + GeraNt(inttostr(random(999)) , 3);

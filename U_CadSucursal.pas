@@ -159,7 +159,7 @@ procedure TFrmCadSucursal.Atualiza;
 begin
   with Dm do
     begin
-      MkEdCep.Text        := copy(SqlTbBradDeptoscep.Text,1,9);//+copy(SqlTbBradDeptoscep.Text,7,3);
+      MkEdCep.Text        := StringReplace(SqlTbBradDeptoscep.Text, '-', '', [rfReplaceAll, rfIgnoreCase]);
       EdAgencia.Text      := SqlTbBradDeptosdepto.Text;
       EdCod.Text          := SqlTbBradDeptosjuncao.Text;
       cod                 := SqlTbBradDeptosjuncao.Text;

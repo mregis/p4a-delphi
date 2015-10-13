@@ -473,7 +473,7 @@ object FrmCadSucursal: TFrmCadSucursal
       Width = 125
       Height = 21
       CharCase = ecUpperCase
-      EditMask = '00000\-999;0;_'
+      EditMask = '00000\-000;0;_'
       MaxLength = 9
       TabOrder = 3
     end
