@@ -342,8 +342,6 @@ begin
 
       SqlAux1.ParamByName('numobj2').AsString := sigla_obj + num_obj + dv + 'BR';
 
-      EdNovoAr.Text := 'AR'+ num_obj + dv + sigla_prod;
-      EdNovoAr.Refresh;
       SqlAux1.ParamByName('numobj1').AsString := 'AR'+ num_obj + dv + sigla_prod;
 
       SqlAux1.ParamByName('codusu').AsString := sqlcga_acessocodigo.AsString;
@@ -369,6 +367,8 @@ begin
               dv + 'BR' + ' não pode ser marcado como utilizado.');
 
         SqlAux1.Close;
+        EdNovoAr.Text := sigla_obj + num_obj + dv + 'BR';
+        EdNovoAr.Refresh;
         except on e: Exception do
           begin
             application.MessageBox(PChar('Ocorreu um erro fatal ao tentar ' +
@@ -714,7 +714,7 @@ begin
                     Edcpm.Enabled   :=  false;
                     Edalt.Enabled   :=  false;
                     Edbas.Text      :=  FormatFloat('##0.00;;', SqlAux1.FieldByName('bascxa').AsFloat);
-                    Edcpm.Text      :=  FormatFloat('##0.00;;', SqlAux1.FieldByName('cmpxa').AsFloat);
+                    Edcpm.Text      :=  FormatFloat('##0.00;;', SqlAux1.FieldByName('cmpcxa').AsFloat);
                     Edalt.Text      :=  FormatFloat('##0.00;;', SqlAux1.FieldByName('altcxa').AsFloat);
                     EdVol.SetFocus;
                   end;
