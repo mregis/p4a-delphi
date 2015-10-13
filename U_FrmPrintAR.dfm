@@ -344,8 +344,8 @@ object FrmPrintAR: TFrmPrintAR
       Top = 23
       Width = 105
       Height = 26
-      Date = 42283.000000000000000000
-      Time = 42283.000000000000000000
+      Date = 42290.000000000000000000
+      Time = 42290.000000000000000000
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
@@ -453,7 +453,7 @@ object FrmPrintAR: TFrmPrintAR
     Left = 139
     Top = 129
     Width = 321
-    Height = 27
+    Height = 26
     Hint = 'Voc'#234' pode digitar mais de um lote separando-os por v'#237'rgula'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
