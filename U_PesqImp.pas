@@ -60,7 +60,7 @@ var
   v_tipocli : integer;
 implementation
 
-uses U_FrRel_Christian_Sience, U_Func, U_FrmFrBoleto, DmDados,
+uses U_FrRel_Christian_Sience, U_Func, DmDados,
   U_FrmFrProdExtContaCorrente, U_FrRelFaturamentoExt, U_FrmFrEtiqueta,
   U_FrRel_Etiqueta, U_FrmFrRelAgExtCons, U_FrmFrBoleto2, U_Principal,
   U_FrmEtqMLD, U_FrmRelProtocolosDigit, U_FrmRelRelatProtocolos,
@@ -280,16 +280,8 @@ begin
                 Dm.SqlAux1.Params[1].Value := formatdatetime('mm-dd-yyyy',strtodate(MkEdDtIni.Text));
                 Dm.SqlAux1.Params[2].Value := formatdatetime('mm-dd-yyyy',strtodate(MkEdDtFin.Text));
                 Dm.SqlAux1.ExecSql;
-                if application.MessageBox('Você deseja imprimir o boleto grande?','Ads',MB_YESNO+MB_ICONQUESTION)=idyes then
-                  begin
-                    //application.CreateForm(TFrmFrBoleto,FrmFrBoleto);
-                    //FrmFrBoleto.RLReport1.PreviewModal;
-                  end
-                else
-                  begin
-                    application.CreateForm(TFrmFrBoleto2,FrmFrBoleto2);
-                    FrmFrBoleto2.RLReport1.PreviewModal;
-                  end;
+                application.CreateForm(TFrmFrBoleto2,FrmFrBoleto2);
+                FrmFrBoleto2.RLReport1.PreviewModal;
               end;
             end;
           end;
