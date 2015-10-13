@@ -222,10 +222,13 @@ type
     PlanilhaGeral1: TMenuItem;
     Image1: TImage;
     precargamenuitem: TMenuItem;
-    ARs1: TMenuItem;
-    BtnCargaAR: TBitBtn;
-    BitBtn1: TBitBtn;
-    procedure ARs1Click(Sender: TObject);
+    ImprimeARs: TMenuItem;
+    BitBtnCargaAR: TBitBtn;
+    BitBtnPrintArs: TBitBtn;
+    BitBtnRepostagemAR: TBitBtn;
+    procedure BitBtnPrintArsClick(Sender: TObject);
+    procedure BitBtnRepostagemARClick(Sender: TObject);
+    procedure ImprimeARsClick(Sender: TObject);
     procedure precargamenuitemClick(Sender: TObject);
     procedure ReenvArTkClick(Sender: TObject);
     procedure Sair1Click(Sender: TObject);
@@ -1274,7 +1277,7 @@ end;
 
 procedure TFrmPrincipal.ReenvArTkClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmRemessaSedex,FrmRemessaSedex);
+  Application.CreateForm(TFrmRemessaSedex, FrmRemessaSedex);
   FrmRemessaSedex.ShowModal;
   SetFocus;
 end;
@@ -1904,12 +1907,10 @@ begin
 
 end;
 
-procedure TFrmPrincipal.ARs1Click(Sender: TObject);
+procedure TFrmPrincipal.ImprimeARsClick(Sender: TObject);
 begin
   Application.CreateForm(TFrmPrintAr, FrmPrintAr);
-
   FrmPrintAr.ShowModal;
-
 end;
 
 procedure TFrmPrincipal.TokCadEntrClick(Sender: TObject);
