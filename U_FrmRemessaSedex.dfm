@@ -947,7 +947,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
     ParentFont = False
     TabOrder = 12
     object Label15: TLabel
-      Left = 8
+      Left = 14
       Top = 47
       Width = 88
       Height = 14
@@ -961,7 +961,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label11: TLabel
-      Left = 49
+      Left = 53
       Top = 20
       Width = 49
       Height = 14
@@ -975,7 +975,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label13: TLabel
-      Left = 432
+      Left = 398
       Top = 20
       Width = 50
       Height = 14
@@ -989,7 +989,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label16: TLabel
-      Left = 232
+      Left = 227
       Top = 20
       Width = 50
       Height = 14
@@ -1003,8 +1003,8 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label17: TLabel
-      Left = 565
-      Top = 75
+      Left = 567
+      Top = 47
       Width = 32
       Height = 14
       Alignment = taRightJustify
@@ -1017,7 +1017,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label19: TLabel
-      Left = 425
+      Left = 391
       Top = 47
       Width = 57
       Height = 14
@@ -1031,7 +1031,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label18: TLabel
-      Left = 211
+      Left = 206
       Top = 47
       Width = 71
       Height = 14
@@ -1045,7 +1045,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label28: TLabel
-      Left = 16
+      Left = 38
       Top = 75
       Width = 64
       Height = 14
@@ -1059,7 +1059,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label10: TLabel
-      Left = 169
+      Left = 230
       Top = 75
       Width = 47
       Height = 14
@@ -1073,7 +1073,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label12: TLabel
-      Left = 344
+      Left = 438
       Top = 75
       Width = 47
       Height = 14
@@ -1087,7 +1087,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label32: TLabel
-      Left = 537
+      Left = 539
       Top = 106
       Width = 60
       Height = 14
@@ -1129,7 +1129,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label29: TLabel
-      Left = 10
+      Left = 9
       Top = 102
       Width = 93
       Height = 14
@@ -1143,7 +1143,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Edvaldec: TEdit
-      Left = 102
+      Left = 106
       Top = 42
       Width = 89
       Height = 24
@@ -1161,7 +1161,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 0
     end
     object EdValor: TEdit
-      Left = 102
+      Left = 106
       Top = 15
       Width = 89
       Height = 24
@@ -1178,7 +1178,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 1
     end
     object EdVvalor: TEdit
-      Left = 487
+      Left = 450
       Top = 15
       Width = 89
       Height = 24
@@ -1195,7 +1195,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 2
     end
     object EdValAr: TEdit
-      Left = 286
+      Left = 280
       Top = 15
       Width = 89
       Height = 24
@@ -1213,8 +1213,8 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 3
     end
     object EdPorc: TEdit
-      Left = 600
-      Top = 70
+      Left = 601
+      Top = 40
       Width = 73
       Height = 24
       BiDiMode = bdRightToLeft
@@ -1230,7 +1230,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 4
     end
     object EdValMin: TEdit
-      Left = 487
+      Left = 450
       Top = 42
       Width = 89
       Height = 24
@@ -1247,7 +1247,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 5
     end
     object EdAdVal: TEdit
-      Left = 286
+      Left = 280
       Top = 42
       Width = 89
       Height = 24
@@ -1264,7 +1264,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 6
     end
     object EdQtde: TEdit
-      Left = 82
+      Left = 106
       Top = 70
       Width = 55
       Height = 24
@@ -1281,9 +1281,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 7
     end
     object EdSeqCarga: TEdit
-      Left = 218
+      Left = 280
       Top = 70
-      Width = 101
+      Width = 113
       Height = 24
       CharCase = ecUpperCase
       Enabled = False
@@ -1298,9 +1298,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
       OnKeyPress = EdJuncaoKeyPress
     end
     object EdReg: TEdit
-      Left = 393
+      Left = 489
       Top = 70
-      Width = 152
+      Width = 185
       Height = 24
       CharCase = ecUpperCase
       Enabled = False
@@ -1314,7 +1314,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 9
     end
     object MkEdBaixa: TMaskEdit
-      Left = 600
+      Left = 601
       Top = 101
       Width = 73
       Height = 24
@@ -1366,7 +1366,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       Text = '  /  /    '
     end
     object MkEdDtMov: TMaskEdit
-      Left = 105
+      Left = 106
       Top = 96
       Width = 79
       Height = 24
