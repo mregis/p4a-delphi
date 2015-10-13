@@ -470,7 +470,7 @@ object FrmCadSucursal: TFrmCadSucursal
     object MkEdCep: TMaskEdit
       Left = 99
       Top = 80
-      Width = 125
+      Width = 123
       Height = 21
       CharCase = ecUpperCase
       EditMask = '00000\-000;0;_'

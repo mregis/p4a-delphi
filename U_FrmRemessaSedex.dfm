@@ -53,7 +53,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
     Left = 236
     Top = 17
     Width = 48
-    Height = 17
+    Height = 16
     Alignment = taRightJustify
     Caption = 'Jun'#231#227'o: '
     FocusControl = EdJuncao
@@ -160,9 +160,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
   end
   object BtnLimpa: TBitBtn
     Left = 124
-    Top = 417
+    Top = 415
     Width = 75
-    Height = 25
+    Height = 32
     Caption = '&Nova Seq.'
     Enabled = False
     TabOrder = 4
@@ -179,9 +179,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
   end
   object BtnSalva: TBitBtn
     Left = 205
-    Top = 417
+    Top = 415
     Width = 75
-    Height = 25
+    Height = 32
     Caption = '&Salvar'
     TabOrder = 2
     OnClick = BtnSalvaClick
@@ -215,9 +215,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
   end
   object BtnReenv: TBitBtn
     Left = 286
-    Top = 417
+    Top = 415
     Width = 75
-    Height = 25
+    Height = 32
     Caption = '&Reenvio'
     Enabled = False
     TabOrder = 5
@@ -275,9 +275,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
   end
   object BtnSair: TBitBtn
     Left = 448
-    Top = 417
+    Top = 415
     Width = 75
-    Height = 25
+    Height = 32
     Caption = 'Sai&r'
     TabOrder = 7
     OnClick = BtnSairClick
@@ -430,9 +430,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
   end
   object BtnAltera: TBitBtn
     Left = 367
-    Top = 417
+    Top = 415
     Width = 75
-    Height = 25
+    Height = 32
     Caption = '&Alterar'
     Enabled = False
     TabOrder = 6
@@ -502,8 +502,6 @@ object FrmRemessaSedex: TFrmRemessaSedex
       item
         Width = 100
       end>
-    ExplicitTop = 567
-    ExplicitWidth = 650
   end
   object CboProdutoServSedex: TDBLookupComboBox
     Left = 419
@@ -653,7 +651,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       Left = 439
       Top = 40
       Width = 235
-      Height = 24
+      Height = 22
       CharCase = ecUpperCase
       Enabled = False
       Font.Charset = DEFAULT_CHARSET
@@ -1005,7 +1003,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label17: TLabel
-      Left = 533
+      Left = 565
       Top = 75
       Width = 32
       Height = 14
@@ -1075,7 +1073,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
     end
     object Label12: TLabel
-      Left = 353
+      Left = 344
       Top = 75
       Width = 47
       Height = 14
@@ -1215,9 +1213,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
       TabOrder = 3
     end
     object EdPorc: TEdit
-      Left = 567
+      Left = 600
       Top = 70
-      Width = 58
+      Width = 73
       Height = 24
       BiDiMode = bdRightToLeft
       CharCase = ecUpperCase
@@ -1300,9 +1298,9 @@ object FrmRemessaSedex: TFrmRemessaSedex
       OnKeyPress = EdJuncaoKeyPress
     end
     object EdReg: TEdit
-      Left = 402
+      Left = 393
       Top = 70
-      Width = 102
+      Width = 152
       Height = 24
       CharCase = ecUpperCase
       Enabled = False
@@ -1454,7 +1452,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       Left = 14
       Top = 49
       Width = 52
-      Height = 15
+      Height = 14
       Caption = 'Ag'#234'ncia:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clRed
@@ -1669,7 +1667,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
     Enabled = False
     Interval = 1
     OnTimer = Timer1Timer
-    Left = 640
-    Top = 234
+    Left = 644
+    Top = 200
   end
 end
