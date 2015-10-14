@@ -78,14 +78,19 @@ object FrmRemessaSedex: TFrmRemessaSedex
     Align = alBottom
     Ctl3D = False
     DataSource = Dm.DtSSdx4
-    Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
     ParentCtl3D = False
     TabOrder = 3
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
-    TitleFont.Style = []
+    TitleFont.Style = [fsBold]
     OnCellClick = DBGrid001CellClick
     OnDblClick = DBGrid001DblClick
     OnDragDrop = DBGrid001DragDrop
@@ -103,7 +108,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
         Title.Font.Height = -11
         Title.Font.Name = 'Tahoma'
         Title.Font.Style = [fsBold]
-        Width = 81
+        Width = 87
         Visible = True
       end
       item
@@ -116,33 +121,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
         Title.Font.Height = -11
         Title.Font.Name = 'Tahoma'
         Title.Font.Style = [fsBold]
-        Width = 165
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'sdx_endedest'
-        Title.Caption = 'Endere'#231'o'
-        Title.Color = 16764262
-        Title.Font.Charset = DEFAULT_CHARSET
-        Title.Font.Color = clBlack
-        Title.Font.Height = -11
-        Title.Font.Name = 'Tahoma'
-        Title.Font.Style = [fsBold]
-        Width = 200
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'sdx_cep'
-        Title.Caption = 'Cep'
-        Title.Color = 16764262
-        Title.Font.Charset = DEFAULT_CHARSET
-        Title.Font.Color = clBlack
-        Title.Font.Height = -11
-        Title.Font.Name = 'Tahoma'
-        Title.Font.Style = [fsBold]
-        Width = 65
+        Width = 263
         Visible = True
       end
       item
@@ -155,6 +134,27 @@ object FrmRemessaSedex: TFrmRemessaSedex
         Title.Font.Height = -11
         Title.Font.Name = 'Tahoma'
         Title.Font.Style = [fsBold]
+        Width = 166
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'sdx_dtmov'
+        Title.Caption = 'Dt Mov'
+        Title.Color = 16764262
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -11
+        Title.Font.Name = 'Tahoma'
+        Title.Font.Style = [fsBold]
+        Width = 80
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'bxasdx_dscbxa'
+        Title.Caption = 'Estado'
+        Title.Color = 16764262
         Visible = True
       end>
   end

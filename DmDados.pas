@@ -512,6 +512,7 @@ type
     SqlSdx6Dtini: TDateField;
     SqlSdx6Produto: TStringField;
     SqlSdx6CodProduto: TIntegerField;
+    SqlSdx4bxasdx_dscbxa: TStringField;
     procedure DataModuleCreate(Sender: TObject);
 
 
@@ -568,6 +569,5 @@ begin
     end;
   end;
 end;
-
 
 end.

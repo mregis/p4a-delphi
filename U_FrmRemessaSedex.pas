@@ -760,14 +760,18 @@ begin
     begin
       SqlSdx4.Close;
       SqlSdx4.SQL.Clear;
-      SqlSdx4.SQL.Add('SELECT t.*, s.tbsdxserv_sigla, s.tbsdxserv_dsc, s.tbsdxserv_prod ');
+      SqlSdx4.SQL.Add('SELECT t.*, ' +
+        's.tbsdxserv_sigla, s.tbsdxserv_dsc, s.tbsdxserv_prod, ' +
+        'd.bxasdx_dscbxa');
       SqlSdx4.SQL.Add('FROM public.tbsdx02 t ');
       SqlSdx4.SQL.Add('    INNER JOIN public.tbsdx_ect e ON ' +
             '(t.sdx_numobj2 = e.tbsdxect_sigla || ' +
             'e.tbsdxect_num || e.tbsdxect_dv || ''BR'') ');
       SqlSdx4.SQL.Add('    INNER JOIN public.tbsdxserv s ON ' +
             '(e.tbsdxect_prod = s.tbsdxserv_prod)');
-      SqlSdx4.SQL.Add('WHERE t.sdx_dtcarga = CURRENT_DATE	');
+      SqlSdx4.SQL.Add('    LEFT JOIN public.tbbxasdx d ON ' +
+            '(t.sdx_codbxa = d.bxasdx_codbxa)');
+      SqlSdx4.SQL.Add('ORDER BY t.sdx_dtcarga DESC LIMIT 10	');
 
 
       dm.SqlSdxServ.Close;
@@ -1122,13 +1126,17 @@ begin
     begin
       SqlSdx4.Close;
       SqlSdx4.SQL.Clear;
-      SqlSdx4.SQL.Add('SELECT t.*, s.tbsdxserv_sigla, s.tbsdxserv_dsc, s.tbsdxserv_prod ');
+      SqlSdx4.SQL.Add('SELECT t.*, ' +
+        's.tbsdxserv_sigla, s.tbsdxserv_dsc, s.tbsdxserv_prod, ' +
+        'd.bxasdx_dscbxa');
       SqlSdx4.SQL.Add('FROM public.tbsdx02 t ');
       SqlSdx4.SQL.Add('    INNER JOIN public.tbsdx_ect e ON ' +
             '(t.sdx_numobj2 = e.tbsdxect_sigla || ' +
             'e.tbsdxect_num || e.tbsdxect_dv || ''BR'') ');
       SqlSdx4.SQL.Add('    INNER JOIN public.tbsdxserv s ON ' +
             '(e.tbsdxect_prod = s.tbsdxserv_prod)');
+      SqlSdx4.SQL.Add('    LEFT JOIN public.tbbxasdx d ON ' +
+            '(t.sdx_codbxa = d.bxasdx_codbxa)');
       SqlSdx4.SQL.Add('WHERE t.sdx_numobj2 LIKE :numobj2 AND ');
       SqlSdx4.SQL.Add('  t.sdx_nomdest ILIKE :juncao ');
       SqlSdx4.SQL.Add('ORDER BY t.sdx_dtcarga DESC');
