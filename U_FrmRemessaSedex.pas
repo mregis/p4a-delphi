@@ -103,7 +103,6 @@ type
     procedure EdaltKeyPress(Sender: TObject; var Key: Char);
     procedure EdcpmKeyPress(Sender: TObject; var Key: Char);
     procedure EdbasKeyPress(Sender: TObject; var Key: Char);
-//    procedure EdVolKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure EdVolKeyPress(Sender: TObject; var Key: Char);
     procedure EdVolEnter(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -145,10 +144,6 @@ type
   v_soma,codcxa              : Integer;
   vvalor,txcor,pescub,volcub,pescal: Real;
   selcxa  : Boolean;
-
-
-  //Variável que armazenará o modelo da balança, função ObtemNomeBalanca
-
 
     { Private declarations }
   public

@@ -20,7 +20,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
   PixelsPerInch = 96
   TextHeight = 13
   object Label14: TLabel
-    Left = 16
+    Left = 12
     Top = 17
     Width = 61
     Height = 16
@@ -85,6 +85,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
     Font.Style = []
     Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
     ParentCtl3D = False
+    ParentFont = False
     TabOrder = 3
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
@@ -413,7 +414,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
     OnKeyPress = EdJuncaoKeyPress
   end
   object EdObjeto: TEdit
-    Left = 79
+    Left = 75
     Top = 12
     Width = 120
     Height = 26
@@ -928,7 +929,6 @@ object FrmRemessaSedex: TFrmRemessaSedex
       Font.Style = [fsBold]
       ParentBiDiMode = False
       ParentFont = False
-      ReadOnly = True
       TabOrder = 5
       OnEnter = EdPesoEnter
     end

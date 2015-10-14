@@ -3,7 +3,7 @@ object FrmPrincipal: TFrmPrincipal
   Top = 172
   Align = alCustom
   Caption = 'Address S.A - SISTEMA ADS'
-  ClientHeight = 670
+  ClientHeight = 689
   ClientWidth = 851
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -320,27 +320,25 @@ object FrmPrincipal: TFrmPrincipal
   Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate
-  ExplicitWidth = 320
-  ExplicitHeight = 240
   PixelsPerInch = 96
   TextHeight = 18
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
     Width = 851
-    Height = 670
+    Height = 689
     VertScrollBar.Range = 19
     Align = alClient
     AutoScroll = False
     Color = 16707787
     ParentColor = False
     TabOrder = 0
-    ExplicitHeight = 651
+    ExplicitHeight = 670
     object Image1: TImage
       Left = 0
       Top = 0
       Width = 847
-      Height = 647
+      Height = 666
       Align = alClient
       Picture.Data = {
         07544269746D6170B6620300424DB66203000000000036040000280000002602
@@ -7285,7 +7283,7 @@ object FrmPrincipal: TFrmPrincipal
     end
     object StsMenu: TStatusBar
       Left = 0
-      Top = 647
+      Top = 666
       Width = 847
       Height = 19
       Color = 16776697
@@ -7309,7 +7307,7 @@ object FrmPrincipal: TFrmPrincipal
         item
           Width = 120
         end>
-      ExplicitTop = 628
+      ExplicitTop = 647
     end
     object BitBtnCargaAR: TBitBtn
       Left = 88
