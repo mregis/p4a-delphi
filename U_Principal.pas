@@ -1276,6 +1276,7 @@ end;
 procedure TFrmPrincipal.ReenvArTkClick(Sender: TObject);
 begin
   Application.CreateForm(TFrmRemessaSedex, FrmRemessaSedex);
+  FrmRemessaSedex.Tag := 8;
   FrmRemessaSedex.ShowModal;
   SetFocus;
 end;
@@ -2043,7 +2044,7 @@ end;
 
 procedure TFrmPrincipal.SedexOLClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmRemessaSedex,FrmRemessaSedex);
+  Application.CreateForm(TFrmRemessaSedex, FrmRemessaSedex);
   FrmRemessaSedex.Tag :=  0;
   FrmRemessaSedex.ShowModal;
   SetFocus;

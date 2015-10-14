@@ -264,6 +264,26 @@ procedure TFrmRemessaSedex.BtnReenvClick(Sender: TObject);
 var sqldadosobj, num_obj, dv, sigla_obj,
   sigla_prod, insmov : String;
 begin
+
+// validação básica
+if (dm.SqlSdx4sdx_numobj2.Text <> EdObjeto.Text) then
+  begin
+    application.MessageBox(
+              PChar('Para efetuar uma repostagem é necessário indicar o número' +
+                ' de objeto anterior.'),
+              'ADS', MB_OK + MB_ICONERROR);
+    exit;
+  end;
+
+if (DBCboBaixa.KeyValue = null) then
+  begin
+    application.MessageBox(
+              PChar('Indique o motivo da devolução do objeto.'),
+              'ADS', MB_OK + MB_ICONERROR);
+    exit;
+  end;
+
+
   with Dm do
     begin
       SqlAux3.Close;
@@ -362,6 +382,18 @@ begin
               dv + 'BR' + ' não pode ser marcado como utilizado.');
 
         SqlAux1.Close;
+        // Marcar o motivo de devolução no objeto anterior
+        SqlAux1.SQL.Add('UPDATE tbsdx02 SET sdx_codbxa = :motivo '+
+                          'WHERE numobj2 = :numobj2');
+        SqlAux1.ParamByName('motivo').AsInteger := DBCboBaixa.KeyValue;
+        SqlAux1.ParamByName('numobj2').AsString := SqlSdx4sdx_numobj2.Value;
+        SqlAux1.ExecSQL;
+        if (SqlAux1.RowsAffected < 1 ) then
+          raise Exception.Create('Ocorreu um erro ao tentar informar o motivo de ' +
+            'devolução para o objeto ' + SqlSdx4sdx_numobj2.Value + #13#10 +
+            'O processo foi abortado.');
+
+        // Tudo OK
         EdNovoAr.Text := sigla_obj + num_obj + dv + 'BR';
         EdNovoAr.Refresh;
         except on e: Exception do
@@ -392,6 +424,13 @@ begin
      // Edcodcxa.SetFocus;
     end
   else}
+  if trim(EdObjeto.Text) = '' then
+    begin
+      Application.MessageBox('Digite o Número de Objeto', 'ADS', ID_OK);
+      EdObjeto.SetFocus;
+      exit;
+    end;
+
     calcvol;
     mpeso       :=  EdPeso.Text;
 
@@ -400,15 +439,8 @@ begin
     else
       pescal  :=  pescub;
 
-
   calcvalor;
 
-  if trim(EdObjeto.Text) = '' then
-    begin
-      Application.MessageBox('Digite o Número de Objeto', 'ADS', ID_OK);
-      EdObjeto.SetFocus;
-      exit;
-    end;
   v_soma := 0;
   //    mcep  :=  MkEdCep.Text
   for i:= 1 to 8 do
@@ -549,6 +581,7 @@ begin
         begin
           verag;
           EdJuncao.Text :=  GeraNT(EdJuncao.Text, 4);
+          EdObjeto.Clear;
           objtbsdx02(1);
           DBGrid001.SetFocus;
         end
@@ -566,7 +599,7 @@ procedure TFrmRemessaSedex.EdnrocxaKeyPress(Sender: TObject; var Key: Char);
 begin
   if (Key = #13) then
     proccxa(0);
-  
+
 end;
 
 procedure TFrmRemessaSedex.EdObjetoKeyPress(Sender: TObject; var Key: Char);
@@ -585,9 +618,10 @@ begin
             end;
       if vernum(copy(EdObjeto.Text, 3, 9)) =  true then
         begin
+          EdJuncao.Clear;
           objtbsdx02(0);
-          selcxa:=false;
-          if Tag in [0..2] then
+          selcxa := false;
+          if Tag = 9 then
             Ednrocxa.SetFocus
             //EdVol.SetFocus
           else
@@ -679,6 +713,7 @@ begin
   if (selcxa = false) then
     proccxa(1);
 end;
+
 procedure TFrmRemessaSedex.proccxa(tipo:Integer);
 begin
   with Dm do
@@ -774,33 +809,37 @@ begin
       dm.SqlSdxServ.SQL.Add('SELECT t.* FROM public.tbsdxserv t ');
       dm.SqlSdxServ.Open;
       CboProdutoServSedex.Refresh;
-
-      if FrmRemessaSedex.tag in [6] then
+      // Reenvio
+      if FrmRemessaSedex.tag = 8 then
         begin
           EdJuncao.Enabled  :=  true;
           EdJuncao.ReadOnly :=  false;
           BtnSalva.Enabled  :=  false;
-          Sqltbbxasdx.Close;
-          Sqltbbxasdx.SQL.Clear;
-          Sqltbbxasdx.SQL.Add('select * from tbbxasdx ');
+          // Combo de Motivos de Devolução
           Sqltbbxasdx.Open;
-          //DBCboBaixa.Enabled  :=  true;
+          if (Sqltbbxasdx.RecordCount > 0) then
+            begin
+              DBCboBaixa.Enabled  :=  true;
+              DBCboBaixa.Refresh;
+            end;
+          // Grid de Ultimos Registros criados ou resultado de pesquisas
+          SqlSdx4.Open;
+          if (SqlSdx4.RecordCount > 0) then
+            begin
+              SqlSdx4.First;
+              DBGrid001.Refresh;
+            end;
         end
-      else
+      // Pesagem
+      else if FrmRemessaSedex.Tag = 9 then
         begin
-          BtnReenv.Enabled  :=  true;
-          BtnSalva.Enabled  :=  false;
-          EdJuncao.Enabled  :=  true;
-          EdJuncao.ReadOnly :=  false;
+//          BtnReenv.Enabled  :=  false;
+          BtnSalva.Enabled  :=  true;
+//          EdJuncao.Enabled  :=  true;
+//          EdJuncao.ReadOnly :=  false;
           BtnAltera.Enabled :=  true;
         end;
 
-      SqlSdx4.Open;
-      if (SqlSdx4.RecordCount > 0) then
-        begin
-          SqlSdx4.First;
-          DBGrid001.Refresh;
-        end;
     end;
 end;
 
@@ -841,8 +880,7 @@ end;
 
 procedure TFrmRemessaSedex.atuddsag(tipo: integer);
 begin
-
-  if dm.SqlSdx4sdx_numobj4.Text <> '' then
+//  if dm.SqlSdx4sdx_numobj4.Text <> '' then
     with dm do
       begin
         EdObjeto.Text :=  SqlSdx4sdx_numobj2.Text;
@@ -1068,7 +1106,7 @@ begin
   EdCid.Clear;
   EdUF.Clear;
   MkEdCep.Clear;
-  //EdPeso.Clear;
+  EdPeso.Clear;
   EdVol.Clear;
   EdValor.Clear;
   EdValor.Clear;
