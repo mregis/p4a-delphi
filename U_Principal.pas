@@ -226,6 +226,9 @@ type
     BitBtnCargaAR: TBitBtn;
     BitBtnPrintArs: TBitBtn;
     BitBtnRepostagemAR: TBitBtn;
+    BitBtnPesagem: TBitBtn;
+    BitBtnListaPostagem: TBitBtn;
+    procedure BitBtnPesagemClick(Sender: TObject);
     procedure ImprimeARsClick(Sender: TObject);
     procedure precargamenuitemClick(Sender: TObject);
     procedure ReenvArTkClick(Sender: TObject);
@@ -431,7 +434,8 @@ uses U_ExtConsolidado, FrmExtContaCorrentePopanca, U_CadBaixa,
   un_frmprint, Un_cadcli, U_FrmDigExtratoUnificado, UFrTokenBradesco,
   U_PreCadToken, U_AltTokens, U_FrmConsulta, U_CadSedex, U_PesqImpSedex,
   U_FrmRelArSedexLista, U_FrmRlTotRa, DmDados, U_FrmCadNLido, U_FrmRemessaSedex,
-  U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr;
+  U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr,
+  U_FrmGeraListaPostagem;
 
 {$R *.dfm}
 procedure TFrmPrincipal.AbreBaixa(tipo:Integer);
@@ -825,6 +829,13 @@ begin
   Application.CreateForm(Tfrm_cartao,frm_cartao);
   frm_cartao.ShowModal;
   setfocus;
+end;
+
+procedure TFrmPrincipal.BitBtnPesagemClick(Sender: TObject);
+begin
+  Application.CreateForm(TFrmGeraListaPostagem, FrmGeraListaPostagem);
+  FrmGeraListaPostagem.ShowModal;
+  SetFocus;
 end;
 
 procedure TFrmPrincipal.BoletoCLIClick(Sender: TObject);
@@ -1989,11 +2000,11 @@ end;
 
 procedure TFrmPrincipal.PostArDigClick(Sender: TObject);
 begin
-Application.CreateForm(TFrmPesqImpSedex,FrmPesqImpSedex);
+Application.CreateForm(TFrmPesqImpSedex, FrmPesqImpSedex);
 FrmPesqImpSedex.Tag := 3;
-FrmPesqImpSedex.DateTimePicker3.Visible :=  true;
-FrmPesqImpSedex.DateTimePicker3.Enabled :=  true;
-FrmPesqImpSedex.Panel3.Visible  :=  true;
+FrmPesqImpSedex.DateTimePicker3.Visible := true;
+FrmPesqImpSedex.DateTimePicker3.Enabled := true;
+FrmPesqImpSedex.Panel3.Visible := true;
 FrmPesqImpsedex.ShowModal;
 
 end;
