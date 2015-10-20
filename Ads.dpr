@@ -71,20 +71,15 @@ uses
   U_FrmRelARPend in 'U_FrmRelARPend.pas' {FrmRelARPend},
   U_FrmRlErrobxaArSdx in 'U_FrmRlErrobxaArSdx.pas' {FrmRlErroBxaArSdx},
   uGerarPlanilhaGeral in 'uGerarPlanilhaGeral.pas' {fGerarPlanilhaGeral},
-  U_FrmPrintAR in 'U_FrmPrintAR.pas' {FrmPrintAR};
-
-//  U_FrmRelSedex in 'U_FrmRelSedex.pas' {FrmRelSedex};
-
-//  U_FrmExtVelho in 'U_FrmExtVelho.pas' {Form2};
+  U_FrmPrintAR in 'U_FrmPrintAR.pas' {FrmPrintAR},
+  U_FrmGeraListaPostagem in 'U_FrmGeraListaPostagem.pas' {FrmGeraListaPostagem};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.Title := 'ADS';
-  //Application.CreateForm(TFrmPrincipal, FrmPrincipal);
   Application.CreateForm(TDm, Dm);
-
   if Dm.conect = true then
     begin
       Application.CreateForm(TFrmPrincipal, FrmPrincipal);
