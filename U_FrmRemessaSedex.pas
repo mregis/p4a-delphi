@@ -608,16 +608,6 @@ procedure TFrmRemessaSedex.EdObjetoKeyPress(Sender: TObject; var Key: Char);
 begin
   if (key = #13) and  (Length(EdObjeto.Text) > 10) then
     begin
-      if copy(EdObjeto.Text, 1, 2) = 'AR' then
-        begin
-          Application.MessageBox(PChar('Parece que foi utilizado um código de AR '+
-                  'ao invés de um número de objeto. Utilize sempre o número de Objeto ' +
-                  ' para procurar um registro..'),
-                  'ADS',  ID_OK);
-              EdObjeto.Clear;
-              EdObjeto.SetFocus;
-              Exit;
-            end;
       if vernum(copy(EdObjeto.Text, 3, 9)) =  true then
         begin
           EdJuncao.Clear;
@@ -625,14 +615,13 @@ begin
           selcxa := false;
           if Tag = 9 then
             Ednrocxa.SetFocus
-            //EdVol.SetFocus
           else
             BtnReenv.SetFocus;
         end
       else
         begin
           Application.MessageBox(PChar(EdObjeto.Text + ' não é um número ' +
-              'de objeto válido. Tente novamente.'),
+              'de objeto ou AR válido. Tente novamente.'),
             'ADS',  ID_OK);
           EdObjeto.Clear;
           EdObjeto.SetFocus;
@@ -835,8 +824,8 @@ begin
       // Pesagem
       else if FrmRemessaSedex.Tag = 9 then
         begin
-          BtnSalva.Enabled  :=  true;
-          BtnAltera.Enabled :=  true;
+          BtnSalva.Enabled  := true;
+          BtnAltera.Enabled := true;
         end;
 
     end;
@@ -1169,10 +1158,14 @@ begin
             '(e.tbsdxect_prod = s.tbsdxserv_prod)');
       SqlSdx4.SQL.Add('    LEFT JOIN public.tbbxasdx d ON ' +
             '(t.sdx_codbxa = d.bxasdx_codbxa)');
-      SqlSdx4.SQL.Add('WHERE t.sdx_numobj2 LIKE :numobj2 AND ');
-      SqlSdx4.SQL.Add('  t.sdx_nomdest ILIKE :juncao ');
+      SqlSdx4.SQL.Add('WHERE t.sdx_nomdest ILIKE :juncao ');
+      if (copy(EdObjeto.Text, 1, 2) = 'AR') then
+        SqlSdx4.SQL.Add('  AND t.sdx_numobj4 LIKE :obj')
+      else
+        SqlSdx4.SQL.Add('  AND t.sdx_numobj2 LIKE :obj');
+
       SqlSdx4.SQL.Add('ORDER BY t.sdx_dtcarga DESC');
-      SqlSdx4.ParamByName('numobj2').AsString :=  EdObjeto.Text + '%';
+      SqlSdx4.ParamByName('obj').AsString :=  EdObjeto.Text + '%';
       SqlSdx4.ParamByName('juncao').AsString :=  EdJuncao.Text + '%';
 
 {*

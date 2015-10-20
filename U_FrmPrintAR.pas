@@ -206,8 +206,9 @@ procedure TFrmPrintAR.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   with Dm do
     begin
-    SqlAux1.Close;
-    SqlAux2.Close
+      SqlAux1.Close;
+      SqlAux2.Close;
+      SqlSdx6.Close;
     end;
 
   Action := Cafree;

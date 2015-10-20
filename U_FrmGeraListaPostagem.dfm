@@ -29,6 +29,16 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     ParentBiDiMode = False
     ParentFont = False
   end
+  object LabelLote: TLabel
+    Left = 97
+    Top = 134
+    Width = 36
+    Height = 16
+    BiDiMode = bdRightToLeft
+    Caption = 'Lotes:'
+    FocusControl = EditLotes
+    ParentBiDiMode = False
+  end
   object BitBtnGerar: TBitBtn
     Left = 139
     Top = 272
@@ -244,5 +254,23 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
         Title.Font.Style = [fsBold]
         Visible = True
       end>
+  end
+  object EditLotes: TEdit
+    Left = 139
+    Top = 129
+    Width = 321
+    Height = 26
+    Hint = 'Voc'#234' pode digitar mais de um lote separando-os por v'#237'rgula'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+  end
+  object SDListaPostagem: TSaveDialog
+    Left = 520
+    Top = 24
   end
 end

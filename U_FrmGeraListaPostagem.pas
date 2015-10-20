@@ -17,6 +17,9 @@ type
     CboPagante: TDBLookupComboBox;
     LabelProd: TLabel;
     DBGridPostagem: TDBGrid;
+    SDListaPostagem: TSaveDialog;
+    EditLotes: TEdit;
+    LabelLote: TLabel;
     procedure DBGridPostagemCellClick(Column: TColumn);
     procedure DtPickerDtFinUserInput(Sender: TObject; const UserString: string;
       var DateAndTime: TDateTime; var AllowChange: Boolean);
@@ -38,7 +41,7 @@ var
 
 implementation
 
-uses DmDados;
+uses DmDados, DB;
 
 {$R *.dfm}
 
@@ -48,36 +51,31 @@ var i: integer;
   s: String;
 Begin
  i := 0;
- {
+{
   with dm do
     Begin
-          if EdSeqIni.Text <> '' then
-            begin
-              if (EdSeqFin.Text = '') then
-                EdSeqFin.Text := EdSeqIni.Text;
-              if (StrToInt64(EdSeqFin.Text) > StrToInt64(EdSeqIni.Text)) then
-                begin
-                  ShowMessage('Número Sequencial Final deve ser maior que o Inicial');
-                  exit;
-                end;
-              s := ' AND t.sdx_seqcarga BETWEEN :seqini AND :seqfin ';
-              SqlAux1.SQL.Add(s);
-              SqlAux1.ParamByName('seqini').AsString := EdSeqIni.Text;
-              SqlAux1.ParamByName('seqfin').AsString := EdSeqFin.Text;
-            end;
+      SqlAux1.Close;
+      SqlAux1.SQL.Clear;
+      SqlAux1.SQl.Add('SELECT COUNT(t.sdx_numobj2) AS qt_regs');
+            SqlSdxServ.SQL.Add('FROM public.tbsdx_ect e ');
+      SqlAux1.SQL.Add('  INNER JOIN public.tbsdxserv s ');
+      SqlAux1.SQL.Add('      ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+      SqlAux1.SQL.Add('  INNER JOIN public.tbsdx02 t ');
+      SqlAux1.SQL.Add('      ON (e.tbsdxect_sigla || e.tbsdxect_num || ' +
+          'e.tbsdxect_dv || ''BR'' = t.sdx_numobj2) ');
+      SqlSdxServ.SQL.Add('WHERE t.sdx_dtcarga BETWEEN :dtini AND :dtfim ');
 
-          SqlAux1.Open;
           if (SqlAux1.FieldByName('qt_regs').AsInteger > 0) then
             Begin
               try
                 // Há registros para gerar o arquivo. Criando-o...
                 //locarq  :=  'O:\sedex_ar\retorno\';
-                SaveDialog1.InitialDir := 'O:\sedex_ar\retorno\';
-                SaveDialog1.FileName := 'RT' + SqlSdxServtbsdxserv_sigla.AsString +
+                SDListaPostagem.InitialDir := 'O:\sedex_ar\retorno\';
+                SDListaPostagem.FileName := 'RT' + SqlSdxServtbsdxserv_sigla.AsString +
                       FormatDateTime('ddmm', DateTimePicker3.Date ) + '.txt';
 
-                if (SaveDialog1.Execute) then
-                  EdArq.Text  :=  SaveDialog1.FileName
+                if (SDListaPostagem.Execute) then
+                  EdArq.Text  :=  SDListaPostagem.FileName
                 else
                   begin
                     ShowMessage('Não foi selecionado um arquivo de destino. ' +
@@ -242,9 +240,13 @@ end;
 
 procedure TFrmGeraListaPostagem.DBGridPostagemCellClick(Column: TColumn);
 begin
-  DtPickerDtIni.DateTime := dm.SqlSdx7mindt.Value;
-  DtPickerDtFin.DateTime := dm.SqlSdx7maxdt.Value;
-  CboPagante.KeyValue := dm.SqlSdx7tbsdxserv_prod.Value;
+  With Dm Do
+    begin
+      DtPickerDtIni.DateTime := SqlSdx7mindt.Value;
+      DtPickerDtFin.DateTime := SqlSdx7maxdt.Value;
+      CboPagante.KeyValue := SqlSdx7tbsdxserv_prod.Value;
+      EditLotes.Text := IntToStr(SqlSdx7lote.Value);
+    end;
 end;
 
 procedure TFrmGeraListaPostagem.DtPickerDtFinCloseUp(Sender: TObject);

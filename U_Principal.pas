@@ -833,8 +833,9 @@ end;
 
 procedure TFrmPrincipal.BitBtnPesagemClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmGeraListaPostagem, FrmGeraListaPostagem);
-  FrmGeraListaPostagem.ShowModal;
+  Application.CreateForm(TFrmRemessaSedex, FrmRemessaSedex);
+  FrmRemessaSedex.Tag := 9;
+  FrmRemessaSedex.ShowModal;
   SetFocus;
 end;
 
@@ -2056,7 +2057,7 @@ end;
 procedure TFrmPrincipal.SedexOLClick(Sender: TObject);
 begin
   Application.CreateForm(TFrmRemessaSedex, FrmRemessaSedex);
-  FrmRemessaSedex.Tag :=  0;
+  FrmRemessaSedex.Tag := 9;
   FrmRemessaSedex.ShowModal;
   SetFocus;
 end;
