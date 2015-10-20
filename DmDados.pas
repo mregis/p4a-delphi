@@ -513,6 +513,16 @@ type
     SqlSdx6Produto: TStringField;
     SqlSdx6CodProduto: TIntegerField;
     SqlSdx4bxasdx_dscbxa: TStringField;
+    SqlSdx7: TZQuery;
+    DtSSdx7: TDataSource;
+    SqlSdx7tbsdxserv_dsc: TStringField;
+    SqlSdx7tbsdxserv_crtpst: TStringField;
+    SqlSdx7tbsdxserv_sigla: TStringField;
+    SqlSdx7qtobjs: TLargeintField;
+    SqlSdx7lote: TLargeintField;
+    SqlSdx7mindt: TDateField;
+    SqlSdx7maxdt: TDateField;
+    SqlSdx7tbsdxserv_prod: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
 
 

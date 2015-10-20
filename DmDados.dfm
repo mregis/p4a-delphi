@@ -1,7 +1,7 @@
 object Dm: TDm
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Height = 698
+  Height = 763
   Width = 1087
   object Ads: TZConnection
     Protocol = 'postgresql-8.x'
@@ -2279,5 +2279,93 @@ object Dm: TDm
     DataSet = SqlSdx6
     Left = 509
     Top = 628
+  end
+  object SqlSdx7: TZQuery
+    Connection = Ads
+    AutoCalcFields = False
+    SQL.Strings = (
+      'SELECT '
+      '  s.tbsdxserv_dsc,'
+      '  s.tbsdxserv_crtpst,'
+      '  s.tbsdxserv_sigla,'
+      '  s.tbsdxserv_prod,'
+      '  t.sdx_seqcarga as lote,'
+      '  COUNT(t.sdx_numobj2) AS qtobjs,'
+      '  MIN(t.sdx_dtcarga) AS mindt,'
+      '  MAX(t.sdx_dtcarga) as maxdt'
+      'FROM'
+      '  public.tbsdx_ect e'
+      
+        '  INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxser' +
+        'v_prod)'
+      
+        '  INNER JOIN public.tbsdx02 t ON (e.tbsdxect_sigla || e.tbsdxect' +
+        '_num || e.tbsdxect_dv || '#39'BR'#39' = t.sdx_numobj2)'
+      'WHERE t.sdx_dtcarga BETWEEN :dtini AND :dtfim'
+      'GROUP BY 1, 2, 3, 4, 5')
+    Params = <
+      item
+        DataType = ftString
+        Name = 'dtini'
+        ParamType = ptInput
+        Value = 42293d
+      end
+      item
+        DataType = ftString
+        Name = 'dtfim'
+        ParamType = ptInput
+        Value = 42293d
+      end>
+    Left = 28
+    Top = 683
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'dtini'
+        ParamType = ptInput
+        Value = 42293d
+      end
+      item
+        DataType = ftString
+        Name = 'dtfim'
+        ParamType = ptInput
+        Value = 42293d
+      end>
+    object SqlSdx7tbsdxserv_dsc: TStringField
+      DisplayLabel = 'Produto'
+      FieldName = 'tbsdxserv_dsc'
+      Size = 50
+    end
+    object SqlSdx7tbsdxserv_crtpst: TStringField
+      DisplayLabel = 'Cart'#227'o de Postagem'
+      FieldName = 'tbsdxserv_crtpst'
+      Size = 9
+    end
+    object SqlSdx7tbsdxserv_sigla: TStringField
+      DisplayLabel = 'Sigla'
+      FieldName = 'tbsdxserv_sigla'
+      Size = 2
+    end
+    object SqlSdx7tbsdxserv_prod: TIntegerField
+      FieldName = 'tbsdxserv_prod'
+    end
+    object SqlSdx7lote: TLargeintField
+      FieldName = 'lote'
+    end
+    object SqlSdx7qtobjs: TLargeintField
+      DisplayLabel = 'Qtde'
+      FieldName = 'qtobjs'
+    end
+    object SqlSdx7mindt: TDateField
+      FieldName = 'mindt'
+    end
+    object SqlSdx7maxdt: TDateField
+      FieldName = 'maxdt'
+    end
+  end
+  object DtSSdx7: TDataSource
+    DataSet = SqlSdx7
+    Left = 85
+    Top = 684
   end
 end
