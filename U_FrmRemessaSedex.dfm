@@ -174,6 +174,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
     Width = 75
     Height = 32
     Caption = '&Salvar'
+    Enabled = False
     TabOrder = 2
     OnClick = BtnSalvaClick
     Glyph.Data = {

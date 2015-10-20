@@ -368,10 +368,11 @@ if (DBCboBaixa.KeyValue = null) then
         SqlAux1.ExecSQL;
         EdNovoEnd.Text  :=  SqlTbBradDeptosender.Text;
         EdNovoEnd.Refresh;
+
         SqlAux1.Close;
         SqlAux1.SQL.Clear;
 
-        SqlAux1.SQL.Add('UPDATE tbsdx_ect SET tbsdx_use = :use '+
+        SqlAux1.SQL.Add('UPDATE tbsdx_ect SET tbsdx_use = :use ' +
                           'WHERE tbsdxect_num = :numobj AND tbsdxect_prod = :prod');
         SqlAux1.ParamByName('use').AsString := 'S';
         SqlAux1.ParamByName('numobj').AsString := num_obj;
@@ -382,9 +383,10 @@ if (DBCboBaixa.KeyValue = null) then
               dv + 'BR' + ' não pode ser marcado como utilizado.');
 
         SqlAux1.Close;
+        SqlAux1.SQL.Clear;
         // Marcar o motivo de devolução no objeto anterior
         SqlAux1.SQL.Add('UPDATE tbsdx02 SET sdx_codbxa = :motivo '+
-                          'WHERE numobj2 = :numobj2');
+                          'WHERE sdx_numobj2 = :numobj2');
         SqlAux1.ParamByName('motivo').AsInteger := DBCboBaixa.KeyValue;
         SqlAux1.ParamByName('numobj2').AsString := SqlSdx4sdx_numobj2.Value;
         SqlAux1.ExecSQL;
@@ -812,9 +814,9 @@ begin
       // Reenvio
       if FrmRemessaSedex.tag = 8 then
         begin
-          EdJuncao.Enabled  :=  true;
-          EdJuncao.ReadOnly :=  false;
-          BtnSalva.Enabled  :=  false;
+          EdJuncao.Enabled  := True;
+          EdJuncao.ReadOnly := False;
+          BtnReenv.Enabled := True;
           // Combo de Motivos de Devolução
           Sqltbbxasdx.Open;
           if (Sqltbbxasdx.RecordCount > 0) then
@@ -833,10 +835,7 @@ begin
       // Pesagem
       else if FrmRemessaSedex.Tag = 9 then
         begin
-//          BtnReenv.Enabled  :=  false;
           BtnSalva.Enabled  :=  true;
-//          EdJuncao.Enabled  :=  true;
-//          EdJuncao.ReadOnly :=  false;
           BtnAltera.Enabled :=  true;
         end;
 

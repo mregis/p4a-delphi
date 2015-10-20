@@ -5,7 +5,7 @@ object FrmPesqImpSedex: TFrmPesqImpSedex
   Caption = 'Sedex'
   ClientHeight = 396
   ClientWidth = 409
-  Color = clBtnFace
+  Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
