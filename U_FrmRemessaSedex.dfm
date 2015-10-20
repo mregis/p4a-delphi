@@ -5,7 +5,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
   Caption = 'Remessa de Sedex'
   ClientHeight = 657
   ClientWidth = 681
-  Color = clBtnFace
+  Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -130,11 +130,6 @@ object FrmRemessaSedex: TFrmRemessaSedex
         FieldName = 'tbsdxserv_dsc'
         Title.Caption = 'Produto'
         Title.Color = 16764262
-        Title.Font.Charset = DEFAULT_CHARSET
-        Title.Font.Color = clWindowText
-        Title.Font.Height = -11
-        Title.Font.Name = 'Tahoma'
-        Title.Font.Style = [fsBold]
         Width = 166
         Visible = True
       end
@@ -143,11 +138,6 @@ object FrmRemessaSedex: TFrmRemessaSedex
         FieldName = 'sdx_dtmov'
         Title.Caption = 'Dt Mov'
         Title.Color = 16764262
-        Title.Font.Charset = DEFAULT_CHARSET
-        Title.Font.Color = clWindowText
-        Title.Font.Height = -11
-        Title.Font.Name = 'Tahoma'
-        Title.Font.Style = [fsBold]
         Width = 80
         Visible = True
       end

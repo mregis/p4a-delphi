@@ -299,9 +299,9 @@ object FrmPrintAR: TFrmPrintAR
     Caption = 'Per'#237'odo'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
+    Font.Height = -13
     Font.Name = 'MS Sans Serif'
-    Font.Style = []
+    Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 4
     object LabelDtIni: TLabel
@@ -312,7 +312,13 @@ object FrmPrintAR: TFrmPrintAR
       BiDiMode = bdRightToLeft
       Caption = 'Data Inicial'
       FocusControl = DtPickerDtIni
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
       ParentBiDiMode = False
+      ParentFont = False
     end
     object LabelDtFin: TLabel
       Left = 261
@@ -322,7 +328,13 @@ object FrmPrintAR: TFrmPrintAR
       BiDiMode = bdRightToLeft
       Caption = 'Data Final'
       FocusControl = DtPickerDtFin
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
       ParentBiDiMode = False
+      ParentFont = False
     end
     object DtPickerDtIni: TDateTimePicker
       Left = 112
