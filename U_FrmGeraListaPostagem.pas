@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, DBCtrls, ComCtrls, Grids, DBGrids;
+  Dialogs, StdCtrls, Buttons, DBCtrls, ComCtrls, Grids, DBGrids, ExtCtrls, FileCtrl;
 
 type
   TFrmGeraListaPostagem = class(TForm)
@@ -20,6 +20,13 @@ type
     SDListaPostagem: TSaveDialog;
     EditLotes: TEdit;
     LabelLote: TLabel;
+    PanelProgress: TPanel;
+    ProgBar: TProgressBar;
+    BtnImprime: TBitBtn;
+    BtnFechar: TBitBtn;
+    OpenDialogPostagem: TOpenDialog;
+    procedure BtnFecharClick(Sender: TObject);
+    procedure BtnImprimeClick(Sender: TObject);
     procedure DBGridPostagemCellClick(Column: TColumn);
     procedure DtPickerDtFinUserInput(Sender: TObject; const UserString: string;
       var DateAndTime: TDateTime; var AllowChange: Boolean);
@@ -41,18 +48,19 @@ var
 
 implementation
 
-uses DmDados, DB;
+uses DmDados, DB, U_Func;
 
 {$R *.dfm}
 
 procedure TFrmGeraListaPostagem.BitBtnGerarClick(Sender: TObject);
 
-var i: integer;
-  s: String;
+var i, seqreg : integer;
+  s, linha : String;
+  arq : TextFile;
 Begin
  i := 0;
-{
-  with dm do
+
+  With dm do
     Begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
@@ -63,44 +71,56 @@ Begin
       SqlAux1.SQL.Add('  INNER JOIN public.tbsdx02 t ');
       SqlAux1.SQL.Add('      ON (e.tbsdxect_sigla || e.tbsdxect_num || ' +
           'e.tbsdxect_dv || ''BR'' = t.sdx_numobj2) ');
-      SqlSdxServ.SQL.Add('WHERE t.sdx_dtcarga BETWEEN :dtini AND :dtfim ');
+      SqlAux1.SQL.Add('WHERE t.sdx_dtcarga BETWEEN :dtini AND :dtfim ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfim').AsDate := DtPickerDtFin.Date;
+      if (CboPagante.KeyValue <> null) then
+        begin
+          SqlAux1.SQL.Add('  AND s.tbsdxserv_prod = :prod');
+          SqlAux1.ParamByName('prod').AsInteger := CboPagante.KeyValue;
+        end;
 
-          if (SqlAux1.FieldByName('qt_regs').AsInteger > 0) then
-            Begin
-              try
-                // Há registros para gerar o arquivo. Criando-o...
-                //locarq  :=  'O:\sedex_ar\retorno\';
-                SDListaPostagem.InitialDir := 'O:\sedex_ar\retorno\';
-                SDListaPostagem.FileName := 'RT' + SqlSdxServtbsdxserv_sigla.AsString +
-                      FormatDateTime('ddmm', DateTimePicker3.Date ) + '.txt';
+      if (Length(TRim(EditLotes.Text)) > 0) then
+        begin
+          SqlAux1.SQL.Add('  AND t.sdx_seqcarga = :lote');
+          SqlAux1.ParamByName('lote').AsInteger := StrToInt64(EditLotes.Text);
+        end;
 
-                if (SDListaPostagem.Execute) then
-                  EdArq.Text  :=  SDListaPostagem.FileName
-                else
-                  begin
-                    ShowMessage('Não foi selecionado um arquivo de destino. ' +
-                        'O Processo foi abortado!');
-                    exit;
-                  end;
+      SqlAux1.Open;
 
-              except
-                begin
-                  Application.MessageBox(PChar('Erro de Conexão Rede'),'ADS',0);
-                  exit;
-                end;
+      if (SqlAux1.FieldByName('qt_regs').AsInteger > 0) then
+        // Há registros para gerar o arquivo. Criando-o...
+        Begin
+          try
+            SDListaPostagem.InitialDir := 'O:\sedex_ar\retorno\';
+            SDListaPostagem.FileName := 'RT' + SqlSdxServtbsdxserv_sigla.AsString +
+                FormatDateTime('ddmm', Date) + '.txt';
+
+            if (not SDListaPostagem.Execute) then
+              begin
+                ShowMessage('Não foi selecionado o diretório de destino. ' +
+                        'O processo será abortado!');
+                exit;
               end;
-              AssignFile(arq, EdArq.Text);
-              try
-                Rewrite(arq);
-              except
-                begin
-                  Application.MessageBox(PChar('Não foi possível criar o arquivo de registros.'), 'ADS', 0);
-                  EdSeqIni.Text  := intToStr(i);
-                  Application.MessageBox(PChar('Sua Nova Sequência é: ' +
-                      IntToStr(i) + ' e ' + EdSeqFin.Text), 'ADS', 0);
-                  exit;
-                end;
-              end;
+
+          except
+            begin
+              Application.MessageBox(PChar('Não foi possível utilizar o diretório'),'ADS',0);
+              exit;
+            end;
+          end;
+            AssignFile(arq, SDListaPostagem.FileName);
+
+          try
+            Rewrite(arq);
+          except
+            begin
+              Application.MessageBox(PChar('Não foi possível criar o arquivo de registros.'), 'ADS', 0);
+              Application.MessageBox(PChar('Sua Nova Sequência é: ' +
+              IntToStr(i) + ' e ' ), 'ADS', 0);
+              exit;
+            end;
+          end;
 
               SqlAux2.Close;
               SqlAux2.SQL.Clear;
@@ -118,16 +138,10 @@ Begin
               SqlAux2.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
               SqlAux2.SQL.Add('    AND t.sdx_dtenvio between :dtini AND :dtfin ');
 
-              if (s <> '') then
-                begin
-                   SqlAux2.SQL.Add(s);
-                   SqlAux2.ParamByName('seqini').AsString := EdSeqIni.Text;
-                   SqlAux2.ParamByName('seqfin').AsString :=  EdSeqFin.Text;
-                end;
 
-              SqlAux2.ParamByName('codproduto').AsInteger := DBServSedex.KeyValue;
-              SqlAux2.ParamByName('dtini').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker1.Date);
-              SqlAux2.ParamByName('dtfin').AsString :=  FormatDateTime('yyyy-mm-dd', DateTimePicker2.Date);
+              SqlAux2.ParamByName('codproduto').AsInteger := CboPagante.KeyValue;
+              SqlAux2.ParamByName('dtini').AsString :=  FormatDateTime('yyyy-mm-dd', DtPickerDtIni.Date);
+              SqlAux2.ParamByName('dtfin').AsString :=  FormatDateTime('yyyy-mm-dd', DtPickerDtFin.Date);
               SqlAux2.SQL.Add('ORDER BY sdx_cep');
 
 
@@ -135,8 +149,6 @@ Begin
               SqlAux2.Open;
               SqlAux2.First;
               seqreg := 2;
-              EdQtde.Text :=  IntToStr(SqlAux2.RecordCount);
-              EdQtde.Refresh;
               ProgBar.Max :=  SqlAux2.RecordCount;
               ProgBar.Position  := 1;
               ProgBar.Refresh;
@@ -149,14 +161,8 @@ Begin
                   linha := linha + GeraNt(SqlSdxServtbsdxserv_nrocto.AsString,10);
                   linha := linha + '09036539';   //codigo administrativo
                   linha := linha + SqlAux2.Fields[2].AsString;//cep do destino
-//                    linha := linha+'40096';
-//                  alterado conforme gestor nro 5084
                   linha := linha + '40436';//codigo do servico (SFI)
                   linha := linha + '55'; // grupo pais fixo cod pais
-                    //alterado à pedido dos correios para identificar o serviçco ar-sedex
-//                    if (DBServSedex.KeyValue = 1660) then
-//                       linha := linha+'00'+'00'+'00'// Cód Serviço 1 2 e 3
-//                    else
                   linha := linha + '01' + '00' + '00';// Filler - Cód Serviço 1 2 e 3  fixo
                   linha := linha + GeraNT(RestauraInteger(FormatFloat('#####0.00', SqlAux2.Fields[6].AsFloat)), 8);  //valor declarado
                   linha := linha + GeraNt('0', 9); // Filler - Cod Embalagem
@@ -191,13 +197,38 @@ Begin
               GeraArquivo(' ', 129);
               WriteLn(arq, linha);
               CloseFile(Arq);
-              Application.MessageBox(PChar('Arquivo Gerado com Sucesso!'), 'ADS', 0);
+              Application.MessageBox(
+                PChar('Arquivo Gerado com Sucesso!'),
+                'ADS', 0);
             end
-          else
-            Application.MessageBox(PChar('Não Há Registros com os Parametros Informados'), 'ADS - Ar-Digital', 0);
+      else
+        Application.MessageBox(
+            PChar('Não Há Registros com os Parametros Informados'),
+            'ADS', 0);
     end;
-}
+
 End;
+
+procedure TFrmGeraListaPostagem.BtnFecharClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TFrmGeraListaPostagem.BtnImprimeClick(Sender: TObject);
+var root, dir: String;
+begin
+  root := GetCurrentDir();
+  dir := '';
+if (not SelectDirectory('Selecione o diretório de destino.', root, dir, [])) then
+  begin
+    ShowMessage('Não foi selecionado o diretório de destino. ' +
+                        'O processo será abortado!');
+    exit;
+  end;
+
+
+
+end;
 
 procedure TFrmGeraListaPostagem.AtualizaGridPostagem;
 begin
