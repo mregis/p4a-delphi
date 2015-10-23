@@ -82,8 +82,6 @@ begin
   Application.CreateForm(TDm, Dm);
   if Dm.conect = true then
     begin
-      Application.CreateForm(TFrmPrincipal, FrmPrincipal);
-      FrmPrincipal.Show;
       Application.CreateForm(TFrmAcesso, FrmAcesso);
       FrmAcesso.ShowModal;
       Application.Run;

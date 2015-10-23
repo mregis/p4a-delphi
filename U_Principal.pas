@@ -228,6 +228,7 @@ type
     BitBtnRepostagemAR: TBitBtn;
     BitBtnPesagem: TBitBtn;
     BitBtnListaPostagem: TBitBtn;
+    procedure BitBtnListaPostagemClick(Sender: TObject);
     procedure BitBtnPesagemClick(Sender: TObject);
     procedure ImprimeARsClick(Sender: TObject);
     procedure precargamenuitemClick(Sender: TObject);

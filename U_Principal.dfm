@@ -320,6 +320,8 @@ object FrmPrincipal: TFrmPrincipal
   Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate
+  ExplicitWidth = 320
+  ExplicitHeight = 240
   PixelsPerInch = 96
   TextHeight = 18
   object ScrollBox1: TScrollBox
@@ -333,7 +335,6 @@ object FrmPrincipal: TFrmPrincipal
     Color = 16707787
     ParentColor = False
     TabOrder = 0
-    ExplicitHeight = 708
     object Image1: TImage
       Left = 0
       Top = 0
@@ -7307,7 +7308,6 @@ object FrmPrincipal: TFrmPrincipal
         item
           Width = 120
         end>
-      ExplicitTop = 685
     end
     object BitBtnCargaAR: TBitBtn
       Left = 88
@@ -8668,7 +8668,7 @@ object FrmPrincipal: TFrmPrincipal
       ParentFont = False
       TabOrder = 5
       Visible = False
-      OnClick = BitBtnPesagemClick
+      OnClick = BitBtnListaPostagemClick
       Glyph.Data = {
         E6170000424DE617000000000000360400002800000046000000460000000100
         080000000000B0130000120B0000120B00000001000057000000FFFFFF00FFFD
