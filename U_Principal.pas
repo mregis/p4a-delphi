@@ -840,6 +840,14 @@ begin
   SetFocus;
 end;
 
+procedure TFrmPrincipal.BitBtnListaPostagemClick(Sender: TObject);
+ var s : PWideChar;
+begin
+  Application.CreateForm(TFrmGeraListaPostagem, FrmGeraListaPostagem);
+  FrmGeraListaPostagem.ShowModal;
+  SetFocus;
+end;
+
 procedure TFrmPrincipal.BoletoCLIClick(Sender: TObject);
 begin
   Application.CreateForm(TFrmExtContaCorrentePoupanca,FrmExtContaCorrentePoupanca);

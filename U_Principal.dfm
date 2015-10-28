@@ -320,8 +320,6 @@ object FrmPrincipal: TFrmPrincipal
   Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate
-  ExplicitWidth = 320
-  ExplicitHeight = 240
   PixelsPerInch = 96
   TextHeight = 18
   object ScrollBox1: TScrollBox
@@ -7983,7 +7981,6 @@ object FrmPrincipal: TFrmPrincipal
       ParentBiDiMode = False
       ParentFont = False
       TabOrder = 4
-      Visible = False
       OnClick = BitBtnPesagemClick
       Glyph.Data = {
         EA520000424DEA52000000000000360000002800000069000000430000000100
@@ -8667,7 +8664,6 @@ object FrmPrincipal: TFrmPrincipal
       ParentBiDiMode = False
       ParentFont = False
       TabOrder = 5
-      Visible = False
       OnClick = BitBtnListaPostagemClick
       Glyph.Data = {
         E6170000424DE617000000000000360400002800000046000000460000000100

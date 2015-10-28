@@ -2250,8 +2250,8 @@ object Dm: TDm
       
         '  INNER JOIN public.tbsdxserv serv ON (e.tbsdxect_prod = serv.tb' +
         'sdxserv_prod)'
-      'GROUP BY 1, 2, 3, sdx02.sdx_dtcarga'
-      'ORDER BY sdx02.sdx_dtcarga DESC'
+      'GROUP BY 1, 2, 3'
+      'ORDER BY 6 DESC'
       'LIMIT 5  ')
     Params = <>
     Left = 452
@@ -2291,8 +2291,8 @@ object Dm: TDm
       '  s.tbsdxserv_prod,'
       '  t.sdx_seqcarga as lote,'
       '  COUNT(t.sdx_numobj2) AS qtobjs,'
-      '  MIN(t.sdx_dtcarga) AS mindt,'
-      '  MAX(t.sdx_dtcarga) as maxdt'
+      '  MIN(t.sdx_dtenvio) AS mindt,'
+      '  MAX(t.sdx_dtenvio) as maxdt'
       'FROM'
       '  public.tbsdx_ect e'
       
@@ -2301,8 +2301,9 @@ object Dm: TDm
       
         '  INNER JOIN public.tbsdx02 t ON (e.tbsdxect_sigla || e.tbsdxect' +
         '_num || e.tbsdxect_dv || '#39'BR'#39' = t.sdx_numobj2)'
-      'WHERE t.sdx_dtcarga BETWEEN :dtini AND :dtfim'
-      'GROUP BY 1, 2, 3, 4, 5')
+      'WHERE t.sdx_dtenvio BETWEEN :dtini AND :dtfim'
+      'GROUP BY 1, 2, 3, 4, 5'
+      'ORDER BY 8 DESC')
     Params = <
       item
         DataType = ftString

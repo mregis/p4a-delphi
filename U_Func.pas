@@ -53,6 +53,9 @@ Function VirgPonto2(Valor: string): string;
 Function Moeda2Float(Valor: string): Double;
 Function procarqconf(conf:string):String;
 Function IntToDateTime(DateInteger : integer) : TDateTime;
+Function LPad(const s: String; Pad: Integer; const c : String) : String;
+Function RPad(const s: String; Pad: Integer; const c : String) : String;
+
 implementation
 
 uses DmDados;
@@ -1452,6 +1455,30 @@ begin
     nMonth := j + 2 - ( 12 * l );
     nYear := 100 * ( n - 49 ) + i + l;
     Result := EncodeDate(nYear,nMonth,nDay);
+end;
+
+
+Function LPad(const s: String; Pad: Integer; const c : String) : String;
+var r : string;
+begin
+  r := s;
+  if ((c <> null) AND (Length(c) > 1)) then
+  else
+      while Length(r) < Pad do
+        r := c + r;
+  Result := r;
+end;
+
+
+Function RPad(const s: String; Pad: Integer; const c : String) : String;
+var r : string;
+begin
+  r := s;
+  if ((c <> null) AND (Length(c) > 1)) then
+  else
+      while Length(r) < Pad do
+        r := r + c;
+  Result := r;
 end;
 
 end.

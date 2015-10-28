@@ -17,16 +17,16 @@ type
     CboPagante: TDBLookupComboBox;
     LabelProd: TLabel;
     DBGridPostagem: TDBGrid;
-    SDListaPostagem: TSaveDialog;
     EditLotes: TEdit;
     LabelLote: TLabel;
     PanelProgress: TPanel;
     ProgBar: TProgressBar;
-    BtnImprime: TBitBtn;
     BtnFechar: TBitBtn;
-    OpenDialogPostagem: TOpenDialog;
+    BtnAbrir: TBitBtn;
+    EdDirDestinoListagem: TEdit;
+    Label1: TLabel;
+    procedure BtnAbrirClick(Sender: TObject);
     procedure BtnFecharClick(Sender: TObject);
-    procedure BtnImprimeClick(Sender: TObject);
     procedure DBGridPostagemCellClick(Column: TColumn);
     procedure DtPickerDtFinUserInput(Sender: TObject; const UserString: string;
       var DateAndTime: TDateTime; var AllowChange: Boolean);
@@ -54,24 +54,33 @@ uses DmDados, DB, U_Func;
 
 procedure TFrmGeraListaPostagem.BitBtnGerarClick(Sender: TObject);
 
-var i, seqreg : integer;
-  s, linha : String;
+var i : Integer;
+  filename, linha, linhabase : String;
   arq : TextFile;
 Begin
- i := 0;
-
+  if ((EdDirDestinoListagem.Text = '') OR
+      (not DirectoryExists(EdDirDestinoListagem.Text))) then
+    begin
+      application.MessageBox(
+          PChar('Não foi indicado o diretório de destino para salvar a listagem!'),
+              'ADS', MB_OK + MB_ICONERROR);
+      BtnAbrir.SetFocus;
+      exit;
+    end;
+  
   With dm do
     Begin
+      // Verificando se há registros para gerar a lista
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
       SqlAux1.SQl.Add('SELECT COUNT(t.sdx_numobj2) AS qt_regs');
-            SqlSdxServ.SQL.Add('FROM public.tbsdx_ect e ');
+      SqlAux1.SQl.Add('FROM public.tbsdx_ect e ');
       SqlAux1.SQL.Add('  INNER JOIN public.tbsdxserv s ');
       SqlAux1.SQL.Add('      ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
       SqlAux1.SQL.Add('  INNER JOIN public.tbsdx02 t ');
       SqlAux1.SQL.Add('      ON (e.tbsdxect_sigla || e.tbsdxect_num || ' +
           'e.tbsdxect_dv || ''BR'' = t.sdx_numobj2) ');
-      SqlAux1.SQL.Add('WHERE t.sdx_dtcarga BETWEEN :dtini AND :dtfim ');
+      SqlAux1.SQL.Add('WHERE t.sdx_dtenvio BETWEEN :dtini AND :dtfim ');
       SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
       SqlAux1.ParamByName('dtfim').AsDate := DtPickerDtFin.Date;
       if (CboPagante.KeyValue <> null) then
@@ -92,113 +101,155 @@ Begin
         // Há registros para gerar o arquivo. Criando-o...
         Begin
           try
-            SDListaPostagem.InitialDir := 'O:\sedex_ar\retorno\';
-            SDListaPostagem.FileName := 'RT' + SqlSdxServtbsdxserv_sigla.AsString +
+            // Nome do arquivo de destino
+            filename := 'RT'
+                + SqlSdxServtbsdxserv_sigla.AsString +
                 FormatDateTime('ddmm', Date) + '.txt';
-
-            if (not SDListaPostagem.Execute) then
+            // Verificando se já existe arquivo com a nomenclatura
+            if FileExists(EdDirDestinoListagem.Text + filename) then
               begin
-                ShowMessage('Não foi selecionado o diretório de destino. ' +
-                        'O processo será abortado!');
-                exit;
-              end;
+                i := MessageDlg('Já existe um arquivo com a data de hoje e com a '+
+                    'Sigla ' + SqlSdxServtbsdxserv_sigla.AsString +
+                    ' no diretório escolhido.' + #13#10 +
+                    'Deseja sobrescrever o arquivo existente?', mtWarning,
+                    [mbYes, mbNo, mbCancel], 0);
+                if (i = mrNo) then
+                  begin
+                    i := 2;
+                    while FileExists(EdDirDestinoListagem.Text + filename) do
+                      begin
+                        filename := 'RT'
+                            + SqlSdxServtbsdxserv_sigla.AsString +
+                            FormatDateTime('ddmm', Date) + IntToStr(i) + '.txt';
+                        i := i + 1;
+                      end;
 
+                    Application.MessageBox(PChar('Será criado o arquivo ' +
+                      filename), 'ADS', 0);
+
+                  end
+                else if (i = mrCancel) then
+                  exit;
+
+              end;
+            AssignFile(arq, EdDirDestinoListagem.Text + filename);
           except
             begin
-              Application.MessageBox(PChar('Não foi possível utilizar o diretório'),'ADS',0);
+              Application.MessageBox(PChar('Não foi possível utilizar o diretório'), 'ADS',0);
               exit;
             end;
           end;
-            AssignFile(arq, SDListaPostagem.FileName);
 
           try
             Rewrite(arq);
           except
             begin
               Application.MessageBox(PChar('Não foi possível criar o arquivo de registros.'), 'ADS', 0);
-              Application.MessageBox(PChar('Sua Nova Sequência é: ' +
-              IntToStr(i) + ' e ' ), 'ADS', 0);
               exit;
             end;
           end;
 
-              SqlAux2.Close;
-              SqlAux2.SQL.Clear;
-              //                                  0           1
-              SqlAux2.SQL.Add('SELECT DISTINCT sdx_numobj, sdx_paisorigem, ');
-              //                  2           3           4           5
-              SqlAux2.SQL.Add('sdx_cep, sdx_seqcarga, sdx_numobj1, sdx_peso, ');
-              //                6           7                8          9
-              SqlAux2.SQL.Add('sdx_valdec, sdx_siglaobj, sdx_cmp, sdx_bas, ');
-              //                   10       11            12          13                14
-              SqlAux2.SQL.Add('sdx_alt, sdx_cobdest, sdx_numobj2, tbsdxserv_nrocto, tbsdxserv_crtpst ');
-              SqlAux2.SQL.Add('FROM public.tbsdx02 t ');
-              SqlAux2.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj = CAST(e.tbsdxect_num || e.tbsdxect_dv AS INTEGER)) ');
-              SqlAux2.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
-              SqlAux2.SQL.Add('WHERE s.tbsdxserv_prod = :codproduto ');
-              SqlAux2.SQL.Add('    AND t.sdx_dtenvio between :dtini AND :dtfin ');
+          SqlAux2.Close;
+          SqlAux2.SQL.Clear;
+          //                                  0           1
+          SqlAux2.SQL.Add('SELECT DISTINCT sdx_numobj, sdx_paisorigem, ');
+          //                    2           3           4           5
+          SqlAux2.SQL.Add('  sdx_cep, sdx_seqcarga, sdx_numobj1, sdx_peso, ');
+          //                  6           7                8          9
+          SqlAux2.SQL.Add('  sdx_valdec, sdx_siglaobj, sdx_cmp, sdx_bas, ');
+          //                     10       11            12          13                14
+          SqlAux2.SQL.Add('  sdx_alt, sdx_cobdest, sdx_numobj2, tbsdxserv_nrocto, ');
+          //                    14                  15
+          SqlAux2.SQL.Add('  tbsdxserv_crtpst, sdx_nomdest');
+          SqlAux2.SQl.Add('FROM public.tbsdx_ect e ');
+          SqlAux2.SQL.Add('  INNER JOIN public.tbsdxserv s ');
+          SqlAux2.SQL.Add('      ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');
+          SqlAux2.SQL.Add('  INNER JOIN public.tbsdx02 t ');
+          SqlAux2.SQL.Add('      ON (e.tbsdxect_sigla || e.tbsdxect_num || ' +
+              'e.tbsdxect_dv || ''BR'' = t.sdx_numobj2) ');
+          SqlAux2.SQL.Add('WHERE t.sdx_dtenvio BETWEEN :dtini AND :dtfim ');
+          SqlAux2.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+          SqlAux2.ParamByName('dtfim').AsDate := DtPickerDtFin.Date;
 
+          if (CboPagante.KeyValue <> null) then
+            begin
+              SqlAux2.SQL.Add('  AND s.tbsdxserv_prod = :prod');
+              SqlAux2.ParamByName('prod').AsInteger := CboPagante.KeyValue;
+            end;
 
-              SqlAux2.ParamByName('codproduto').AsInteger := CboPagante.KeyValue;
-              SqlAux2.ParamByName('dtini').AsString :=  FormatDateTime('yyyy-mm-dd', DtPickerDtIni.Date);
-              SqlAux2.ParamByName('dtfin').AsString :=  FormatDateTime('yyyy-mm-dd', DtPickerDtFin.Date);
-              SqlAux2.SQL.Add('ORDER BY sdx_cep');
+          if (Length(TRim(EditLotes.Text)) > 0) then
+            begin
+              SqlAux2.SQL.Add('  AND t.sdx_seqcarga = :lote');
+              SqlAux2.ParamByName('lote').AsInteger := StrToInt64(EditLotes.Text);
+            end;
 
+          SqlAux2.SQL.Add('ORDER BY sdx_cep');
+          SqlAux2.Open;
+          SqlAux2.First;
+          ProgBar.Max :=  SqlAux2.RecordCount;
+          ProgBar.Position  := 1;
+          ProgBar.Refresh;
+          // Iniciando a criação dos registros
+          // Linha Base do Registro Detalhe, apenas com os placeholders
+          // Ver documentação No arquivo LAYOUT LISTA POSTAGEM Sistema SARA - TXT
 
+          linhabase := '3' + // Tipo de Registro (3 - Detalhe lista de Postagem)
+              '0000000000000000000000' + // Filler
+              '%s' + // Número do Contrato Placeholder
+              '09036539' + // Código Administrativo do Cliente
+              '%s' + // Cep do Destino Placeholder
+              '40436' + // Código do Serviço (SFI)
+              '55' + // Grupo Páis (Brasil) Conforme Tabela Serv. Adic.
+              '37' + // Cod Serv Adic 1 (Arquivo e Controle AR (Fac)) Conforme Tabela Serv. Adic.
+              '19' + // Cod Serv Adic 2 (Ad Valorem)
+              '00' + // Cod Serv Adic 3
+              '%s' + // Valor Declarado Placeholder
+              '00000000000' + // FILLER
+              '%.9d' + // Número de Etiqueta Placeholder
+              '%.5d' + // Peso Placeholder
+              '0000000000000000000000000000000000000000000' + // FILLER
+              '%s' + // Nº Cartão Postagem Placeholder
+              '0000000' + // Número Nota Fiscal
+              '%s' + // Sigla Serviço Placeholder
+              '%.5d' + // Comprimento Objeto Placeholder
+              '%.5d' + // Largura Objeto Placeholder
+              '%.5d' + // Altura Objeto Placeholder
+              '%s' + // Valor Cobrar Destinatario Placeholder
+              '%s' + // Nome Destinatario Placeholder
+              '002' +  //Código Tipo Objto (01:Envelope, 02:Pacote, 03:Rolo)
+              '00000'; // Diâmetro do objeto
+          While not SqlAux2.Eof do
+            Begin
+              linha := Format(linhabase,
+                  [LPad(SqlAux2.FieldByName('tbsdxserv_nrocto').AsString, 10, '0'), // Número do Contrato
+                   SqlAux2.FieldByName('sdx_cep').AsString, // Cep do Destino
+                   LPad(
+                      Format('%f', [SqlAux2.FieldByName('sdx_valdec').AsFloat]),
+                      8, '0'), // Valor Declarado
+                   SqlAux2.FieldByName('sdx_numobj').AsInteger, // Número da Etiqueta (Num Objeto)
+                   Round(SqlAux2.FieldByName('sdx_peso').AsFloat * 1000), // Peso (Armazenado em Kg e convertido para g)
+                   LPad(SqlAux2.FieldByName('tbsdxserv_crtpst').AsString, 11, '0'), // Cartão de Postagem
+                   SqlAux2.FieldByName('sdx_siglaobj').AsString, // Sigla do Serviço
+                   Round(SqlAux2.FieldByName('sdx_cmp').ASFloat * 100), // Comprimento do Objeto em cm
+                   Round(SqlAux2.FieldByName('sdx_bas').ASFloat * 100), // Largura do Objeto em cm
+                   Round(SqlAux2.FieldByName('sdx_alt').ASFloat * 100), // Altura do Objeto em cm
+                   LPad(
+                      Format('%f', [SqlAux2.FieldByName('sdx_valdec').AsFloat]),
+                      8, '0'), // Valor a Cobrar do Destinatário
+                   LPad(Trim(SqlAux2.FieldByName('sdx_nomdest').AsString), 40, ' ') // Nome do Destinatário
+                  ]);
 
-              SqlAux2.Open;
-              SqlAux2.First;
-              seqreg := 2;
-              ProgBar.Max :=  SqlAux2.RecordCount;
-              ProgBar.Position  := 1;
-              ProgBar.Refresh;
-              While not SqlAux2.Eof do
-                Begin
-                  linha := '3' + '00' + '0000';
-                  linha := linha + '0000';//FormatDateTime('ddmm',Date);
-                  linha := linha + '00000000';//'72618060';
-                  linha := linha + '0000';//FormatDateTime('ddmm',Date);
-                  linha := linha + GeraNt(SqlSdxServtbsdxserv_nrocto.AsString,10);
-                  linha := linha + '09036539';   //codigo administrativo
-                  linha := linha + SqlAux2.Fields[2].AsString;//cep do destino
-                  linha := linha + '40436';//codigo do servico (SFI)
-                  linha := linha + '55'; // grupo pais fixo cod pais
-                  linha := linha + '01' + '00' + '00';// Filler - Cód Serviço 1 2 e 3  fixo
-                  linha := linha + GeraNT(RestauraInteger(FormatFloat('#####0.00', SqlAux2.Fields[6].AsFloat)), 8);  //valor declarado
-                  linha := linha + GeraNt('0', 9); // Filler - Cod Embalagem
-                  linha := linha + GeraNt('0', 2);// Filler - Qt Embalagem
-                  linha := linha + GeraNT(SqlAux2.Fields[0].AsString, 9);
-                  linha := linha + GeraNt(RestauraInteger(FormatFloat('00.000', SqlAux2.Fields[5].AsFloat)), 5);
-                  linha := linha + GeraNt('0', 8); // filler - Valor a Pagar
-                  linha := linha + '00'; // Filler - Seq Folha
-                  linha := linha + '00'; // Filler - Seq Lancamentos
-                  linha := linha + '00000000'; // filler - Data Processamento
-                  linha := linha + '000'; // Filler - Remessa
-                  linha := linha + '  '; // Filler
-                  linha := linha + GeraNt('0', 8); // Filler - Unidade Prestadora
-                  linha := linha + GeraNt('0', 8);// Filler -  FormatDateTime('ddmmyyyy',Date);
-                  linha := linha + '00';//Filler - Qtde. Doc no Lote
-                  linha := linha + GeraNt(SqlSdxServtbsdxserv_crtpst.AsString, 11); // Nro do Cartão de Postagem houve erro para  pegar o ultimo digito do campo
-                  linha := linha + GeraNt('0',7); // Filler - Numero nota fiscal
-                  linha := linha + copy(SqlAux2.Fields[12].AsString, 1, 2);// 'SL'; // Filler - Fixo SIGLA DO SERVIÇO
-                  linha := linha + GeraNT(SqlAux2.Fields[8].AsString, 5);//  linha := linha+GeraNt('0',5); // Compr do Obj
-                  linha := linha + GeraNT(SqlAux2.Fields[9].AsString, 5);//  linha := linha+GeraNt('0',5); // Larg do Obj
-                  linha := linha + GeraNT(SqlAux2.Fields[10].AsString, 5);//  linha := linha+GeraNt('0',5); // Altura do Obj
-                  linha := linha + GeraNT(RestauraInteger(SqlAux2.Fields[6].AsString), 8);  //valor a cobrar do destinatário
                   WriteLn(arq, linha);
-                  seqreg := seqreg + 1;
                   SqlAux2.Next;
-                  ProgBar.Position  :=  ProgBar.Position + 1;
+                  ProgBar.StepIt;
                   ProgBar.Refresh;
                 End;
-
-              linha := '9';
-              linha := linha + GeraNt(IntToStr(seqreg), 8); //Qtde Registros
-              GeraArquivo(' ', 129);
+              // Trailer do arquivo - Ver documentação do Layout
+              linha := Format('9%.8d%s', [SqlAux2.RecordCount+1, LPad(' ', 129, ' ')]);
               WriteLn(arq, linha);
               CloseFile(Arq);
               Application.MessageBox(
-                PChar('Arquivo Gerado com Sucesso!'),
+                PChar('Arquivo ' + filename + ' Gerado com Sucesso!'),
                 'ADS', 0);
             end
       else
@@ -209,25 +260,20 @@ Begin
 
 End;
 
+procedure TFrmGeraListaPostagem.BtnAbrirClick(Sender: TObject);
+var chosenDir : string;
+
+begin
+  if SelectDirectory('Selecione o diretório de destino',
+      'O:\sedex_ar\retorno\',
+      chosenDir)  then
+      EdDirDestinoListagem.Text := chosenDir;
+
+end;
+
 procedure TFrmGeraListaPostagem.BtnFecharClick(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TFrmGeraListaPostagem.BtnImprimeClick(Sender: TObject);
-var root, dir: String;
-begin
-  root := GetCurrentDir();
-  dir := '';
-if (not SelectDirectory('Selecione o diretório de destino.', root, dir, [])) then
-  begin
-    ShowMessage('Não foi selecionado o diretório de destino. ' +
-                        'O processo será abortado!');
-    exit;
-  end;
-
-
-
 end;
 
 procedure TFrmGeraListaPostagem.AtualizaGridPostagem;
@@ -248,13 +294,14 @@ begin
       SqlSdxServ.SQL.Add('  INNER JOIN public.tbsdx02 t ');
       SqlSdxServ.SQL.Add('      ON (e.tbsdxect_sigla || e.tbsdxect_num || ' +
           'e.tbsdxect_dv || ''BR'' = t.sdx_numobj2) ');
-      SqlSdxServ.SQL.Add('WHERE t.sdx_dtcarga BETWEEN :dtini AND :dtfim ');
+      SqlSdxServ.SQL.Add('WHERE t.sdx_dtenvio BETWEEN :dtini AND :dtfim ');
       SqlSdxServ.SQL.Add('GROUP BY   s.tbsdxserv_dsc,  s.tbsdxserv_crtpst, ');
       SqlSdxServ.SQL.Add('  s.tbsdxserv_sigla, s.tbsdxserv_cod, ');
       SqlSdxServ.SQL.Add('  s.tbsdxserv_dtcad, s.tbsdxserv_prod, s.tbsdxserv_dtcad,');
       SqlSdxServ.SQL.Add('  s.tbsdxserv_usu, s.tbsdxserv_nrocto, s.tbsdxserv_status,');
-      SqlSdxServ.SQL.Add('  tbsdxserv_txasrv ');
+      SqlSdxServ.SQL.Add('  tbsdxserv_txasrv, t.sdx_dtenvio ');
       SqlSdxServ.SQL.Add('HAVING COUNT(t.sdx_numobj2) > 0 ');
+      SqlSdxServ.SQL.Add('ORDER BY t.sdx_dtenvio DESC ');
       SqlSdxServ.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
       SqlSdxServ.ParamByName('dtfim').AsDate := DtPickerDtFin.Date;
 
