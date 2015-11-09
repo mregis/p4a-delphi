@@ -72,7 +72,8 @@ uses
   U_FrmRlErrobxaArSdx in 'U_FrmRlErrobxaArSdx.pas' {FrmRlErroBxaArSdx},
   uGerarPlanilhaGeral in 'uGerarPlanilhaGeral.pas' {fGerarPlanilhaGeral},
   U_FrmPrintAR in 'U_FrmPrintAR.pas' {FrmPrintAR},
-  U_FrmGeraListaPostagem in 'U_FrmGeraListaPostagem.pas' {FrmGeraListaPostagem};
+  U_FrmGeraListaPostagem in 'U_FrmGeraListaPostagem.pas' {FrmGeraListaPostagem},
+  U_FrmConfig in 'U_FrmConfig.pas' {FrmConfig};
 
 {$R *.res}
 

@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Types, Classes,DB ,Variants,  Graphics, Controls, Forms,Dialogs,FrmExtContaCorrentePopanca,OleServer,
-  OleConst,ShlObj,ComObj, ActiveX, OfficeXP,ExcelXP, SysConst;
+  OleConst, ShlObj, ComObj, ActiveX, OfficeXP, ExcelXP, SysConst;
 
   type
   // TDataSetToExcel
@@ -21,7 +21,7 @@ uses
     FDataSet: TDataSet;
     fcab    : string;
   public
-    constructor Create(ADataSet: TDataSet; const AFileName,cab: string);
+    constructor Create(ADataSet: TDataSet; const AFileName, cab: string);
     function WriteFile: boolean;
   end;
 
@@ -55,6 +55,8 @@ Function procarqconf(conf:string):String;
 Function IntToDateTime(DateInteger : integer) : TDateTime;
 Function LPad(const s: String; Pad: Integer; const c : String) : String;
 Function RPad(const s: String; Pad: Integer; const c : String) : String;
+Function StripNonAscii(const s: String): String;
+Function ReplaceNonAscii(const s: String): String;
 
 implementation
 
@@ -1088,20 +1090,20 @@ begin
 
     // Column widths
     for i := 0 to FDataSet.FieldCount - 1 do
-    begin
-      wWidth := (FDataSet.Fields[i].DisplayWidth + 1) * 256;
-      if FDataSet.FieldDefs[i].DataType = ftDateTime then
-        inc(wWidth, 2000);
-      if FDataSet.FieldDefs[i].DataType = ftDate then
-        inc(wWidth, 1050);
-      if FDataSet.FieldDefs[i].DataType = ftTime then
-        inc(wWidth, 100);
-      WriteToken(XL_COLWIDTH, 4);
-      iColNum := i;
-      BlockWrite(FDataFile, iColNum, 1);
-      BlockWrite(FDataFile, iColNum, 1);
-      BlockWrite(FDataFile, wWidth, 2);
-    end;
+      begin
+        wWidth := (FDataSet.Fields[i].DisplayWidth + 1) * 256;
+        if FDataSet.FieldDefs[i].DataType = ftDateTime then
+          inc(wWidth, 2000);
+        if FDataSet.FieldDefs[i].DataType = ftDate then
+          inc(wWidth, 1050);
+        if FDataSet.FieldDefs[i].DataType = ftTime then
+          inc(wWidth, 100);
+        WriteToken(XL_COLWIDTH, 4);
+        iColNum := i;
+        BlockWrite(FDataFile, iColNum, 1);
+        BlockWrite(FDataFile, iColNum, 1);
+        BlockWrite(FDataFile, wWidth, 2);
+      end;
 
     // Column Formats
     WriteFormat('Text');
@@ -1122,7 +1124,7 @@ begin
     Blockwrite(FDataFile, aDIMBuffer, SizeOf(aDIMBuffer));
 
     // Column Headers
-    if (trim(fcab) <> '') then
+    if (trim(Fcab) <> '') then
       begin
         sStrData := Fcab;
         iDataLen := length(sStrData);
@@ -1197,7 +1199,7 @@ begin
             ftWord,
             ftLargeInt:
             begin
-              if (trim(fcab) = '') then
+              if (trim(Fcab) = '') then
                 begin
                   if i = 6 then
                     begin
@@ -1238,7 +1240,7 @@ begin
             ftCurrency,
             ftBcd:
             begin
-              if (trim(fcab) <> '') then
+              if (trim(Fcab) <> '') then
                 begin
                   if i = 3 then
                     begin
@@ -1479,6 +1481,35 @@ begin
       while Length(r) < Pad do
         r := r + c;
   Result := r;
+end;
+
+
+Function StripNonAscii(const s: String) : String;
+begin
+
+end;
+
+{
+  Substitui caracteres especiais por equivalentes ASCII
+}
+Function ReplaceNonAscii(const s: String) : String;
+var i, pos: Integer;
+const undesiredchars : String = '/ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÜÚÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùüúþÿ';
+const replaces : String = '  AAAAAAACEEEEIIIIDNOOOOOxOUUUbBaaaaaaaceeeeiiiionooooo ouuuby';
+Begin
+  SetLength(Result, Length(s));
+  for i := 1 to Length(s) do
+    begin
+      pos := ord(s[i]);
+      if (s[i] in [#32, #48..#57, #65..#90, #97..#122]) then
+        Result[i] := s[i]
+      else
+        begin
+          pos := AnsiPos(s[i], undesiredchars);
+          Result[i] := replaces[pos + 1];
+        end;
+    end;
+
 end;
 
 end.

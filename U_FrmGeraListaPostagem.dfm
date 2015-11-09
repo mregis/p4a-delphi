@@ -2,8 +2,8 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
   Left = 0
   Top = 0
   Caption = 'Lista de Postagem'
-  ClientHeight = 378
-  ClientWidth = 687
+  ClientHeight = 395
+  ClientWidth = 532
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -30,18 +30,17 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     ParentFont = False
   end
   object LabelLote: TLabel
-    Left = 341
+    Left = 348
     Top = 102
-    Width = 36
+    Width = 29
     Height = 16
     BiDiMode = bdRightToLeft
-    Caption = 'Lotes:'
-    FocusControl = EditLotes
+    Caption = 'Lote:'
     ParentBiDiMode = False
   end
-  object Label1: TLabel
+  object LblDirDestino: TLabel
     Left = 31
-    Top = 141
+    Top = 177
     Width = 49
     Height = 16
     BiDiMode = bdRightToLeft
@@ -159,17 +158,17 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
   end
   object DBGridPostagem: TDBGrid
     Left = 0
-    Top = 224
-    Width = 687
-    Height = 154
+    Top = 258
+    Width = 532
+    Height = 137
     Align = alBottom
     Ctl3D = False
     DataSource = Dm.DtSSdx7
     FixedColor = 16764262
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'MS Sans Serif'
+    Font.Height = -13
+    Font.Name = 'Tahoma'
     Font.Style = []
     Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
     ParentCtl3D = False
@@ -177,8 +176,8 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     TabOrder = 3
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
-    TitleFont.Height = -13
-    TitleFont.Name = 'MS Sans Serif'
+    TitleFont.Height = -12
+    TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
     OnCellClick = DBGridPostagemCellClick
     Columns = <
@@ -190,18 +189,19 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
         Title.Font.Height = -11
         Title.Font.Name = 'Tahoma'
         Title.Font.Style = [fsBold]
-        Width = 157
+        Width = 135
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'tbsdxserv_crtpst'
+        Title.Caption = 'Cart'#227'o'
         Title.Font.Charset = DEFAULT_CHARSET
         Title.Font.Color = clWindowText
         Title.Font.Height = -11
         Title.Font.Name = 'Tahoma'
         Title.Font.Style = [fsBold]
-        Width = 136
+        Width = 81
         Visible = True
       end
       item
@@ -216,6 +216,7 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
         Visible = True
       end
       item
+        DropDownRows = 5
         Expanded = False
         FieldName = 'qtobjs'
         Title.Font.Charset = DEFAULT_CHARSET
@@ -223,7 +224,7 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
         Title.Font.Height = -11
         Title.Font.Name = 'Tahoma'
         Title.Font.Style = [fsBold]
-        Width = 81
+        Width = 68
         Visible = True
       end
       item
@@ -240,19 +241,8 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
       end
       item
         Expanded = False
-        FieldName = 'mindt'
-        Title.Caption = 'Data Inicial'
-        Title.Font.Charset = DEFAULT_CHARSET
-        Title.Font.Color = clWindowText
-        Title.Font.Height = -11
-        Title.Font.Name = 'Tahoma'
-        Title.Font.Style = [fsBold]
-        Visible = True
-      end
-      item
-        Expanded = False
         FieldName = 'maxdt'
-        Title.Caption = 'Data Final'
+        Title.Caption = 'Data'
         Title.Font.Charset = DEFAULT_CHARSET
         Title.Font.Color = clWindowText
         Title.Font.Height = -11
@@ -261,34 +251,82 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
         Visible = True
       end>
   end
-  object EditLotes: TEdit
-    Left = 383
-    Top = 97
-    Width = 126
-    Height = 26
-    Hint = 'Voc'#234' pode digitar mais de um lote separando-os por v'#237'rgula'
+  object BitBtnGerar: TBitBtn
+    Left = 140
+    Top = 218
+    Width = 125
+    Height = 34
+    Caption = 'Gerar Lista'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
+    Font.Height = -16
+    Font.Name = 'Arial'
     Font.Style = []
     ParentFont = False
-    TabOrder = 4
-  end
-  object BitBtnGerar: TBitBtn
-    Left = 183
-    Top = 187
-    Width = 97
-    Height = 34
-    Caption = 'Gerar Arquivo'
     TabOrder = 0
     OnClick = BitBtnGerarClick
+    Glyph.Data = {
+      D6060000424DD6060000000000003604000028000000150000001C0000000100
+      080000000000A0020000120B0000120B0000000100003F00000000000000FF00
+      FF00D3D3D300787878005555550021212100ADADAD00FFFFFF00A5A5A5001010
+      1000F1F1F100CCCCCC00E3E3E3006C6C6C000A0A0A006A6A6A00B8B8B8003333
+      330066666600DADADA001919190071717100ECECEC00F3F3F3002E2E2E008686
+      8600BEBEBE0085858500363636002C2C2C005D5D5D00B1B1B100F7F7F7001616
+      1600E9E9E900ABABAB00D0D0D000E1E1E100767676003C3C3C00D7D7D700C4C4
+      C400BCBCBC00EFEFEF00F9F9F900DEDEDE00B4B4B4005858580025252500C3C3
+      C300F5F5F500000000001D1D1D000C0C0C00121212005F5F5F0018181800E5E5
+      E500B9B9B900DDDDDD00EDEDED00FBFBFB00B5B5B50000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000010101010101
+      0101010101010101010101010101012121210118000000000000000000003420
+      3D2100060701012121210100180D0D0D0D0D0D0D0D0D2A070714001007070121
+      2121010026070707070707070707201F060900031F1F0121212101000D07200B
+      0B0B0B0B0B0C29000000000000000121212101000D0724353535353535121336
+      3600003536360121212101000D07070A0A0A0A0A0A0A07171621000817170121
+      212101000D0707070707070707070707070E000607070121212101000D072811
+      11111111111111260C1A3E22311C0121212101000D07221B1B1B1B1B1B1B1B1B
+      2E07070712000121212101000D0707070707070707070707070707070D000121
+      212101000D072B23232323232323232323232B070D000121212101000D070214
+      1414141414141414141402070D000121212101000D0707070707070707070707
+      070707070D000121212101000D0707070707070707070707070707070D000121
+      212101000D0702141414141414141414141402070D000121212101000D072B23
+      232323232323232323232B070D000121212101000D0707070707070707070707
+      070707070D000121212101000D07221B1919191919191919191922070D000121
+      212101000D07281111111111111111111C27250715000121212101000D070707
+      070707070707070707223B3B1E000121212101000D07070A0A0A0A0A0A200717
+      30000000001D0121212101000D07243535353535351207250000000012010121
+      212101000D07320B0B0B0B0B0B2D070C0000002F010101212121010026070707
+      0707070707070732000004010101012121210100180D0D0D0D0D0D0D0D0D0D37
+      001E010101010121212101110000000000000000000000000501010101010121
+      2121010101010101010101010101010101010101010101212121}
   end
   object BtnFechar: TBitBtn
     Left = 332
-    Top = 187
+    Top = 218
     Width = 100
-    Height = 32
+    Height = 34
     Caption = '&Fechar'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -296,7 +334,7 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     Font.Name = 'Arial'
     Font.Style = []
     ParentFont = False
-    TabOrder = 6
+    TabOrder = 5
     OnClick = BtnFecharClick
     Glyph.Data = {
       B60D0000424DB60D000000000000360000002800000030000000180000000100
@@ -412,8 +450,8 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     NumGlyphs = 2
   end
   object BtnAbrir: TBitBtn
-    Left = 515
-    Top = 137
+    Left = 400
+    Top = 173
     Width = 107
     Height = 26
     Caption = '&Selecionar'
@@ -423,7 +461,7 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     Font.Name = 'Arial'
     Font.Style = []
     ParentFont = False
-    TabOrder = 7
+    TabOrder = 6
     OnClick = BtnAbrirClick
     Glyph.Data = {
       36030000424D3603000000000000360000002800000010000000100000000100
@@ -455,8 +493,8 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
   end
   object EdDirDestinoListagem: TEdit
     Left = 88
-    Top = 136
-    Width = 421
+    Top = 172
+    Width = 306
     Height = 26
     BevelInner = bvNone
     BevelOuter = bvNone
@@ -468,13 +506,36 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     MaxLength = 255
     ParentFont = False
     ReadOnly = True
-    TabOrder = 8
+    TabOrder = 7
     OnDblClick = BtnAbrirClick
+  end
+  object CheckBoxGerar: TCheckBox
+    Left = 88
+    Top = 141
+    Width = 177
+    Height = 17
+    Hint = 
+      'Quando marcado, gera um arquivo em disco no diret'#243'rio definido e' +
+      'm Destino e envia Arquivo de Previs'#227'o aos Correios'
+    Caption = 'Gerar arquivo para envio'
+    Checked = True
+    State = cbChecked
+    TabOrder = 8
+    OnClick = CheckBoxGerarClick
+  end
+  object MaskEditLote: TMaskEdit
+    Left = 383
+    Top = 97
+    Width = 126
+    Height = 24
+    EditMask = '!999999999999;0; '
+    MaxLength = 12
+    TabOrder = 9
   end
   object PanelProgress: TPanel
     AlignWithMargins = True
-    Left = 165
-    Top = 297
+    Left = 134
+    Top = 161
     Width = 315
     Height = 73
     BevelInner = bvRaised
@@ -489,10 +550,10 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    TabOrder = 5
+    TabOrder = 4
     VerticalAlignment = taAlignTop
     Visible = False
-    object ProgBar: TProgressBar
+    object PanelProgressBar: TProgressBar
       AlignWithMargins = True
       Left = 24
       Top = 26

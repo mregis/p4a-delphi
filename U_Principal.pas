@@ -228,6 +228,8 @@ type
     BitBtnRepostagemAR: TBitBtn;
     BitBtnPesagem: TBitBtn;
     BitBtnListaPostagem: TBitBtn;
+    BitBtnConfig: TBitBtn;
+    procedure BitBtnConfigClick(Sender: TObject);
     procedure BitBtnListaPostagemClick(Sender: TObject);
     procedure BitBtnPesagemClick(Sender: TObject);
     procedure ImprimeARsClick(Sender: TObject);
@@ -436,7 +438,7 @@ uses U_ExtConsolidado, FrmExtContaCorrentePopanca, U_CadBaixa,
   U_PreCadToken, U_AltTokens, U_FrmConsulta, U_CadSedex, U_PesqImpSedex,
   U_FrmRelArSedexLista, U_FrmRlTotRa, DmDados, U_FrmCadNLido, U_FrmRemessaSedex,
   U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr,
-  U_FrmGeraListaPostagem;
+  U_FrmGeraListaPostagem, U_FrmConfig;
 
 {$R *.dfm}
 procedure TFrmPrincipal.AbreBaixa(tipo:Integer);
@@ -840,8 +842,14 @@ begin
   SetFocus;
 end;
 
+procedure TFrmPrincipal.BitBtnConfigClick(Sender: TObject);
+begin
+  Application.CreateForm(TFrmConfig, FrmConfig);
+  FrmConfig.ShowModal;
+  SetFocus;
+end;
+
 procedure TFrmPrincipal.BitBtnListaPostagemClick(Sender: TObject);
- var s : PWideChar;
 begin
   Application.CreateForm(TFrmGeraListaPostagem, FrmGeraListaPostagem);
   FrmGeraListaPostagem.ShowModal;

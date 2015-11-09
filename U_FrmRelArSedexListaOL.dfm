@@ -3,7 +3,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
   Top = 0
   Caption = 'FrmRelArSedexListaOl'
   ClientHeight = 578
-  ClientWidth = 804
+  ClientWidth = 877
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,7 +15,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
   PixelsPerInch = 96
   TextHeight = 13
   object RLReport1: TRLReport
-    Left = -240
+    Left = 0
     Top = -8
     Width = 1123
     Height = 794
@@ -824,7 +824,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       Left = 19
       Top = 229
       Width = 1085
-      Height = 86
+      Height = 108
       BandType = btSummary
       object RLLabel22: TRLLabel
         Left = 197
@@ -849,7 +849,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel37: TRLLabel
         Left = 197
-        Top = 69
+        Top = 85
         Width = 154
         Height = 15
         Caption = 'assinat. e matric ECT'
@@ -862,21 +862,21 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel38: TRLLabel
         Left = 489
-        Top = 69
+        Top = 85
         Width = 133
         Height = 15
         Caption = 'assinat. remetente'
       end
       object RLDraw1: TRLDraw
         Left = 197
-        Top = 69
+        Top = 81
         Width = 239
         Height = 1
         DrawKind = dkLine
       end
       object RLDraw2: TRLDraw
         Left = 489
-        Top = 69
+        Top = 81
         Width = 239
         Height = 1
         DrawKind = dkLine
@@ -885,19 +885,37 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Left = 390
         Top = 1
         Width = 70
-        Height = 15
+        Height = 16
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object RLLabel40: TRLLabel
         Left = 390
         Top = 18
         Width = 70
-        Height = 15
+        Height = 16
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object RLLabel41: TRLLabel
         Left = 390
         Top = 35
         Width = 70
-        Height = 15
+        Height = 16
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object RLDraw3: TRLDraw
         Left = 0

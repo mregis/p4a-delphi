@@ -1720,6 +1720,27 @@ object Dm: TDm
     object SqlSdx3sdx_numobj5: TStringField
       FieldName = 'sdx_numobj5'
     end
+    object SqlSdx3tbsdxserv_crtpst: TStringField
+      FieldName = 'tbsdxserv_crtpst'
+      Size = 9
+    end
+    object SqlSdx3tbsdxserv_nrocto: TStringField
+      FieldName = 'tbsdxserv_nrocto'
+      Size = 10
+    end
+    object SqlSdx3sdx_cmp: TFloatField
+      FieldName = 'sdx_cmp'
+    end
+    object SqlSdx3sdx_bas: TFloatField
+      FieldName = 'sdx_bas'
+    end
+    object SqlSdx3sdx_alt: TFloatField
+      FieldName = 'sdx_alt'
+    end
+    object SqlSdx3tbsdxect_sigla: TStringField
+      FieldName = 'tbsdxect_sigla'
+      Size = 2
+    end
   end
   object DtsSdx3: TDataSource
     DataSet = SqlSdx3

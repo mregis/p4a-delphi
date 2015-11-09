@@ -87,10 +87,13 @@ type
     procedure RLBand2AfterPrint(Sender: TObject);
     procedure RLBand1BeforePrint(Sender: TObject; var PrintIt: Boolean);
   private
-  seq:integer;
     { Private declarations }
+    seq: integer;
   public
     { Public declarations }
+    pesoTotal, valDecTotal : Extended;
+    qtObjs : Integer;
+    objIni, objFim : string;
   end;
 
 var
@@ -99,7 +102,7 @@ var
 implementation
 
 
-Uses DmDados, U_PesqImpSedex, U_Func, U_FrmRlTotRa ;
+Uses DmDados, U_PesqImpSedex, U_Func, U_FrmRlTotRa , DB, ZDataset;
 
 {$R *.dfm}
 
@@ -107,27 +110,62 @@ Uses DmDados, U_PesqImpSedex, U_Func, U_FrmRlTotRa ;
 procedure TFrmRelArSedexListaOl.RLBand1BeforePrint(Sender: TObject;
   var PrintIt: Boolean);
 begin
-  RLLabel33.Caption :=  formatdatetime('dd/mm/yyyy',date);
-  QTDE.Caption      :=  FormatFloat('#,##0.000;;',dm.SqlAux3.Fields[0].AsFloat );
-  valdec.Caption    :=  FormatFloat('##,##0.00;;',dm.SqlAux3.Fields[1].AsFloat );
+  // Retro compatibilidade após tornar formulario atual independente
+  // do formulário chamador
+  try
+    if (pesoTotal = null) AND (dm.SqlAux3.FieldCount > 0) then
+      begin
+        pesoTotal := dm.SqlAux3.Fields[0].AsFloat;
+        valDecTotal := dm.SqlAux3.Fields[1].AsFloat;
+      end;
+  except
+     pesoTotal := 0.00;
+     valDecTotal := 0.00;
+  end;
+
+  RLLabel33.Caption :=  formatdatetime('dd/mm/yyyy', Date);
+  QTDE.Caption      :=  FormatFloat('#,##0.000;;', pesoTotal);
+  valdec.Caption    :=  FormatFloat('##,##0.00;;', valDecTotal);
 end;
 
 procedure TFrmRelArSedexListaOl.RLBand2AfterPrint(Sender: TObject);
 begin
-if dm.SqlSdx3.Eof then
+  try
+    if (objIni = null) AND
+       (FrmPesqImpSedex <> nil) AND
+       (FrmPesqImpSedex.fxaini <> null ) then
+      objIni := FrmPesqImpSedex.fxaini;
+
+    if (objFim = null) AND
+       (FrmPesqImpSedex <> nil) AND
+       (FrmPesqImpSedex.fxafim <> null) then
+      objFim := FrmPesqImpSedex.fxafim;
+
+    if (qtObjs = null) AND
+       (FrmPesqImpSedex <> nil) AND
+       (FrmPesqImpSedex.qtdar <> null) then
+      qtObjs := FrmPesqImpSedex.qtdar;
+
+  Except
+    objIni := '0';
+    objFim := '0';
+    qtObjs := 0;
+  end;
+
+// if dm.SqlSdx3.Eof then
   RLBand3.Visible   := true;
-  RLLabel39.Caption := FrmPesqImpSedex.fxaini;
-  RLLabel40.Caption := FrmPesqImpSedex.fxafim;
-  RLLabel41.Caption := GeraNt(inttostr(FrmPesqImpSedex.qtdar),4);
+  RLLabel39.Caption := objIni;
+  RLLabel40.Caption := objFim;
+  RLLabel41.Caption := Format('%.4d', [qtObjs]);
 end;
 
 procedure TFrmRelArSedexListaOl.RLBand2BeforePrint(Sender: TObject;
   var PrintIt: Boolean);
 begin
-  seq               :=  seq+1;
-  ordem.Caption     :=  gerant(inttostr(seq),4);
-  LblPeso.Caption   :=  formatfloat('#,##0.000;;',Dm.SqlSdx3sdx_peso.Value);
-  LblValor.Caption  :=  formatfloat('##,##0.00;;',Dm.SqlSdx3sdx_valdec.Value);
+  seq               :=  seq + 1;
+  ordem.Caption     :=  Format('%.4d', [seq]);
+  LblPeso.Caption   :=  formatfloat('#,##0.000;;', Dm.SqlSdx3sdx_peso.Value);
+  LblValor.Caption  :=  formatfloat('##,##0.00;;', Dm.SqlSdx3sdx_valdec.Value);
 end;
 
 

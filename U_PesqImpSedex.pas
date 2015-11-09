@@ -1800,6 +1800,7 @@ begin
         end;
     end;
 end;
+
 procedure TFrmPesqImpSedex.gerlisoltctk;
 var
   XL : TDataSetToExcel;
@@ -1860,11 +1861,12 @@ begin
           XL.Free;
           ShowMessage('Arquivo ' + saveDialog1.Filename + ' criado.');
         end
-      else 
+      else
         ShowMessage('O Arquivo de postagem não foi criado.');
-      
+
     end;
 end;
+
 procedure TFrmPesqImpSedex.gerfat;
 begin
   with Dm do
@@ -2502,7 +2504,7 @@ Begin
 
                SqlAux3.Open;
 
-               Application.CreateForm(TFrmRelArSedexListaOL,FrmRelArSedexListaOL);
+               Application.CreateForm(TFrmRelArSedexListaOL, FrmRelArSedexListaOL);
                qtdar  :=  SqlAux1.Fields[0].Value;
                SqlAux2.Last;
                fxafim  :=  SqlAux2.Fields[0].Text;
