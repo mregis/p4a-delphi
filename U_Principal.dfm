@@ -1,7 +1,6 @@
 object FrmPrincipal: TFrmPrincipal
   Left = 187
   Top = 172
-  Align = alCustom
   Caption = 'Address S.A - SISTEMA ADS'
   ClientHeight = 746
   ClientWidth = 851
@@ -317,7 +316,7 @@ object FrmPrincipal: TFrmPrincipal
   KeyPreview = True
   Menu = MainMenu1
   OldCreateOrder = True
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96

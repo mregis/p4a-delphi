@@ -65,8 +65,6 @@ uses DmDados, DB, U_Func, U_FrmRelArSedexListaOL, IniFiles;
 {$R *.dfm}
 
 procedure TFrmGeraListaPostagem.BitBtnGerarClick(Sender: TObject);
-var i, seq, comprimento, altura, largura : Integer;
-  linha, linhabase : String;
 Begin
   // Preenchimento do Período para pesquisa é obrigatório
   if (CompareDate(DtPickerDtIni.Date, DtPickerDtFin.Date) > 0) then
@@ -439,7 +437,7 @@ type
     remessa: Integer;
 end;
 
-var linhabase, linha : String;
+var linha : String;
   regs, remessa, i : Integer;
   seq : Char;
   ArqPrevDat : TArqPrevDat;
@@ -574,7 +572,7 @@ var iniFile : TIniFile;
 begin
   IdFtp := TIdFTP.Create(Self);
   try
-    iniFile := TIniFile.Create('ads.ini');
+    IniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
     // Nome/IP do Servidor de destino dos arquivos
     IdFtp.Host := iniFile.ReadString('FTPCORREIOS', 'Host', '10.1.1.10');
     // Porta de conexão ao FTP

@@ -32,6 +32,7 @@ type
     EditFtpPort: TEdit;
     EditFtpUser: TEdit;
     EditFtpPass: TEdit;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtnSalvarClick(Sender: TObject);
     procedure BitBtnFecharClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -100,6 +101,12 @@ end;
 procedure TFrmConfig.BitBtnFecharClick(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TFrmConfig.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := CaFree;
+  FrmConfig := Nil;
 end;
 
 procedure TFrmConfig.FormShow(Sender: TObject);
