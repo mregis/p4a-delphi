@@ -1656,70 +1656,66 @@ end;
 procedure TFrmExtContaCorrentePoupanca.EdnumloteKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  case key of
-    #13:
-       begin
-        case FrmExtContaCorrentePoupanca.Tag of
-        8:
-          begin
-            if ((trim(Edremessa2.Text) <> '') or (trim(Ednumlote.Text) <> '' ) or
-              (vernum(trim(Ednumlote.Text)) = true)) then
-              begin
-                dm.SqlAux1.Close;
-                dm.SqlAux1.SQL.Clear;
-                dm.SqlAux1.SQL.Add('select cg77_qtd,cg77_dtb from cga77 where (cg77_ag = :ag) and (cg77_numlote = :numlote) and (cg77_status = :status)');
-                dm.SqlAux1.Params[0].Value  :=  IntToStr(StrToInt(trim(Edremessa2.Text)));
-                dm.SqlAux1.Params[1].Value  :=  GeraNt(trim(Ednumlote.Text),6);
-                dm.SqlAux1.Params[2].Value  := '0';
-                dm.SqlAux1.Open;
-                case dm.SqlAux1.RecordCount of
-                  0:
-                    begin
-                      application.MessageBox('Agência ou N° do Lote não Existe,'+chr(10)+
-                      'ou já foi enviado'+chr(10)+'Procure o Supervisor do Serviço','Ads',MB_OK+MB_ICONERROR);
-                      exit;
-                    end;
-                  1:
-                    begin
-                      qtde :=  dm.SqlAux1.Fields[0].Value;
-                      dtb   := dm.SqlAux1.Fields[1].Value;
-                      dm.SqlAux1.Close;
-                      dm.SqlAux1.SQL.Clear;
-                      dm.SqlAux1.SQL.Add('select count(cg76_remes) from cga76 where (cg76_ag = :ag) and (cg76_numlote = :numlote)');
-                      dm.SqlAux1.Params[0].Value  :=  IntToStr(StrToInt(trim(Edremessa2.Text)));
-                      dm.SqlAux1.Params[1].Value  :=  GeraNt(trim(Ednumlote.Text),6);
-                      dm.SqlAux1.Open;
-                      case (qtde - dm.SqlAux1.Fields[0].Value) of
-                        0:
-                          begin
-                            application.MessageBox('Tokens para Agência Finalizada!'+chr(10)+
-                            'Fechar a Caixa e Criar nova Agência!','Ads',MB_OK+MB_ICONERROR);
-                            finalagencia;
-                            Edremessa2.Clear;
-                            Edremessa2.SetFocus;
-                            exit;
-                          end;
-                        else
-                          begin
-                            qtdaux       :=  qtde - dm.SqlAux1.Fields[0].Value;
-                            Edresto.Text :=  inttostr(qtdaux);
-                            EdRemessa.SetFocus;
-                          end;
-                      end;
-                  end;
-                end;
-              end
-            else
-              begin
-                application.MessageBox('Digite a Agência ou N° do Lote deve ser numérico','Ads',MB_OK+MB_ICONERROR);
-                Edremessa2.Clear;
-                Edremessa2.SetFocus;
-              end;
+  if (key = #13) AND (FrmExtContaCorrentePoupanca.Tag = 8) then // IF 1
+    begin
+      if ((trim(Edremessa2.Text) <> '') or (trim(Ednumlote.Text) <> '' ) or
+          (vernum(trim(Ednumlote.Text)) = true)) then // IF 2
+        begin
+          dm.SqlAux1.Close;
+          dm.SqlAux1.SQL.Clear;
+          dm.SqlAux1.SQL.Add('SELECT cg77_qtd, cg77_dtb ');
+          dm.SqlAux1.SQL.Add('FROM cga77 ');
+          dm.SqlAux1.SQL.Add('WHERE cg77_ag = :ag AND cg77_numlote = :numlote ');
+          dm.SqlAux1.SQL.Add('    AND cg77_status = :status');
+          dm.SqlAux1.ParamByName('ag').AsString := trim(Edremessa2.Text);
+          dm.SqlAux1.ParamByName('numlote').AsString :=  LPad(trim(Ednumlote.Text), 6, '0');
+          dm.SqlAux1.ParamByName('status').AsString := '0';
+          dm.SqlAux1.Open;
 
-          end;
-        end;
-      end;
-  end;
+          if (dm.SqlAux1.RecordCount > 0) then // IF 3
+            begin
+              qtde := dm.SqlAux1.FieldByName('cg77_qtd').AsInteger;
+              dtb := dm.SqlAux1.FieldByName('cg77_dtb').AsString;
+              dm.SqlAux1.Close;
+              dm.SqlAux1.SQL.Clear;
+              dm.SqlAux1.SQL.Add('SELECT COUNT(cg76_remes) as qt ');
+              dm.SqlAux1.SQL.Add('FROM cga76 ');
+              dm.SqlAux1.SQL.Add('WHERE cg76_ag = :ag AND cg76_numlote = :numlote');
+              dm.SqlAux1.ParamByName('ag').AsString := trim(Edremessa2.Text);
+              dm.SqlAux1.ParamByName('numlote').AsString :=  LPad(trim(Ednumlote.Text), 6, '0');
+              dm.SqlAux1.Open;
+              if (qtde - dm.SqlAux1.FieldByName('qt').AsInteger) > 0 then // If 4
+                begin
+                  qtdaux := qtde - dm.SqlAux1.FieldByName('qt').AsInteger;
+                  Edresto.Text :=  IntToStr(qtdaux);
+                  EdRemessa.SetFocus;
+                end
+              else
+                begin
+                  application.MessageBox('Tokens para Agência Finalizada!'+chr(10)+
+                      'Fechar a Caixa e Criar nova Agência!','Ads',MB_OK+MB_ICONERROR);
+                  finalagencia;
+                  Edremessa2.Clear;
+                  Edremessa2.SetFocus;
+                  exit;
+                end; // IF 4
+            end
+          else
+            begin
+              application.MessageBox('Agência ou N° do Lote não Existe,'+chr(10)+
+                  'ou já foi enviado'+chr(10)+'Procure o Supervisor do Serviço',
+                  'Ads',  MB_OK+MB_ICONERROR);
+              exit;
+            end; // IF 3
+        end
+      else
+        begin
+          application.MessageBox('Digite a Agência ou N° do Lote deve ser numérico',
+              'Ads', MB_OK + MB_ICONERROR);
+          Edremessa2.Clear;
+          Edremessa2.SetFocus;
+        end; // IF 2
+    end; // IF 1
 end;
 
 procedure TFrmExtContaCorrentePoupanca.gravatoken;

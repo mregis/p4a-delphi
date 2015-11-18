@@ -560,8 +560,8 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object PanelProgress: TPanel
       AlignWithMargins = True
-      Left = 192
-      Top = 221
+      Left = 201
+      Top = 230
       Width = 315
       Height = 68
       Align = alCustom

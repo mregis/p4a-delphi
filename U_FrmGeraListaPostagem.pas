@@ -27,7 +27,7 @@ type
     EdDirDestinoListagem: TEdit;
     LblDirDestino: TLabel;
     CheckBoxGerar: TCheckBox;
-    MaskEditLote: TMaskEdit;
+    EdLote: TEdit;
     procedure CheckBoxGerarClick(Sender: TObject);
     procedure BtnAbrirClick(Sender: TObject);
     procedure BtnFecharClick(Sender: TObject);
@@ -56,7 +56,7 @@ type
 
 var
   FrmGeraListaPostagem: TFrmGeraListaPostagem;
-  filename, chosenDir, fname : string; // Diretório de Destino para salvar arquivos gerados
+  filename, chosenDir, fname, destdir : string; // Diretório de Destino para salvar arquivos gerados
 
 implementation
 
@@ -65,6 +65,7 @@ uses DmDados, DB, U_Func, U_FrmRelArSedexListaOL, IniFiles;
 {$R *.dfm}
 
 procedure TFrmGeraListaPostagem.BitBtnGerarClick(Sender: TObject);
+  var i: integer;
 Begin
   // Preenchimento do Período para pesquisa é obrigatório
   if (CompareDate(DtPickerDtIni.Date, DtPickerDtFin.Date) > 0) then
@@ -75,26 +76,48 @@ Begin
     end;
 
   // Obrigatório selecionar um Cartão de Postagem ou Indicar um Lote
-  if (CboPagante.KeyValue = null) AND (Trim(MaskEditLote.Text) = '') then
+  if (CboPagante.KeyValue = null) AND (Trim(EdLote.Text) = '') then
     begin
       Application.MessageBox(PChar('Indique o Lote ou Selecione um Pagante.'),
               'ADS', MB_OK + MB_ICONERROR);
-      MaskEditLote.SetFocus;
+      EdLote.SetFocus;
       Exit;
     end;
 
+  // checando se a informação de Lote está válida
+  if (Length(TRim(EdLote.Text)) > 0) AND not (TryStrToInt(EdLote.Text, i) ) then
+        begin
+          Application.MessageBox(PChar('Número de Lote inválido!'),
+              'ADS', MB_OK + MB_ICONERROR);
+          EdLote.SetFocus;
+          Exit;
+        end;
+
   // Caso tenha sido marcado para Gerar Arquivo...
   if CheckBoxGerar.Checked then
-    if ((EdDirDestinoListagem.Text = '') OR
-          (not DirectoryExists(EdDirDestinoListagem.Text))) then
-      begin
-        Application.MessageBox(
-            PChar('Não foi indicado o diretório de destino para salvar os arquivos!'),
-                  'ADS', MB_OK + MB_ICONERROR);
-        BtnAbrir.SetFocus;
-        Exit;
-      end;
+    begin
+      try
+        if (EdDirDestinoListagem.Text = '') then
+          raise Exception.Create('Não foi indicado o diretório ' + 
+                 'de destino para salvar os arquivos!' +
+                  #10#13 + 'Selecione um diretório');
 
+        destdir := StringReplace(chosenDir + '\', '\\','\', [rfReplaceAll]) + 
+            FormatDateTime('mmmm', Date) + '\' + FormatDateTime('dd', Date) + '\';
+        if (not DirectoryExists(destdir)) 
+          AND (not SysUtils.ForceDirectories(destdir)) then
+            raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+      Except on E : Exception do
+        begin
+          application.MessageBox(PChar(E.Message),
+              'ADS', MB_OK + MB_ICONERROR);
+          BtnAbrir.SetFocus;
+          exit;
+        end;
+      end;
+    
+    end;
 
   With Dm do
     Begin
@@ -121,10 +144,10 @@ Begin
           SqlAux1.ParamByName('prod').AsInteger := CboPagante.KeyValue;
         end;
 
-      if (Length(TRim(MaskEditLote.Text)) > 0) then
+      if (Length(TRim(EdLote.Text)) > 0) then
         begin
           SqlAux1.SQL.Add('  AND t.sdx_seqcarga = :lote');
-          SqlAux1.ParamByName('lote').AsInteger := StrToInt64(MaskEditLote.Text);
+          SqlAux1.ParamByName('lote').AsInteger := StrToInt64(EdLote.Text);
         end;
 
       SqlAux1.Open;
@@ -170,10 +193,10 @@ Begin
               SqlSdx3.ParamByName('prod').AsInteger := CboPagante.KeyValue;
             end;
 
-          if (Length(TRim(MaskEditLote.Text)) > 0) then
+          if (Length(TRim(EdLote.Text)) > 0) then
             begin
               SqlSdx3.SQL.Add('  AND t.sdx_seqcarga = :lote');
-              SqlSdx3.ParamByName('lote').AsInteger := StrToInt64(MaskEditLote.Text);
+              SqlSdx3.ParamByName('lote').AsInteger := StrToInt64(EdLote.Text);
             end;
 
           SqlSdx3.SQL.Add('ORDER BY sdx_cep');
@@ -233,13 +256,13 @@ begin
       chosenDir,
       chosenDir)  then
     Begin
-      chosenDir := StringReplace(chosenDir + '\', '\\','\',[rfReplaceAll]);
+      chosenDir := StringReplace(chosenDir + '\', '\\','\', [rfReplaceAll]);
+      
       Registro := TRegistry.Create;
       Registro.RootKey := HKEY_CURRENT_USER;
       if Registro.OpenKey('ADS_ADSRESS', true) then
         // Verificando existência do diretório base
         Registro.WriteString('UltDirListaPostagem', chosenDir);
-
       EdDirDestinoListagem.Text := chosenDir;
     end;
 
@@ -305,7 +328,7 @@ begin
       DtPickerDtIni.DateTime := SqlSdx7mindt.Value;
       DtPickerDtFin.DateTime := SqlSdx7maxdt.Value;
       CboPagante.KeyValue := SqlSdx7tbsdxserv_prod.Value;
-      MaskEditLote.Text := IntToStr(SqlSdx7lote.Value);
+      EdLote.Text := IntToStr(SqlSdx7lote.Value);
     end;
 end;
 
@@ -399,10 +422,10 @@ Begin
           SqlAux1.ParamByName('prod').AsInteger := CboPagante.KeyValue;
         end;
 
-      if (Length(TRim(MaskEditLote.Text)) > 0) then
+      if (Length(TRim(EdLote.Text)) > 0) then
         begin
           SqlAux1.SQL.Add('  AND t.sdx_seqcarga = :lote');
-          SqlAux1.ParamByName('lote').AsInteger := StrToInt64(MaskEditLote.Text);
+          SqlAux1.ParamByName('lote').AsInteger := StrToInt64(EdLote.Text);
         end;
 
       SqlAux1.SQL.Add('ORDER BY t.sdx_cep ');
@@ -414,7 +437,7 @@ Begin
       f := ChangeFileExt(filename, '.xls');
       try
         SqlAux1.First;
-        XL := TDataSetToExcel.Create(SqlAux1, chosenDir + f, cab);
+        XL := TDataSetToExcel.Create(SqlAux1, destdir + f, cab);
         XL.WriteFile;
         XL.Free;
       Except
@@ -486,7 +509,7 @@ Begin
                     FormatDateTime('ddmm', Date) + seq + '.SD1';
 
   try
-    AssignFile(arq, chosenDir + fname);
+    AssignFile(arq, destdir + fname);
     Rewrite(arq);
 
   except on E: Exception do
@@ -596,7 +619,7 @@ begin
     // Diretório de Destino para o arquivo
     IdFtp.ChangeDir(iniFile.ReadString('FTPCORREIOS', 'Destino', 'ENTRADA'));
     // Enviando o arquivo recém-criado
-    IdFtp.Put(chosenDir + fname, fname, False);
+    IdFtp.Put(destdir + fname, fname, False);
     // Fechando a conexão    
     IdFtp.Disconnect;  
   Except
@@ -634,7 +657,7 @@ begin
   try
     // Nome do arquivo de destino
     // Pesquisando o diretório corrente para gerar arquivos únicos
-    if (FindFirst(chosenDir + '*_' + FormatDateTime('ddmmyy', Date) +
+    if (FindFirst(destdir + '*_' + FormatDateTime('ddmmyy', Date) +
                       '_*.txt', faArchive, searchResult) = 0 ) then
       begin
         repeat
@@ -650,7 +673,7 @@ begin
             FormatDateTime('ddmmyy', Date) + '_' +
             LPad(IntToStr(seq + 1), 3, '0') + '.txt';
         // Garantindo que não existe arquivo com a nomenclatura passada
-        while FileExists(chosenDir + filename) do
+        while FileExists(destdir + filename) do
           begin
             seq := seq + 1;
               filename := Dm.SqlSdxServtbsdxserv_crtpst.AsString + '_' +
@@ -659,7 +682,7 @@ begin
 
           end;
 
-        AssignFile(arq, chosenDir + filename);
+        AssignFile(arq, destdir + filename);
   except
     begin
       Application.MessageBox(PChar('Não foi possível utilizar o diretório'),

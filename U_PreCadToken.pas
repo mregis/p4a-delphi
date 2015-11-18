@@ -123,7 +123,6 @@ begin
     PanelProgress.Visible := False;
   end;
 
-
 end;
 
 procedure TFrmPreCadToken.FormShow(Sender: TObject);
@@ -771,7 +770,6 @@ begin
                       'Ads', MB_OK + MB_ICONERROR);
                   end;
               end;
-            //                        exit;
           end;
         end;
       end;  
@@ -1250,53 +1248,44 @@ begin
 
           // Validandos os dados de UF com a Agência quando esta for encontrada
           if (_Col = 2) then
-            if (trim(RangeMatrix[_Line, _Col]) <> '') and
+            begin
+              if (trim(RangeMatrix[_Line, _Col]) <> '') and
                   (TryStrToInt(RangeMatrix[_Line, _Col], jTemp)) then
-              begin
-                With Dm do
-                  begin
-                    SqlAux2.Close;
-                    SqlAux2.SQL.Clear;
-                    SqlAux2.SQL.Add('SELECT t.uf, t.juncao, t.depto FROM tbbraddptos t ');
-                    SqlAux2.SQL.Add('WHERE t.juncao = :juncao');
-                    SqlAux2.ParamByName('juncao').AsInteger := StrToInt(RangeMatrix[_Line, _Col]);
-                    SqlAux2.Open;
-                    if SqlAux2.RecordCount > 0 then
-                      begin
-                        if (trim(RangeMatrix[_Line, _Col -1]) <> '') and
-                            (SqlAux2.FieldByName('uf').AsString <> trim(RangeMatrix[_Line, _Col -1])) then
-                          begin
-                            application.MessageBox(
-                              PChar('UF do destino presente na linha ' + IntToStr(_Line) + #13#10 +
-                              '  é diferente do existente no cadastro. Necessário verificar!'),
-                              'ADS', MB_OK + MB_ICONERROR);
-                            exit;
-                          end;        
+                begin
+                  With Dm do
+                    begin
+                      SqlAux2.Close;
+                      SqlAux2.SQL.Clear;
+                      SqlAux2.SQL.Add('SELECT t.uf, t.juncao, t.depto FROM tbbraddptos t ');
+                      SqlAux2.SQL.Add('WHERE t.juncao = :juncao');
+                      SqlAux2.ParamByName('juncao').AsInteger := StrToInt(RangeMatrix[_Line, _Col]);
+                      SqlAux2.Open;
+                      if SqlAux2.RecordCount > 0 then
+                        begin
+                          if (trim(RangeMatrix[_Line, _Col -1]) <> '') and
+                              (SqlAux2.FieldByName('uf').AsString <> trim(RangeMatrix[_Line, _Col -1])) then
+                            begin
+                              application.MessageBox(
+                                  PChar('UF do destino presente na linha ' + IntToStr(_Line) + #13#10 +
+                                      '  é diferente do existente no cadastro. Necessário verificar!'),
+                                  'ADS', MB_OK + MB_ICONERROR);
+                              exit;
+                            end;
                           StrGridDados.Cells[(_Col - 1), R] :=  Format('%.4d', [SqlAux2.FieldByName('juncao').AsInteger]);
                           StrGridDados.Cells[_Col, R] :=  SqlAux2.FieldByName('depto').AsString;
-                      end
-                    else
-                      begin;
-                        application.MessageBox(
-                            PChar('A AGÊNCIA ' + VarToStr(RangeMatrix[_Line, _Col]) +
-                            ', presente na linha ' + IntToStr(_Line) + #13#10 +
-                            ', não foi encontrada no cadastro. Necessário verificar!'),
-                            'ADS', MB_OK + MB_ICONERROR);
-                        exit;
-                      end;
-                  end;
-              end
-            else
-              begin
-                application.MessageBox(
-                            PChar('A Linha ' + IntToStr(_Line) +
-                            ' não contém informações de junção.' + #13#10 +
-                            'Se a linha não contém informações para serem lidas ' + #13#10 +
-                            'é necessário excluí-la antes de continuar'),
-                            'ADS', MB_OK + MB_ICONERROR);
-                exit;
-              end
-
+                        end
+                      else
+                        begin;
+                          application.MessageBox(
+                              PChar('A AGÊNCIA ' + VarToStr(RangeMatrix[_Line, _Col]) +
+                                  ', presente na linha ' + IntToStr(_Line) + #13#10 +
+                                  ', não foi encontrada no cadastro. Necessário verificar!'),
+                              'ADS', MB_OK + MB_ICONERROR);
+                          exit;
+                        end;
+                    end;
+                end
+            end
           // Validando a data
           else if _Col = 5 then
             begin
@@ -1419,7 +1408,7 @@ begin
               end;
         end; // end for 2
         R := R + 1;
-                   
+
         StrGridDados.Refresh;
         EdQtdreg.Text := IntToStr(_Line - iIni);
         EdQtdreg.Refresh;        

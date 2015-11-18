@@ -2,7 +2,7 @@ object FrmPrincipal: TFrmPrincipal
   Left = 187
   Top = 172
   Caption = 'Address S.A - SISTEMA ADS'
-  ClientHeight = 746
+  ClientHeight = 765
   ClientWidth = 851
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -325,18 +325,19 @@ object FrmPrincipal: TFrmPrincipal
     Left = 0
     Top = 0
     Width = 851
-    Height = 746
+    Height = 765
     VertScrollBar.Range = 19
     Align = alClient
     AutoScroll = False
     Color = 16707787
     ParentColor = False
     TabOrder = 0
+    ExplicitHeight = 746
     object Image1: TImage
       Left = 0
       Top = 0
       Width = 847
-      Height = 723
+      Height = 742
       Align = alClient
       Picture.Data = {
         07544269746D6170B6620300424DB66203000000000036040000280000002602
@@ -7281,7 +7282,7 @@ object FrmPrincipal: TFrmPrincipal
     end
     object StsMenu: TStatusBar
       Left = 0
-      Top = 723
+      Top = 742
       Width = 847
       Height = 19
       Color = 16776697
@@ -7305,10 +7306,11 @@ object FrmPrincipal: TFrmPrincipal
         item
           Width = 120
         end>
+      ExplicitTop = 723
     end
     object BitBtnCargaAR: TBitBtn
-      Left = 88
-      Top = 120
+      Left = 24
+      Top = 16
       Width = 177
       Height = 129
       BiDiMode = bdLeftToRight
@@ -7488,8 +7490,8 @@ object FrmPrincipal: TFrmPrincipal
       Layout = blGlyphTop
     end
     object BitBtnPrintArs: TBitBtn
-      Left = 88
-      Top = 280
+      Left = 24
+      Top = 166
       Width = 177
       Height = 129
       BiDiMode = bdLeftToRight
@@ -7697,8 +7699,8 @@ object FrmPrincipal: TFrmPrincipal
       Layout = blGlyphTop
     end
     object BitBtnRepostagemAR: TBitBtn
-      Left = 298
-      Top = 120
+      Left = 224
+      Top = 16
       Width = 177
       Height = 129
       BiDiMode = bdLeftToRight
@@ -7966,8 +7968,8 @@ object FrmPrincipal: TFrmPrincipal
       Layout = blGlyphTop
     end
     object BitBtnPesagem: TBitBtn
-      Left = 298
-      Top = 280
+      Left = 224
+      Top = 166
       Width = 177
       Height = 129
       BiDiMode = bdLeftToRight
@@ -8649,8 +8651,8 @@ object FrmPrincipal: TFrmPrincipal
       Layout = blGlyphTop
     end
     object BitBtnListaPostagem: TBitBtn
-      Left = 506
-      Top = 120
+      Left = 422
+      Top = 16
       Width = 177
       Height = 129
       BiDiMode = bdLeftToRight
@@ -8860,8 +8862,8 @@ object FrmPrincipal: TFrmPrincipal
       Layout = blGlyphTop
     end
     object BitBtnConfig: TBitBtn
-      Left = 88
-      Top = 440
+      Left = 24
+      Top = 316
       Width = 177
       Height = 129
       BiDiMode = bdLeftToRight

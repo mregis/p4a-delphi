@@ -95,20 +95,23 @@ begin
       // Iniciando interação com o Banco
       SqlSdx3.Close;
       SqlSdx3.SQL.Clear;
-      SqlSdx3.SQL.Add('SELECT t.sdx_codcli, t.sdx_idcli, t.sdx_siglaobj, t.sdx_numobj,');
+      SqlSdx3.SQL.Add('SELECT DISTINCT t.sdx_codcli, t.sdx_idcli, t.sdx_siglaobj, t.sdx_numobj,');
       SqlSdx3.SQL.Add('  t.sdx_paisorigem, t.sdx_codoperacao, t.sdx_numobj3, t.sdx_nomdest,');
       SqlSdx3.SQL.Add('  t.sdx_endedest, t.sdx_cidade, t.sdx_uf, t.sdx_cep, t.sdx_numseqarq,');
       SqlSdx3.SQL.Add('  t.sdx_numseqreg, t.sdx_dtcarga, t.sdx_seqcarga, t.sdx_numobj2, ');
       SqlSdx3.SQL.Add('  t.sdx_cepnet, t.sdx_numobj1, t.sdx_numobj4, t.sdx_numobj5, ');
       SqlSdx3.SQL.Add('  t.sdx_peso, t.sdx_valor, t.sdx_qtde, t.sdx_tvalor, t.sdx_valdec, ');
-      SqlSdx3.SQL.Add('  s.tbsdxserv_nrocto, s.tbsdxserv_crtpst ');
+      SqlSdx3.SQL.Add('  s.tbsdxserv_nrocto, s.tbsdxserv_crtpst, t.sdx_cmp, t.sdx_bas, ');
+      SqlSdx3.SQL.Add('  t.sdx_alt, e.tbsdxect_sigla ');
       SqlSdx3.SQL.Add('FROM public.tbsdx02 t ');
       SqlSdx3.SQL.Add('    INNER JOIN public.tbsdxserv s ON (t.sdx_siglaobj = s.tbsdxserv_sigla) ');
-      
+      SqlSdx3.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj2 = e.tbsdxect_sigla || e.tbsdxect_num || ' +
+                      'e.tbsdxect_dv || ''BR'' ) ');
+
       // A data é o único campo obrigatório
       SqlSdx3.SQL.Add('WHERE t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ');
       SqlSdx3.ParamByName('dt1').AsDate := DtPickerDtIni.Date;
-      SqlSdx3.ParamByName('dt2').AsDate := DtPickerDtFin.Date;      
+      SqlSdx3.ParamByName('dt2').AsDate := DtPickerDtFin.Date;
       // Verificando se foi selecionado um produto
       if (DBMacroProd.KeyValue <> null) then
         begin

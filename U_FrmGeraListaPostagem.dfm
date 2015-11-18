@@ -1,9 +1,10 @@
 object FrmGeraListaPostagem: TFrmGeraListaPostagem
   Left = 0
   Top = 0
+  BorderStyle = bsSingle
   Caption = 'Lista de Postagem'
-  ClientHeight = 395
-  ClientWidth = 532
+  ClientHeight = 487
+  ClientWidth = 534
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -158,9 +159,9 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
   end
   object DBGridPostagem: TDBGrid
     Left = 0
-    Top = 258
-    Width = 532
-    Height = 137
+    Top = 272
+    Width = 534
+    Height = 215
     Align = alBottom
     Ctl3D = False
     DataSource = Dm.DtSSdx7
@@ -523,15 +524,6 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     TabOrder = 8
     OnClick = CheckBoxGerarClick
   end
-  object MaskEditLote: TMaskEdit
-    Left = 383
-    Top = 97
-    Width = 126
-    Height = 24
-    EditMask = '!999999999999;0; '
-    MaxLength = 12
-    TabOrder = 9
-  end
   object PanelProgress: TPanel
     AlignWithMargins = True
     Left = 134
@@ -563,5 +555,12 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
       Smooth = True
       TabOrder = 0
     end
+  end
+  object EdLote: TEdit
+    Left = 383
+    Top = 97
+    Width = 126
+    Height = 26
+    TabOrder = 9
   end
 end

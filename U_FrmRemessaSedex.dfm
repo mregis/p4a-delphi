@@ -922,6 +922,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
       TabOrder = 5
       OnEnter = EdPesoEnter
+      OnKeyPress = EdPesoKeyPress
     end
   end
   object GroupBox3: TGroupBox
@@ -1512,6 +1513,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       Height = 22
       BiDiMode = bdRightToLeft
       CharCase = ecUpperCase
+      Enabled = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -12
@@ -1528,6 +1530,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       Width = 102
       Height = 22
       CharCase = ecUpperCase
+      Enabled = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -12

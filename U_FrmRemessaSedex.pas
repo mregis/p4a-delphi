@@ -418,14 +418,6 @@ end;
 procedure TFrmRemessaSedex.BtnSalvaClick(Sender: TObject);
 var i:Integer;
 begin
-//  Timer1.Enabled := false;
-//      EdPeso.Text        := FormatFloat('#,##0.000;0;0', StrToint(EdPeso.Text)/1000);
-{  if (trim(Edcodcxa.Text) = '') or (vernum(Edcodcxa.Text) = false) then
-    begin
-      //Application.MessageBox(Pchar('Digite ou Leia o Código da Caixa !'),'ADS',ID_OK);
-     // Edcodcxa.SetFocus;
-    end
-  else}
   if trim(EdObjeto.Text) = '' then
     begin
       Application.MessageBox('Digite o Número de Objeto', 'ADS', ID_OK);
@@ -443,35 +435,33 @@ begin
 
   calcvalor;
 
+  // Início Calculo DV CEP
   v_soma := 0;
-  //    mcep  :=  MkEdCep.Text
-  for i:= 1 to 8 do
-    v_soma := v_soma + strtoint(copy(MkEdCep.Text,i,1));
+  for i:= 1 to Length(MkEdCep.Text) do
+    v_soma := v_soma + StrToInt(copy(MkEdCep.Text, i, 1));
 
-  v_soma := strtoint(copy(intTostr(v_soma), length(inttostr(v_soma)), 1));
-  if v_soma = 0 then
-    CEPr := MkEdCep.Text + '0'
-  else
-    begin
+  v_soma := v_soma mod 10;
+  if v_soma > 0 then
       v_soma := 10 - v_soma;
-      CEPr := '/' + MkEdCep.Text + intToStr(v_soma) + '\';
-    end;
+
+  CEPr := Format('/%s%d\', [MkEdCep.Text, v_soma]);
+  // Fim Calculo DV CEP
 
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
       SqlAux1.SQL.Add('UPDATE tbsdx02 ');
-      SqlAux1.SQL.Add('SET sdx_cepnet = :cepnet, sdx_valor = :valor, ');
+      SqlAux1.SQL.Add('SET sdx_cepnet = E:cepnet, sdx_valor = :valor, ');
       SqlAux1.SQL.Add('sdx_peso = :peso, sdx_qtde = :qtde, sdx_tvalor = :tvalor,');
       SqlAux1.SQL.Add('sdx_dtenvio = CURRENT_DATE, sdx_valar = :valar, ');
-      // Procurar saber o que é esse porc com valor de 0.003
+      { TODO : Procurar saber o que é esse porc com valor de 0.003 }
       SqlAux1.SQL.Add('sdx_porc = 0.003, sdx_valmin = 275.00, ');
       SqlAux1.SQL.Add('sdx_difval = :valdif, sdx_horaenvio = CURRENT_TIME,');
       SqlAux1.SQL.Add('sdx_bas = :bas, sdx_cmp = :cmp, sdx_alt = :alt, ');
       SqlAux1.SQL.Add('sdx_pescub = :pescub, sdx_codcxa = :codcxa ');
       SqlAux1.SQL.Add('WHERE sdx_numobj2 = :numboj2 ');
-      SqlAux1.ParamByName('cepnet').AsString := cepr;
+      SqlAux1.ParamByName('cepnet').AsString := CEPr;
       SqlAux1.ParamByName('valor').AsFloat := Moeda2Float(EdValor.Text);
       SqlAux1.ParamByName('peso').AsFloat := Moeda2Float(EdPeso.Text);
       SqlAux1.ParamByName('qtde').AsInteger := StrToInt(EdVol.Text);
@@ -483,9 +473,8 @@ begin
       SqlAux1.ParamByName('alt').AsFloat := Moeda2Float(Edalt.Text);
       SqlAux1.ParamByName('pescub').AsFloat := pescal;
       SqlAux1.ParamByName('codcxa').AsInteger := codcxa;
-      SqlAux1.ParamByName('numboj2').AsString := EdObjeto.Text;//SqlSdx4sdx_valdec.Value  > 275.00
+      SqlAux1.ParamByName('numboj2').AsString := EdObjeto.Text;
       try
-//       inputbox('','',SqlAux1.SQL.Text);
         SqlAux1.ExecSQL;
         if SqlAux1.RowsAffected > 0 then
           Application.MessageBox('Informações alteradas com sucesso!', 'ADS', ID_OK)
@@ -502,7 +491,7 @@ begin
         begin
           Application.MessageBox(PChar('Erro: ' + e.Message + chr(10) +
               'Verifique com o CPD'),'ADS',ID_OK);
-          EdJuncao.SetFocus;
+          EdObjeto.SetFocus;
           exit;
         end;
       end;
@@ -640,11 +629,8 @@ begin
 procedure TFrmRemessaSedex.EdPesoKeyPress(Sender: TObject; var Key: Char);
 begin
   if key = #13 then
-    begin
- //     EdPeso.Text        := FormatFloat('#,##0.000;0;0', StrToint(EdPeso.Text)/1000);
-//      mpeso       :=  EdPeso.Text;
-//      calcvalor;
-    end;
+    if FrmRemessaSedex.Tag = 9 then
+      BtnSalva.SetFocus;
 end;
 procedure TFrmRemessaSedex.calcvol;
 begin
@@ -695,8 +681,6 @@ begin
       Ednrocxa.SetFocus;
       exit;
     end;
-  //
-  //
 end;
 
 procedure TFrmRemessaSedex.EdVolEnter(Sender: TObject);
