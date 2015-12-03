@@ -810,7 +810,11 @@ begin
         begin
           BtnSalva.Enabled  := true;
           BtnAltera.Enabled := true;
-        end;
+        end
+      // Consulta 
+      else if FrmRemessaSedex.Tag = 6 then
+        EdJuncao.Enabled  := True;
+
 
     end;
 end;

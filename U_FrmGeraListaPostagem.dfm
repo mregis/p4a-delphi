@@ -3,7 +3,7 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Lista de Postagem'
-  ClientHeight = 487
+  ClientHeight = 506
   ClientWidth = 534
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
@@ -159,7 +159,7 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
   end
   object DBGridPostagem: TDBGrid
     Left = 0
-    Top = 272
+    Top = 262
     Width = 534
     Height = 215
     Align = alBottom
@@ -253,8 +253,8 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
       end>
   end
   object BitBtnGerar: TBitBtn
-    Left = 140
-    Top = 218
+    Left = 104
+    Top = 222
     Width = 125
     Height = 34
     Caption = 'Gerar Lista'
@@ -324,9 +324,9 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
       2121010101010101010101010101010101010101010101212121}
   end
   object BtnFechar: TBitBtn
-    Left = 332
-    Top = 218
-    Width = 100
+    Left = 305
+    Top = 222
+    Width = 125
     Height = 34
     Caption = '&Fechar'
     Font.Charset = DEFAULT_CHARSET
@@ -526,8 +526,8 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
   end
   object PanelProgress: TPanel
     AlignWithMargins = True
-    Left = 134
-    Top = 161
+    Left = 110
+    Top = 234
     Width = 315
     Height = 73
     BevelInner = bvRaised
@@ -560,7 +560,23 @@ object FrmGeraListaPostagem: TFrmGeraListaPostagem
     Left = 383
     Top = 97
     Width = 126
-    Height = 26
+    Height = 24
     TabOrder = 9
+  end
+  object StsRemSdx: TStatusBar
+    Left = 0
+    Top = 477
+    Width = 534
+    Height = 29
+    Color = 16776697
+    Panels = <
+      item
+        Text = 'Ads - Address SA'
+        Width = 230
+      end
+      item
+        Width = 100
+      end>
+    ExplicitTop = 450
   end
 end

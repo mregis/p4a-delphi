@@ -28,6 +28,7 @@ type
     LblDirDestino: TLabel;
     CheckBoxGerar: TCheckBox;
     EdLote: TEdit;
+    StsRemSdx: TStatusBar;
     procedure CheckBoxGerarClick(Sender: TObject);
     procedure BtnAbrirClick(Sender: TObject);
     procedure BtnFecharClick(Sender: TObject);
@@ -97,14 +98,15 @@ Begin
   if CheckBoxGerar.Checked then
     begin
       try
-        if (EdDirDestinoListagem.Text = '') then
-          raise Exception.Create('Não foi indicado o diretório ' + 
-                 'de destino para salvar os arquivos!' +
-                  #10#13 + 'Selecione um diretório');
+        if (EdDirDestinoListagem.Text <> '') then
+          destdir := chosenDir
+        else
+          destdir := GetCurrentDir;
 
-        destdir := StringReplace(chosenDir + '\', '\\','\', [rfReplaceAll]) + 
-            FormatDateTime('mmmm', Date) + '\' + FormatDateTime('dd', Date) + '\';
-        if (not DirectoryExists(destdir)) 
+        destdir := StringReplace(destdir + '\', '\\','\', [rfReplaceAll]) +
+            UpperCase(FormatDateTime('yyyy\mmmm\dd', Date)) + '\';
+
+        if (not DirectoryExists(destdir))
           AND (not SysUtils.ForceDirectories(destdir)) then
             raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
 
@@ -218,17 +220,12 @@ Begin
                 GeraMidiaSara;
                 // Gerando o XLS
                 XLSReport;
-                // Gerando o Arquivo de Previsão de Postagem
-                GeraArquivoPrevisao;
-                // Enviando o Arquivo de Previsão por FTP
-                EnviaArquivoPrevisao;
                 // Aviso de que tudo saiu OK
                 Application.MessageBox(
                   PChar('Geração de Arquivos efetuado com sucesso!' + #13#10 +
                     'Os seguintes arquivos foram gerados : ' + #13#10 +
                     '"' + filename + '" e "' + ChangeFileExt(filename, '.xls') +
-                    '".' + #13#10 + 'O arquivo "' + fname + '" foi enviado aos ' +
-                    'Correios via FTP'
+                    '".'
                   ),  'ADS', MB_OK + MB_ICONINFORMATION);
 
               finally
@@ -358,7 +355,7 @@ begin
 end;
 
 procedure TFrmGeraListaPostagem.FormShow(Sender: TObject);
-var Registro: TRegistry;
+var IniFile : TIniFile;
 begin
   // Ajustando data de exibição
   DtPickerDtIni.Date := Date;
@@ -366,13 +363,8 @@ begin
   AtualizaGridPostagem;
 
   // Recuperando o diretório usando anteriormente
-  chosenDir := '';
-  Registro := TRegistry.Create;
-  Registro.RootKey := HKEY_CURRENT_USER;
-  if Registro.OpenKey('ADS_ADSRESS', false) then
-  // Verificando existência do diretório base
-    if DirectoryExists(Registro.ReadString('UltDirListaPostagem')) then
-      chosenDir := Registro.ReadString('UltDirListaPostagem');
+  IniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+  chosenDir := iniFile.ReadString('Arquivos', 'Local', GetCurrentDir);
 
   EdDirDestinoListagem.Text := chosenDir;
 end;
@@ -394,6 +386,7 @@ var
   XL : TDataSetToExcel;
   cab, f : String;
 Begin
+  PanelProgress.Caption := 'Criando Relatório de envios em XLS';
   With Dm do
     begin
       SqlAux1.Close;
@@ -468,6 +461,7 @@ var linha : String;
   arq : TextFile;
 
 Begin
+  PanelProgress.Caption := 'Gerando arquivo de Previsão de Postagem';
   // Valores padrão para quando o arquivo não é encontrado
   seq := '0';
   remessa :=  DayOfTheYear(Date) * (CurrentYear - 2014);
@@ -595,6 +589,7 @@ var iniFile : TIniFile;
 begin
   IdFtp := TIdFTP.Create(Self);
   try
+    PanelProgress.Caption := 'Enviando arquivos para o Correios';
     IniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
     // Nome/IP do Servidor de destino dos arquivos
     IdFtp.Host := iniFile.ReadString('FTPCORREIOS', 'Host', '10.1.1.10');
@@ -624,7 +619,7 @@ begin
     IdFtp.Disconnect;  
   Except
     IdFtp.Free;
-    raise Exception.Create('Não foi possível enviar os arquivos para o FTP destino!');    
+    ShowMessage('Não foi possível enviar os arquivos para o FTP destino!');    
   end;
   
 end;
@@ -666,23 +661,25 @@ begin
           if (TryStrToInt(copy(searchResult.Name, i, 3), i)) then
             seq := Max(i, seq);
         until FindNext(searchResult) <> 0;
-          FindClose(searchResult);
-        end;
 
-        filename := Dm.SqlSdxServtbsdxserv_crtpst.AsString + '_' +
+        FindClose(searchResult);
+      end;
+
+    filename := Dm.SqlSdxServtbsdxserv_crtpst.AsString + '_' +
             FormatDateTime('ddmmyy', Date) + '_' +
             LPad(IntToStr(seq + 1), 3, '0') + '.txt';
-        // Garantindo que não existe arquivo com a nomenclatura passada
-        while FileExists(destdir + filename) do
-          begin
-            seq := seq + 1;
-              filename := Dm.SqlSdxServtbsdxserv_crtpst.AsString + '_' +
+    // Garantindo que não existe arquivo com a nomenclatura passada
+    while FileExists(destdir + filename) do
+      begin
+        seq := seq + 1;
+        filename := Dm.SqlSdxServtbsdxserv_crtpst.AsString + '_' +
                     FormatDateTime('ddmmyy', Date) + '_' +
                     LPad(IntToStr(seq + 1), 3, '0') + '.txt';
 
-          end;
+      end;
 
-        AssignFile(arq, destdir + filename);
+    AssignFile(arq, destdir + filename);
+
   except
     begin
       Application.MessageBox(PChar('Não foi possível utilizar o diretório'),

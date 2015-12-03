@@ -13,7 +13,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnClose = FormClose
   OnKeyPress = FormKeyPress
   OnShow = FormShow

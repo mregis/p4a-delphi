@@ -229,6 +229,8 @@ type
     BitBtnPesagem: TBitBtn;
     BitBtnListaPostagem: TBitBtn;
     BitBtnConfig: TBitBtn;
+    BitBtnVinculaToken: TBitBtn;
+    BitBtnDesvinculaToken: TBitBtn;
     procedure BitBtnConfigClick(Sender: TObject);
     procedure BitBtnListaPostagemClick(Sender: TObject);
     procedure BitBtnPesagemClick(Sender: TObject);
@@ -438,7 +440,7 @@ uses U_ExtConsolidado, FrmExtContaCorrentePopanca, U_CadBaixa,
   U_PreCadToken, U_AltTokens, U_FrmConsulta, U_CadSedex, U_PesqImpSedex,
   U_FrmRelArSedexLista, U_FrmRlTotRa, DmDados, U_FrmCadNLido, U_FrmRemessaSedex,
   U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr,
-  U_FrmGeraListaPostagem, U_FrmConfig;
+  U_FrmGeraListaPostagem, U_FrmConfig, U_FrmGeraRelatToken;
 
 {$R *.dfm}
 procedure TFrmPrincipal.AbreBaixa(tipo:Integer);
@@ -1312,16 +1314,8 @@ end;
 
 procedure TFrmPrincipal.RelAgeClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPesqImp,FrmPesqImp);
-  FrmPesqImp.Tag                := 25;
-  FrmPesqImp.EdAgIni.Enabled    := True;
-  FrmPesqImp.EdAgFin.Enabled    := true;
-  FrmPesqImp.EdAgFin.Clear;
-  FrmPesqImp.Panel2.Caption     := 'DTB';
-  FrmPesqImp.EdAgFin.MaxLength  :=  -1;
-  FrmPesqImp.EdNumlote.Text     :=  '0';
-  FrmPesqImp.EdNumlote.Enabled  :=  true;
-  FrmPesqImp.ShowModal;
+  Application.CreateForm(TFrmGeraRelatToken, FrmGeraRelatToken);
+  FrmGeraRelatToken.ShowModal;
 end;
 
 procedure TFrmPrincipal.DRCCrtAvisoClick(Sender: TObject);
@@ -1911,7 +1905,7 @@ end;
 
 procedure TFrmPrincipal.AltTokenClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmAltToken,FrmAltToken);
+  Application.CreateForm(TFrmAltToken, FrmAltToken);
   FrmAltToken.ShowModal;
   SetFocus
 end;

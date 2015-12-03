@@ -1,37 +1,41 @@
 object Dm: TDm
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Height = 763
+  Height = 984
   Width = 1087
   object Ads: TZConnection
     Protocol = 'postgresql-8.x'
+    HostName = '10.1.1.10'
     Port = 5432
     Database = 'dbads'
     User = 'ads'
     Password = 'ads!.!'
     ReadOnly = True
-    Left = 16
+    DesignConnection = True
+    Left = 30
+    Top = 16
   end
   object SqlAux1: TZQuery
     Connection = Ads
     Params = <>
-    Left = 72
+    Left = 30
+    Top = 139
   end
   object SqlCga06: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga06')
     Params = <>
-    Left = 16
-    Top = 48
+    Left = 284
+    Top = 139
   end
   object SqlCga33: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga33')
     Params = <>
-    Left = 16
-    Top = 104
+    Left = 371
+    Top = 139
     object SqlCga33cg33_remes: TStringField
       FieldName = 'cg33_remes'
       Size = 22
@@ -71,8 +75,8 @@ object Dm: TDm
     SQL.Strings = (
       'select * from cga20 order by cg20_descricao')
     Params = <>
-    Left = 16
-    Top = 152
+    Left = 30
+    Top = 303
     object SqlCga20cg20_codbaixa: TStringField
       FieldName = 'cg20_codbaixa'
       Required = True
@@ -90,16 +94,16 @@ object Dm: TDm
   end
   object DtsCga20: TDataSource
     DataSet = SqlCga20
-    Left = 72
-    Top = 152
+    Left = 104
+    Top = 303
   end
   object sqlcga_acesso: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga_acesso')
     Params = <>
-    Left = 16
-    Top = 200
+    Left = 574
+    Top = 358
     object sqlcga_acessonome: TStringField
       FieldName = 'nome'
       Size = 14
@@ -117,16 +121,16 @@ object Dm: TDm
   end
   object Dtscga_acesso: TDataSource
     DataSet = sqlcga_acesso
-    Left = 88
-    Top = 200
+    Left = 661
+    Top = 358
   end
   object SqlCga75: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga75')
     Params = <>
-    Left = 136
-    Top = 152
+    Left = 200
+    Top = 303
     object SqlCga75cg75_remes: TStringField
       FieldName = 'cg75_remes'
     end
@@ -167,16 +171,16 @@ object Dm: TDm
   end
   object DtsCga75: TDataSource
     DataSet = SqlCga75
-    Left = 160
-    Top = 200
+    Left = 283
+    Top = 303
   end
   object SqlCga10: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga10  order by cg10_codcli')
     Params = <>
-    Left = 80
-    Top = 104
+    Left = 30
+    Top = 358
     object SqlCga10cg10_codcli: TIntegerField
       FieldName = 'cg10_codcli'
     end
@@ -245,8 +249,8 @@ object Dm: TDm
     SQL.Strings = (
       'select * from cga11')
     Params = <>
-    Left = 72
-    Top = 48
+    Left = 389
+    Top = 195
     object SqlCga11cg11_descricao: TStringField
       FieldName = 'cg11_descricao'
     end
@@ -260,13 +264,13 @@ object Dm: TDm
   end
   object DtsCga10: TDataSource
     DataSet = SqlCga10
-    Left = 136
-    Top = 104
+    Left = 104
+    Top = 358
   end
   object DtsCga11: TDataSource
     DataSet = SqlCga11
-    Left = 120
-    Top = 48
+    Left = 465
+    Top = 195
   end
   object Cep: TZConnection
     Protocol = 'postgresql-7.4'
@@ -276,7 +280,8 @@ object Dm: TDm
     User = 'cartoriores'
     Password = 'cart6539'
     ReadOnly = True
-    Left = 400
+    Left = 32
+    Top = 872
   end
   object SqlCep: TZQuery
     Connection = Cep
@@ -293,8 +298,8 @@ object Dm: TDm
       'inner join  ufs on ufs.dne = localidades.dneuf'
       'where logradouros.cep = '#39'06333060'#39)
     Params = <>
-    Left = 256
-    Top = 51
+    Left = 32
+    Top = 923
     object SqlCeplogradouro: TStringField
       FieldName = 'logradouro'
       Size = 72
@@ -327,8 +332,8 @@ object Dm: TDm
       'cg42_erros'
       'order by cg42_ncont')
     Params = <>
-    Left = 16
-    Top = 248
+    Left = 30
+    Top = 413
     object SqlCga42cg42_ncont: TStringField
       FieldName = 'cg42_ncont'
       Required = True
@@ -356,8 +361,8 @@ object Dm: TDm
     SQL.Strings = (
       'select * from tbbraddptos')
     Params = <>
-    Left = 16
-    Top = 296
+    Left = 389
+    Top = 413
     object SqlAgBradjuncao: TIntegerField
       FieldName = 'juncao'
     end
@@ -415,8 +420,8 @@ object Dm: TDm
     SQL.Strings = (
       'select * from cga40 order by cg40_remes')
     Params = <>
-    Left = 264
-    Top = 296
+    Left = 389
+    Top = 358
     object SqlCga40cg40_remes: TIntegerField
       FieldName = 'cg40_remes'
     end
@@ -475,26 +480,26 @@ object Dm: TDm
   end
   object DtsCga42: TDataSource
     DataSet = SqlCga42
-    Left = 72
-    Top = 248
+    Left = 104
+    Top = 413
   end
   object DtsAgBrad: TDataSource
     DataSet = SqlAgBrad
-    Left = 72
-    Top = 304
+    Left = 465
+    Top = 413
   end
   object DtsCga40: TDataSource
     DataSet = SqlCga40
-    Left = 320
-    Top = 296
+    Left = 465
+    Top = 358
   end
   object SqlCga44: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga44')
     Params = <>
-    Left = 392
-    Top = 298
+    Left = 200
+    Top = 358
     object SqlCga44cg40_nome: TStringField
       FieldName = 'cg40_nome'
       Size = 60
@@ -537,24 +542,25 @@ object Dm: TDm
   end
   object DtsCga44: TDataSource
     DataSet = SqlCga44
-    Left = 448
-    Top = 299
+    Left = 283
+    Top = 358
   end
   object SqlAux2: TZQuery
     Connection = Ads
     Params = <>
-    Left = 120
+    Left = 30
+    Top = 195
   end
   object RLRichFilter1: TRLRichFilter
     DisplayName = 'Formato RichText'
-    Left = 216
-    Top = 107
+    Left = 545
+    Top = 75
   end
   object RLHTMLFilter1: TRLHTMLFilter
     DocumentStyle = dsCSS2
     DisplayName = 'P'#225'gina da Web'
-    Left = 320
-    Top = 107
+    Left = 458
+    Top = 75
   end
   object RLPDFFilter1: TRLPDFFilter
     DocumentInfo.Creator = 
@@ -563,32 +569,32 @@ object Dm: TDm
     ViewerOptions = []
     FontEncoding = feNoEncoding
     DisplayName = 'Documento PDF'
-    Left = 408
-    Top = 108
+    Left = 632
+    Top = 75
   end
   object RLXLSFilter1: TRLXLSFilter
     DisplayName = 'Planilha Excel'
-    Left = 472
-    Top = 108
+    Left = 371
+    Top = 75
   end
   object SqlRel: TZQuery
     Connection = Ads
     Params = <>
-    Left = 16
-    Top = 352
+    Left = 30
+    Top = 468
   end
   object DtsRel: TDataSource
     DataSet = SqlRel
-    Left = 72
-    Top = 352
+    Left = 104
+    Top = 468
   end
   object SqlCga14: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga14 order by cg14_codag')
     Params = <>
-    Left = 136
-    Top = 296
+    Left = 574
+    Top = 413
     object SqlCga14cg14_codag: TStringField
       FieldName = 'cg14_codag'
       Size = 10
@@ -604,16 +610,16 @@ object Dm: TDm
   end
   object DtsCga14: TDataSource
     DataSet = SqlCga14
-    Left = 192
-    Top = 296
+    Left = 661
+    Top = 413
   end
   object SqlCga07: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga107cadfilial')
     Params = <>
-    Left = 128
-    Top = 248
+    Left = 200
+    Top = 413
     object SqlCga07cg07_edicao: TStringField
       FieldName = 'cg07_edicao'
       Size = 50
@@ -628,16 +634,16 @@ object Dm: TDm
   end
   object DtsCga07: TDataSource
     DataSet = SqlCga07
-    Left = 184
-    Top = 248
+    Left = 283
+    Top = 413
   end
   object SqlCga107: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga107cadfilial order by codfilial')
     Params = <>
-    Left = 264
-    Top = 352
+    Left = 389
+    Top = 468
     object SqlCga107nomefilial: TStringField
       FieldName = 'nomefilial'
       Size = 35
@@ -651,8 +657,8 @@ object Dm: TDm
     SQL.Strings = (
       'select * from cga105cadedi')
     Params = <>
-    Left = 144
-    Top = 352
+    Left = 200
+    Top = 468
     object SqlCga105numedi: TIntegerField
       FieldName = 'numedi'
       Required = True
@@ -663,21 +669,21 @@ object Dm: TDm
   end
   object DtsCga105: TDataSource
     DataSet = SqlCga105
-    Left = 200
-    Top = 352
+    Left = 283
+    Top = 468
   end
   object dtsCga107: TDataSource
     DataSet = SqlCga107
-    Left = 320
-    Top = 352
+    Left = 465
+    Top = 468
   end
   object sqlhora: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select current_time,current_date')
     Params = <>
-    Left = 200
-    Top = 50
+    Left = 197
+    Top = 139
     object sqlhoratimetz: TStringField
       FieldName = 'timetz'
       ReadOnly = True
@@ -691,13 +697,16 @@ object Dm: TDm
   object SqlRelCartao: TZQuery
     Connection = Ads
     SQL.Strings = (
-      'select cga_acesso.nome,cga_acesso.codigo,'
-      'cga50.cg50_data,cga50.cg50_horaini,cga50.cg50_horafin,'
-      '(cga50.cg50_horafin - cga50.cg50_horaini) from cga50'
-      'inner join cga_acesso on cga_acesso.codigo = cga50.cg50_codusu')
+      'select cga_acesso.nome, cga_acesso.codigo, cga50.cg50_data,'
+      '  cga50.cg50_horaini, cga50.cg50_horafin,'
+      '  (cga50.cg50_horafin - cga50.cg50_horaini) AS prazo'
+      'FROM cga50'
+      
+        '    INNR JOIN cga_acesso ON cga_acesso.codigo = cga50.cg50_codus' +
+        'u')
     Params = <>
-    Left = 216
-    Top = 160
+    Left = 200
+    Top = 250
     object SqlRelCartaonome: TStringField
       FieldName = 'nome'
       Size = 14
@@ -714,23 +723,22 @@ object Dm: TDm
     object SqlRelCartaocg50_horafin: TTimeField
       FieldName = 'cg50_horafin'
     end
-    object SqlRelCartaocolumn: TStringField
-      FieldName = '?column?'
-      Size = 50
+    object SqlRelCartaoPrazo: TTimeField
+      FieldName = 'Prazo'
     end
   end
   object DstSqlRelCartao: TDataSource
     DataSet = SqlRelCartao
-    Left = 296
-    Top = 160
+    Left = 283
+    Top = 250
   end
   object SqlCga108: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga108cadfaixacep')
     Params = <>
-    Left = 392
-    Top = 352
+    Left = 574
+    Top = 468
     object SqlCga108codfilial: TFloatField
       FieldName = 'codfilial'
     end
@@ -745,16 +753,16 @@ object Dm: TDm
   end
   object dtsCga108: TDataSource
     DataSet = SqlCga108
-    Left = 448
-    Top = 352
+    Left = 661
+    Top = 468
   end
   object SqlCga109: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga109cadloja')
     Params = <>
-    Left = 16
-    Top = 409
+    Left = 200
+    Top = 521
     object SqlCga109codloja: TFloatField
       FieldName = 'codloja'
       Required = True
@@ -766,16 +774,16 @@ object Dm: TDm
   end
   object DtsCga109: TDataSource
     DataSet = SqlCga109
-    Left = 72
-    Top = 408
+    Left = 283
+    Top = 521
   end
   object SqlCga106: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga106divisao')
     Params = <>
-    Left = 144
-    Top = 408
+    Left = 389
+    Top = 521
     object SqlCga106codloja: TFloatField
       FieldName = 'codloja'
       Required = True
@@ -800,13 +808,13 @@ object Dm: TDm
   end
   object DtsCga106: TDataSource
     DataSet = SqlCga106
-    Left = 208
-    Top = 408
+    Left = 465
+    Top = 521
   end
   object DtsCgaLojadivi: TDataSource
     DataSet = SqlCgaLojaDivi
-    Left = 368
-    Top = 408
+    Left = 661
+    Top = 521
   end
   object SqlCgaLojaDivi: TZQuery
     Connection = Ads
@@ -816,8 +824,8 @@ object Dm: TDm
         'inner join cga109cadloja on cga109cadloja.codloja = cga106divisa' +
         'o.codloja')
     Params = <>
-    Left = 280
-    Top = 408
+    Left = 574
+    Top = 521
     object SqlCgaLojaDivicodloja: TFloatField
       FieldName = 'codloja'
     end
@@ -847,16 +855,16 @@ object Dm: TDm
   end
   object DtsCgaMakro: TDataSource
     DataSet = SqlCgaMakro
-    Left = 509
-    Top = 408
+    Left = 104
+    Top = 576
   end
   object SqlCgaMakro: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga110makro')
     Params = <>
-    Left = 440
-    Top = 408
+    Left = 30
+    Top = 576
     object SqlCgaMakromkcod: TStringField
       FieldName = 'mkcod'
       Size = 33
@@ -902,8 +910,8 @@ object Dm: TDm
     SQL.Strings = (
       'select * from cga111check')
     Params = <>
-    Left = 24
-    Top = 459
+    Left = 200
+    Top = 576
     object Sqlcga111checkchloja: TFloatField
       FieldName = 'chloja'
     end
@@ -917,16 +925,16 @@ object Dm: TDm
   end
   object DtSCga111check: TDataSource
     DataSet = Sqlcga111check
-    Left = 110
-    Top = 459
+    Left = 283
+    Top = 576
   end
   object sqlcadcli: TZQuery
     Connection = Ads
     SQL.Strings = (
       'SELECT * FROM CADCLI ORDER BY CODCLI')
     Params = <>
-    Left = 176
-    Top = 457
+    Left = 389
+    Top = 576
     object sqlcadclinome: TStringField
       FieldName = 'nome'
       Size = 65
@@ -958,16 +966,16 @@ object Dm: TDm
   end
   object DtsCadcli: TDataSource
     DataSet = sqlcadcli
-    Left = 233
-    Top = 455
+    Left = 465
+    Top = 576
   end
   object SqlCadcliPrint: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cadcli order by cep')
     Params = <>
-    Left = 313
-    Top = 456
+    Left = 574
+    Top = 576
     object SqlCadcliPrintnome: TStringField
       FieldName = 'nome'
       Size = 65
@@ -999,16 +1007,16 @@ object Dm: TDm
   end
   object DtscadcliPrint: TDataSource
     DataSet = SqlCadcliPrint
-    Left = 385
-    Top = 456
+    Left = 661
+    Top = 576
   end
   object SqlCga120: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga120 limit 1')
     Params = <>
-    Left = 248
-    Top = 248
+    Left = 574
+    Top = 303
     object SqlCga120cg120_remes: TStringField
       FieldName = 'cg120_remes'
       Size = 17
@@ -1043,16 +1051,16 @@ object Dm: TDm
   end
   object DtSCga120: TDataSource
     DataSet = SqlCga120
-    Left = 304
-    Top = 248
+    Left = 661
+    Top = 303
   end
   object SqlCga130: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga130 limit 1')
     Params = <>
-    Left = 384
-    Top = 248
+    Left = 574
+    Top = 250
     object SqlCga130cg130_remes: TStringField
       FieldName = 'cg130_remes'
       Size = 11
@@ -1087,8 +1095,8 @@ object Dm: TDm
   end
   object DtSCga130: TDataSource
     DataSet = SqlCga130
-    Left = 464
-    Top = 248
+    Left = 661
+    Top = 250
   end
   object ZROQToken: TZReadOnlyQuery
     Connection = Ads
@@ -1105,8 +1113,8 @@ object Dm: TDm
     Properties.Strings = (
       ''
       '')
-    Left = 384
-    Top = 160
+    Left = 30
+    Top = 250
     object ZROQTokenToken: TStringField
       FieldName = 'Token'
       Required = True
@@ -1135,8 +1143,8 @@ object Dm: TDm
   end
   object DtSToken: TDataSource
     DataSet = ZROQToken
-    Left = 456
-    Top = 153
+    Left = 104
+    Top = 250
   end
   object ZROQTokExc: TZReadOnlyQuery
     Connection = Ads
@@ -1155,8 +1163,8 @@ object Dm: TDm
         '(cg76_numlote = '#39'000038'#39') group by cg76_ag,cg76_dtb order by cg7' +
         '6_dtb')
     Params = <>
-    Left = 360
-    Top = 53
+    Left = 574
+    Top = 195
     object ZROQTokExcAgencia: TStringField
       FieldName = 'Agencia'
       Size = 5
@@ -1182,14 +1190,14 @@ object Dm: TDm
   end
   object DtSTokExc: TDataSource
     DataSet = ZROQTokExc
-    Left = 456
-    Top = 55
+    Left = 661
+    Top = 195
   end
   object SqlSdx1: TZQuery
     Connection = Ads
     Params = <>
-    Left = 446
-    Top = 453
+    Left = 458
+    Top = 139
   end
   object SqlSdx2: TZQuery
     Connection = Ads
@@ -1207,8 +1215,8 @@ object Dm: TDm
       'limit1'
       '')
     Params = <>
-    Left = 516
-    Top = 459
+    Left = 30
+    Top = 630
     object SqlSdx2sdx_codcli: TFloatField
       FieldName = 'sdx_codcli'
     end
@@ -1289,8 +1297,8 @@ object Dm: TDm
   end
   object DtsSdx2: TDataSource
     DataSet = SqlSdx2
-    Left = 575
-    Top = 458
+    Left = 104
+    Top = 630
   end
   object SqlSdxEct: TZQuery
     Connection = Ads
@@ -1299,8 +1307,8 @@ object Dm: TDm
     Params = <>
     Properties.Strings = (
       'select * from tbsdx_ect')
-    Left = 392
-    Top = 208
+    Left = 389
+    Top = 250
     object SqlSdxEcttbsdxect_num: TStringField
       FieldName = 'tbsdxect_num'
       Size = 9
@@ -1312,8 +1320,8 @@ object Dm: TDm
   end
   object DTSsdxEtc: TDataSource
     DataSet = SqlSdxEct
-    Left = 456
-    Top = 208
+    Left = 465
+    Top = 250
   end
   object ZROQTokenLido: TZReadOnlyQuery
     Connection = Ads
@@ -1333,8 +1341,8 @@ object Dm: TDm
     Properties.Strings = (
       ''
       '')
-    Left = 232
-    Top = 208
+    Left = 389
+    Top = 303
     object ZROQTokenLidoToken: TStringField
       FieldName = 'Token'
       Required = True
@@ -1370,16 +1378,16 @@ object Dm: TDm
   end
   object DtSTokenLido: TDataSource
     DataSet = ZROQTokenLido
-    Left = 306
-    Top = 208
+    Left = 465
+    Top = 303
   end
   object SqlCga78: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from cga78')
     Params = <>
-    Left = 24
-    Top = 512
+    Left = 200
+    Top = 630
     object StringField1: TStringField
       FieldName = 'cg75_remes'
     end
@@ -1420,8 +1428,8 @@ object Dm: TDm
   end
   object DtSCga78: TDataSource
     DataSet = SqlCga78
-    Left = 112
-    Top = 512
+    Left = 283
+    Top = 630
   end
   object ZRResumo: TZReadOnlyQuery
     Connection = Ads
@@ -1431,8 +1439,8 @@ object Dm: TDm
     Properties.Strings = (
       ''
       '')
-    Left = 176
-    Top = 512
+    Left = 389
+    Top = 630
     object ZRResumomotivo: TStringField
       FieldName = 'motivo'
       Size = 50
@@ -1485,32 +1493,32 @@ object Dm: TDm
   end
   object DtSResumo: TDataSource
     DataSet = ZRResumo
-    Left = 238
-    Top = 512
+    Left = 465
+    Top = 630
   end
   object SqlServNLido: TZQuery
     Connection = Ads
     Params = <>
-    Left = 312
-    Top = 511
+    Left = 574
+    Top = 630
   end
   object DtSServNLido: TDataSource
     DataSet = SqlServNLido
-    Left = 393
-    Top = 510
+    Left = 661
+    Top = 630
   end
   object DtSServico: TDataSource
     DataSet = SqlServico
-    Left = 522
-    Top = 507
+    Left = 104
+    Top = 685
   end
   object SqlServico: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from tbsdxserv where (0=1)')
     Params = <>
-    Left = 459
-    Top = 508
+    Left = 30
+    Top = 685
     object SqlServicotbsdxserv_cod: TIntegerField
       FieldName = 'tbsdxserv_cod'
       Required = True
@@ -1546,14 +1554,16 @@ object Dm: TDm
   end
   object DtSqlAux2: TDataSource
     DataSet = SqlTotNLido
-    Left = 226
+    Left = 104
+    Top = 195
   end
   object SqlTotNLido: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from totnlido')
     Params = <>
-    Left = 282
+    Left = 200
+    Top = 195
     object SqlTotNLidoQtde: TFloatField
       FieldName = 'Qtde'
     end
@@ -1571,7 +1581,8 @@ object Dm: TDm
   end
   object DtSTotNLido: TDataSource
     DataSet = SqlTotNLido
-    Left = 342
+    Left = 283
+    Top = 195
   end
   object ZOQListaToken: TZReadOnlyQuery
     Connection = Ads
@@ -1583,8 +1594,8 @@ object Dm: TDm
       'inner join cga20 on cga76.cg76_codbaixa = cga20.cg20_codbaixa'
       'where (cga76.cg76_numlote = '#39'001258'#39')  ')
     Params = <>
-    Left = 528
-    Top = 352
+    Left = 30
+    Top = 521
     object ZOQListaTokencg76_dtsai: TDateField
       FieldName = 'cg76_dtsai'
     end
@@ -1615,8 +1626,8 @@ object Dm: TDm
   end
   object DtSListaToken: TDataSource
     DataSet = ZOQListaToken
-    Left = 600
-    Top = 353
+    Left = 104
+    Top = 521
   end
   object SqlSdx3: TZQuery
     Connection = Ads
@@ -1634,8 +1645,8 @@ object Dm: TDm
       'ORDER BY sdx02.sdx_dtcarga DESC'
       '')
     Params = <>
-    Left = 28
-    Top = 563
+    Left = 200
+    Top = 685
     object SqlSdx3sdx_codcli: TFloatField
       FieldName = 'sdx_codcli'
     end
@@ -1744,12 +1755,13 @@ object Dm: TDm
   end
   object DtsSdx3: TDataSource
     DataSet = SqlSdx3
-    Left = 85
-    Top = 564
+    Left = 283
+    Top = 685
   end
   object RvRelatorios: TRvProject
     Engine = RvSystem1
-    Left = 464
+    Left = 30
+    Top = 75
   end
   object RvRenderPDF1: TRvRenderPDF
     DisplayName = 'Adobe Acrobat (PDF)'
@@ -1762,8 +1774,8 @@ object Dm: TDm
     DocInfo.Producer = 'Nevrona Designs'
     BufferDocument = True
     DisableHyperlinks = False
-    Left = 537
-    Top = 56
+    Left = 284
+    Top = 75
   end
   object SqlSdxServ: TZQuery
     Connection = Ads
@@ -1771,8 +1783,8 @@ object Dm: TDm
       'SELECT t.* FROM public.tbsdxserv t '
       'WHERE t.tbsdxserv_status = 1')
     Params = <>
-    Left = 172
-    Top = 563
+    Left = 389
+    Top = 685
     object SqlSdxServtbsdxserv_cod: TIntegerField
       FieldName = 'tbsdxserv_cod'
       Required = True
@@ -1812,16 +1824,16 @@ object Dm: TDm
   end
   object DtSSdxServ: TDataSource
     DataSet = SqlSdxServ
-    Left = 237
-    Top = 564
+    Left = 465
+    Top = 685
   end
   object SqlTbBradDeptos: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from tbbraddptos order by to_number(juncao,'#39'99999'#39')')
     Params = <>
-    Left = 316
-    Top = 563
+    Left = 574
+    Top = 685
     object SqlTbBradDeptosjuncao: TIntegerField
       FieldName = 'juncao'
     end
@@ -1876,8 +1888,8 @@ object Dm: TDm
   end
   object DtSTbBradDeptos: TDataSource
     DataSet = SqlTbBradDeptos
-    Left = 410
-    Top = 564
+    Left = 661
+    Top = 685
   end
   object SqlSdx4: TZQuery
     Connection = Ads
@@ -1896,8 +1908,8 @@ object Dm: TDm
         'xa)'
       'ORDER BY t.sdx_dtbaixa DESC LIMIT 10')
     Params = <>
-    Left = 28
-    Top = 619
+    Left = 200
+    Top = 741
     object SqlSdx4sdx_tpreg: TFloatField
       FieldName = 'sdx_tpreg'
     end
@@ -2074,27 +2086,27 @@ object Dm: TDm
   end
   object DtSSdx4: TDataSource
     DataSet = SqlSdx4
-    Left = 85
-    Top = 620
+    Left = 283
+    Top = 741
   end
   object SqlAux4: TZQuery
     Connection = Ads
     Params = <>
-    Left = 160
-    Top = 624
+    Left = 389
+    Top = 741
   end
   object DtSAux4: TDataSource
     DataSet = SqlAux4
-    Left = 218
-    Top = 624
+    Left = 465
+    Top = 741
   end
   object Sqltbbxasdx: TZQuery
     Connection = Ads
     SQL.Strings = (
       'select * from tbbxasdx')
     Params = <>
-    Left = 296
-    Top = 624
+    Left = 574
+    Top = 741
     object Sqltbbxasdxbxasdx_codbxa: TIntegerField
       FieldName = 'bxasdx_codbxa'
       Required = True
@@ -2106,8 +2118,8 @@ object Dm: TDm
   end
   object DtStbbxasdx: TDataSource
     DataSet = Sqltbbxasdx
-    Left = 378
-    Top = 624
+    Left = 661
+    Top = 741
   end
   object RvSystem1: TRvSystem
     TitleSetup = 'Output Options'
@@ -2120,12 +2132,14 @@ object Dm: TDm
     SystemPrinter.StatusFormat = 'Printing page %p'
     SystemPrinter.Title = 'Rave Report'
     SystemPrinter.UnitsFactor = 1.000000000000000000
-    Left = 531
+    Left = 197
+    Top = 75
   end
   object RvDtsSdx3: TRvDataSetConnection
     RuntimeVisibility = rtDeveloper
     DataSet = SqlSdx3
-    Left = 590
+    Left = 110
+    Top = 75
   end
   object SqlSdx5: TZQuery
     Connection = Ads
@@ -2144,8 +2158,8 @@ object Dm: TDm
       'limit1'
       '')
     Params = <>
-    Left = 484
-    Top = 563
+    Left = 30
+    Top = 741
     object SqlSdx5sdx_codcli: TFloatField
       FieldName = 'sdx_codcli'
     end
@@ -2239,8 +2253,8 @@ object Dm: TDm
   end
   object DtsSdx5: TDataSource
     DataSet = SqlSdx5
-    Left = 543
-    Top = 562
+    Left = 104
+    Top = 741
   end
   object SqlAux3: TZQuery
     Connection = Ads
@@ -2250,7 +2264,8 @@ object Dm: TDm
         'ect_prod = '#39#39'0'#39#39') and (tbsdx_use is null) group by tbsdxect_num,' +
         'tbsdxect_dv order by tbsdxect_num limit 1')
     Params = <>
-    Left = 176
+    Left = 110
+    Top = 139
   end
   object SqlSdx6: TZQuery
     Connection = Ads
@@ -2275,8 +2290,8 @@ object Dm: TDm
       'ORDER BY 6 DESC'
       'LIMIT 5  ')
     Params = <>
-    Left = 452
-    Top = 627
+    Left = 30
+    Top = 795
     object SqlSdx6Lote: TLargeintField
       FieldName = 'lote'
     end
@@ -2298,8 +2313,8 @@ object Dm: TDm
   end
   object DtsSdx6: TDataSource
     DataSet = SqlSdx6
-    Left = 509
-    Top = 628
+    Left = 104
+    Top = 795
   end
   object SqlSdx7: TZQuery
     Connection = Ads
@@ -2338,8 +2353,8 @@ object Dm: TDm
         ParamType = ptInput
         Value = 42293d
       end>
-    Left = 28
-    Top = 683
+    Left = 200
+    Top = 795
     ParamData = <
       item
         DataType = ftString
@@ -2387,7 +2402,7 @@ object Dm: TDm
   end
   object DtSSdx7: TDataSource
     DataSet = SqlSdx7
-    Left = 85
-    Top = 684
+    Left = 283
+    Top = 795
   end
 end

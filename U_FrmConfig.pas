@@ -22,16 +22,8 @@ type
     EditDBPassword: TEdit;
     LabelDBPassword: TLabel;
     GroupBox2: TGroupBox;
-    LabelFtpHost: TLabel;
-    LabelFtpDest: TLabel;
-    LabelFtpPort: TLabel;
-    LabelFtpUser: TLabel;
-    LabelFtpPass: TLabel;
-    EditFTPHost: TEdit;
-    EditFTPDest: TEdit;
-    EditFtpPort: TEdit;
-    EditFtpUser: TEdit;
-    EditFtpPass: TEdit;
+    LabelDirDest: TLabel;
+    EditDirDest: TEdit;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtnSalvarClick(Sender: TObject);
     procedure BitBtnFecharClick(Sender: TObject);
@@ -77,22 +69,9 @@ begin
     iniFile.WriteString('BD', 'Usuario', EditDBUsername.Text);
     // Senha de acesso ao Bando de Dados
     iniFile.WriteString('BD', 'Senha', EditDBPassword.Text);
+    // Diretório de destino dos arquivos gerados
+    iniFile.WriteString('Arquivos', 'Local', EditDirDest.Text);
 
-    // ###### FTP
-    // Nome/IP do Servidor de destino dos arquivos
-    iniFile.WriteString('FTPCORREIOS', 'Host', EditFTPHost.Text);
-    // Porta de conexão ao FTP
-    iniFile.WriteInteger('FTPCORREIOS', 'Porta', StrToInt(EditFtpPort.Text));
-    // Diretório de Destino para o arquivo
-    iniFile.WriteString('FTPCORREIOS', 'Destino', EditFTPDest.Text);
-
-    // Timeout
-    iniFile.WriteInteger('FTPCORREIOS', 'Timeout', 5000);
-    // Nome de usuario
-    iniFile.WriteString('FTPCORREIOS', 'Usuario', EditFtpUser.Text);
-    // Senha de acesso
-    iniFile.WriteString('FTPCORREIOS', 'Senha', EditFtpPass.Text);
-    Application.MessageBox('Configurações salvas com sucesso.', 'ADS', MB_OK + MB_ICONINFORMATION);
   finally
     iniFile.Free;
   end;
@@ -123,19 +102,9 @@ begin
     EditDBUsername.Text := iniFile.ReadString('BD', 'Usuario', 'ads');
     // Senha de acesso ao Bando de Dados
     EditDBPassword.Text := iniFile.ReadString('BD', 'Senha', 'ads!.!');
+    // Diretório de destino dos arquivos gerados
+    EditDirDest.Text := iniFile.ReadString('Arquivos', 'Local', GetCurrentDir);
 
-    // ###### FTP
-    // Nome/IP do Servidor de destino dos arquivos
-    EditFTPHost.Text := iniFile.ReadString('FTPCORREIOS', 'Host', '10.1.1.10');
-    // Porta de conexão ao FTP
-    EditFtpPort.Text := IntToStr(iniFile.ReadInteger('FTPCORREIOS', 'Porta', 21));
-    // Diretório de Destino para o arquivo
-    EditFTPDest.Text := iniFile.ReadString('FTPCORREIOS', 'Destino', 'ENTRADA');
-
-    // Nome de usuario
-    EditFtpUser.Text := iniFile.ReadString('FTPCORREIOS', 'Usuario', 'joe');
-    // Senha de acesso
-    EditFtpPass.Text := iniFile.ReadString('FTPCORREIOS', 'Senha', 'doe');
   finally
     iniFile.Free;
   end;

@@ -144,7 +144,6 @@ type
     SqlRelCartaocg50_data: TDateField;
     SqlRelCartaocg50_horaini: TTimeField;
     SqlRelCartaocg50_horafin: TTimeField;
-    SqlRelCartaocolumn: TStringField;
     DstSqlRelCartao: TDataSource;
     SqlCga108: TZQuery;
     dtsCga108: TDataSource;
@@ -529,6 +528,7 @@ type
     SqlSdx3sdx_bas: TFloatField;
     SqlSdx3sdx_alt: TFloatField;
     SqlSdx3tbsdxect_sigla: TStringField;
+    SqlRelCartaoPrazo: TTimeField;
     procedure DataModuleCreate(Sender: TObject);
 
 

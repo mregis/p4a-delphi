@@ -3,7 +3,7 @@ object FrmConfig: TFrmConfig
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Configura'#231#245'es'
-  ClientHeight = 499
+  ClientHeight = 377
   ClientWidth = 444
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
@@ -18,8 +18,8 @@ object FrmConfig: TFrmConfig
   PixelsPerInch = 96
   TextHeight = 13
   object BitBtnFechar: TBitBtn
-    Left = 268
-    Top = 447
+    Left = 252
+    Top = 327
     Width = 100
     Height = 34
     Caption = '&Fechar'
@@ -146,7 +146,7 @@ object FrmConfig: TFrmConfig
   end
   object BitBtnSalvar: TBitBtn
     Left = 84
-    Top = 447
+    Top = 327
     Width = 100
     Height = 34
     Caption = '&Salvar'
@@ -341,7 +341,6 @@ object FrmConfig: TFrmConfig
       Font.Style = []
       ParentFont = False
       TabOrder = 2
-      Text = '5432'
     end
     object EditDBUsername: TEdit
       Left = 122
@@ -376,8 +375,8 @@ object FrmConfig: TFrmConfig
     Left = 32
     Top = 240
     Width = 380
-    Height = 193
-    Caption = 'Conex'#227'o FTP Correios'
+    Height = 65
+    Caption = 'Arquivos Gerados'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -385,29 +384,14 @@ object FrmConfig: TFrmConfig
     Font.Style = []
     ParentFont = False
     TabOrder = 3
-    object LabelFtpHost: TLabel
-      Left = 85
-      Top = 27
-      Width = 31
-      Height = 16
-      Alignment = taRightJustify
-      Caption = 'Host:'
-      FocusControl = EditFTPHost
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-    end
-    object LabelFtpDest: TLabel
+    object LabelDirDest: TLabel
       Left = 15
-      Top = 61
+      Top = 29
       Width = 101
       Height = 16
       Alignment = taRightJustify
       Caption = 'Diret'#243'rio destino:'
-      FocusControl = EditFTPDest
+      FocusControl = EditDirDest
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
@@ -415,57 +399,12 @@ object FrmConfig: TFrmConfig
       Font.Style = []
       ParentFont = False
     end
-    object LabelFtpPort: TLabel
-      Left = 81
-      Top = 93
-      Width = 35
-      Height = 16
-      Alignment = taRightJustify
-      Caption = 'Porta:'
-      FocusControl = EditFtpPort
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-    end
-    object LabelFtpUser: TLabel
-      Left = 7
-      Top = 131
-      Width = 109
-      Height = 16
-      Alignment = taRightJustify
-      Caption = 'Nome de Usu'#225'rio:'
-      FocusControl = EditFtpUser
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-    end
-    object LabelFtpPass: TLabel
-      Left = 74
-      Top = 158
-      Width = 42
-      Height = 16
-      Alignment = taRightJustify
-      Caption = 'Senha:'
-      FocusControl = EditFtpPass
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
-    end
-    object EditFTPHost: TEdit
+    object EditDirDest: TEdit
       Left = 122
       Top = 24
       Width = 199
       Height = 26
-      Hint = 'Host do FTP dos Correios'
+      Hint = 'Diret'#243'rio de Destino para Arquivos Gerados'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -473,63 +412,6 @@ object FrmConfig: TFrmConfig
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-    end
-    object EditFTPDest: TEdit
-      Left = 122
-      Top = 56
-      Width = 199
-      Height = 26
-      Hint = 'Diret'#243'rio de Destino do FTP dos Correios'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 1
-    end
-    object EditFtpPort: TEdit
-      Left = 122
-      Top = 88
-      Width = 55
-      Height = 26
-      Hint = 'Porta do FTP dos Correios'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 2
-      Text = '21'
-    end
-    object EditFtpUser: TEdit
-      Left = 122
-      Top = 121
-      Width = 199
-      Height = 26
-      Hint = 'Nome de Usu'#225'rio do FTP dos Correios'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 3
-    end
-    object EditFtpPass: TEdit
-      Left = 122
-      Top = 153
-      Width = 199
-      Height = 26
-      Hint = 'Senha de Acesso do FTP dos Correios'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 4
     end
   end
 end

@@ -73,7 +73,8 @@ uses
   uGerarPlanilhaGeral in 'uGerarPlanilhaGeral.pas' {fGerarPlanilhaGeral},
   U_FrmPrintAR in 'U_FrmPrintAR.pas' {FrmPrintAR},
   U_FrmGeraListaPostagem in 'U_FrmGeraListaPostagem.pas' {FrmGeraListaPostagem},
-  U_FrmConfig in 'U_FrmConfig.pas' {FrmConfig};
+  U_FrmConfig in 'U_FrmConfig.pas' {FrmConfig},
+  U_FrmGeraRelatToken in 'U_FrmGeraRelatToken.pas' {FrmGeraRelatToken};
 
 {$R *.res}
 
