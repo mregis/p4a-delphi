@@ -9488,12 +9488,8 @@ object FrmPrincipal: TFrmPrincipal
     object Cadastros: TMenuItem
       Caption = '&Cadastros'
       object Agencia: TMenuItem
-        Caption = 'Agencia'
+        Caption = 'Destino de Envio'
         OnClick = AgenciaClick
-      end
-      object Sucursal: TMenuItem
-        Caption = 'Sucursal'
-        OnClick = SucursalClick
       end
       object Baixa: TMenuItem
         Caption = 'Baixa'

@@ -4,30 +4,47 @@ interface
 
 uses
   Windows, Messages, SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, 
-  Dialogs, StdCtrls, ExtCtrls, Grids, DBGrids, Buttons, Mask;
+  Dialogs, StdCtrls, ExtCtrls, Grids, DBGrids, Buttons, Mask, ComCtrls;
 
 type
   TFrmCadSucursal = class(TForm)
-    ScrollBox1: TScrollBox;
-    Bevel1: TBevel;
-    BtnIncluir: TBitBtn;
-    BtnSalvar: TBitBtn;
-    BtnAlterar: TBitBtn;
-    BtnDeletar: TBitBtn;
-    BtnSair: TBitBtn;
+    GroupBox2: TGroupBox;
+    LabelCodigo: TLabel;
+    MKEdCod: TMaskEdit;
+    Label1: TLabel;
+    EdNomeDestino: TEdit;
+    GroupBox3: TGroupBox;
+    LabelEndereco: TLabel;
+    EdEndereco: TEdit;
+    LabelCep: TLabel;
+    LabelCidade: TLabel;
+    EdCidade: TEdit;
+    MKEdCep: TMaskEdit;
+    LabelUf: TLabel;
+    CBUf: TComboBox;
+    BitBtnAlterar: TBitBtn;
+    BitBtnLimpar: TBitBtn;
     DBGridAg: TDBGrid;
-    Panel2: TPanel;
-    Panel3: TPanel;
-    EdCod: TEdit;
-    EdAgencia: TEdit;
-    Panel1: TPanel;
-    EdEnd: TEdit;
-    EdCid: TEdit;
-    EdUf: TEdit;
-    Panel4: TPanel;
-    MkEdCep: TMaskEdit;
-    Panel5: TPanel;
-    Panel6: TPanel;
+    BitBtnCancelar: TBitBtn;
+    StsRemSdx: TStatusBar;
+    MemoTip: TMemo;
+    BitBtnSalvar: TBitBtn;
+    BitBtnNovo: TBitBtn;
+    BitBtnFechar: TBitBtn;
+    procedure MKEdCepKeyPress(Sender: TObject; var Key: Char);
+    procedure EdCidadeKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EdEnderecoKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure MKEdCepKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EdNomeDestinoKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure MKEdCodClick(Sender: TObject);
+    procedure MKEdCodKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure BitBtnFecharClick(Sender: TObject);
+    procedure FormClick(Sender: TObject);
+    procedure BitBtnNovoClick(Sender: TObject);
+    procedure BitBtnSalvarClick(Sender: TObject);
+    procedure BitBtnCancelarClick(Sender: TObject);
     procedure EdCodKeyPress(Sender: TObject; var Key: Char);
     procedure FormShow(Sender: TObject);
     procedure DBGridAgKeyPress(Sender: TObject; var Key: Char);
@@ -38,16 +55,15 @@ type
     procedure atualiza;
     procedure salvar;
     procedure limpa;
-    procedure BtnIncluirClick(Sender: TObject);
+    procedure BitBtnLimparClick(Sender: TObject);
     procedure BtnSalvarClick(Sender: TObject);
     procedure DBGridAgKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure BtnSairClick(Sender: TObject);
-    procedure BtnAlterarClick(Sender: TObject);
+    procedure BitBtnAlterarClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure selagencia;
   private
-    cod : string;
     { Private declarations }
   public
     { Public declarations }
@@ -61,20 +77,67 @@ implementation
 uses DmDados, ZAbstractDataset, ZDataset, U_Func;
 
 {$R *.dfm}
+{
+  Limpa todos os campos do formulário
+}
 procedure TFrmCadSucursal.limpa;
 begin
-  MkEdCep.Clear;
-  EdAgencia.Clear;
-  EdCod.Clear;
-  EdEnd.Clear;
-  EdCid.Clear;
-  EdUf.Clear;
-  EdCod.SetFocus;
-  cod := 'x';
+  if (NOT MKEdCod.ReadOnly) then
+    MkEdCod.Clear;
+
+  EdNomeDestino.Clear;
+  MKEdCep.Clear;
+  EdEndereco.Clear;
+  EdCidade.Clear;
+  CBUf.ItemIndex := -1;
+  MkEdCod.SetFocus;
 end;
 
-procedure TFrmCadSucursal.BtnIncluirClick(Sender: TObject);
+procedure TFrmCadSucursal.MKEdCepKeyPress(Sender: TObject; var Key: Char);
 begin
+if Key = #13 then
+    SelectNext(ActiveControl , true,true);
+end;
+
+procedure TFrmCadSucursal.MKEdCepKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Length(StringReplace(MKEdCep.Text, ' ', '', [rfReplaceAll])) > 8)  
+    AND NOT MKEdCod.ReadOnly then 
+    selagencia;
+
+end;
+
+procedure TFrmCadSucursal.MKEdCodClick(Sender: TObject);
+begin
+  MKEdCod.SelectAll;
+end;
+
+procedure TFrmCadSucursal.MKEdCodKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  selagencia;
+end;
+
+procedure TFrmCadSucursal.BitBtnLimparClick(Sender: TObject);
+begin
+  limpa;
+  BitBtnAlterar.Enabled := false;
+end;
+
+{
+  Prepara o formulário para inclusão de um novo registro
+}
+procedure TFrmCadSucursal.BitBtnNovoClick(Sender: TObject);
+begin
+  // Desativando tudo o que não precisa estar ativado para criar um novo registro
+  BitBtnAlterar.Enabled := false;
+  BitBtnNovo.Enabled := false;
+  BitBtnSalvar.Enabled := true;
+  BitBtnCancelar.Enabled := true;
+  MemoTip.Visible := false;
+  MKEdCod.ReadOnly := false;
+  // Limpando os campos
   limpa;
 end;
 
@@ -84,111 +147,178 @@ begin
 end;
 
 procedure TFrmCadSucursal.salvar;
+var codjuncao : Longint;
+var s : String;
 begin
-  if (trim(EdCod.Text) = '') then
+  Try
+    // Validando o código da Agência
+    if (NOT TryStrToInt(MkEdCod.Text, codjuncao)) then
+      begin
+        Application.MessageBox('Código inválido. Utilize somente números.','ADS', ID_OK);
+        MkEdCod.SetFocus;
+        Exit;
+      end;        
+
+    s := MkEdCod.Text;
+    // Verificando se já não existe uma Agência com este código
+    with Dm do
+      begin
+        SqlAux1.close;
+        SqlAux1.sql.Clear;
+        SqlAux1.sql.Add('SELECT COUNT(1) as qt FROM tbbraddptos ag ');
+        SqlAux1.sql.Add('WHERE ag.juncao = :cdjuncao ');
+        SqlAux1.ParamByName('cdjuncao').AsInteger := codjuncao;
+        SqlAux1.Open;
+        if (SqlAux1.FieldByName('qt').AsInteger > 0) then
+          begin
+            Application.MessageBox('Já existe um cadastro com este Código.' + #13#10 +
+              'Dica: Adicione um numero ao final caso seja necessário utilizar este código mas ' + #13#10 +
+              'ATENÇÃO, não se esqueça de utilizar o mesmo código na planilha de envios', 'ADS', ID_OK);
+            MkEdCod.SetFocus;
+            exit;
+          end;
+        SqlAux1.close;
+        SqlAux1.sql.Clear;
+        SqlAux1.sql.Add('INSERT INTO tbbraddptos (juncao, depto, ender, cep, cidade, uf) ');
+        SqlAux1.sql.Add('VALUES (:ag, :dpto, :end, :cep, :cid, :uf)');
+        SqlAux1.ParamByName('ag').AsInteger := codjuncao;
+        SqlAux1.ParamByName('dpto').AsString := Trim(EdNomeDestino.Text);
+        SqlAux1.ParamByName('end').AsString := trim(EdEndereco.Text);
+        SqlAux1.ParamByName('cep').AsString := trim(MkEdCep.Text);
+        SqlAux1.ParamByName('cid').AsString := trim(EdCidade.Text);
+        SqlAux1.ParamByName('uf').AsString := trim(CBUf.Text);
+    
+        SqlAux1.ExecSql;
+        SqlTbBradDeptos.Refresh;
+        application.MessageBox('Cadastro efetuado com sucesso!', 'ADS', MB_OK + MB_ICONINFORMATION);
+        limpa;
+        MkEdCod.Text := s;
+        selagencia;      
+        BitBtnSalvar.Enabled := false;
+        BitBtnCancelar.Enabled := false;
+        BitBtnAlterar.Enabled := false;
+        BitBtnNovo.Enabled := true;
+        MKEdCod.ReadOnly := false;
+        MemoTip.Visible := true;        
+      end;
+  except on e: exception do
     begin
-      Application.MessageBox('Digite o Código da Agência','ADS',ID_OK);
-      EdCod.SetFocus;
-      Exit;
+      application.MessageBox(PChar(e.Message), 'Ads', MB_OK + MB_ICONERROR);
     end;
-  if (vernum(trim(EdCod.Text)) = false ) then
+  end;
+end;
+
+
+procedure TFrmCadSucursal.altera;
+var codjuncao : Longint;
+var s : string;
+begin
+  codjuncao := Dm.SqlTbBradDeptosjuncao.AsInteger;
+  s := MKEdCod.Text;
+  With Dm Do
     begin
-      Application.MessageBox('Digite Somente Nº','ADS',ID_OK);
-      EdCod.SetFocus;
-      Exit;
-    end;
-  with dm do
-    begin
-      SqlAux1.close;
-      SqlAux1.sql.Clear;
-      SqlAux1.sql.Add('insert into tbbraddptos (juncao,depto,ender,cep,cidade,uf) values (:ag,:dpto,:end,:cep,:cid,:uf)');
-      SqlAux1.Params[0].Text  :=  Trim(EdCod.Text);
-      SqlAux1.Params[1].Text  :=  Trim(EdAgencia.Text);
-      SqlAux1.Params[2].Text  :=  trim(EdEnd.Text);
-      SqlAux1.Params[3].Text  :=  trim(MkEdCep.Text);
-      SqlAux1.Params[4].Text  :=  trim(EdCid.Text);
-      SqlAux1.Params[5].Text  :=  trim(EdUf.Text);
+      SqlAux1.Close;
+      SqlAux1.Sql.Clear;
+      SqlAux1.Sql.Add('UPDATE tbbraddptos SET depto = :nomedestino, ender = :end, ');
+      SqlAux1.Sql.Add('cep = :cep, cidade = :cidade, uf = :uf ');
+      SqlAux1.Sql.Add('WHERE juncao = :codjuncao');
+      SqlAux1.ParamByName('nomedestino').AsString := Trim(EdNomeDestino.Text);
+      SqlAux1.ParamByName('end').AsString := trim(EdEndereco.Text);
+      SqlAux1.ParamByName('cep').AsString := trim(MkEdCep.Text);
+      SqlAux1.ParamByName('cidade').AsString := trim(EdCidade.Text);
+      SqlAux1.ParamByName('uf').AsString := trim(CBUf.Text);
+      SqlAux1.ParamByName('codjuncao').AsInteger := codjuncao;
       try
         SqlAux1.ExecSql;
         SqlTbBradDeptos.Refresh;
-        application.MessageBox('Inclusão feita com sucesso','Ads',MB_OK+MB_ICONINFORMATION);
+        application.MessageBox('Alteração concluída com sucesso!!!','Ads',MB_OK+MB_ICONINFORMATION);
         limpa;
+        MKEdCod.Text := s;
+        selagencia;      
+        BitBtnSalvar.Enabled := false;
+        BitBtnCancelar.Enabled := false;
+        BitBtnAlterar.Enabled := false;
+        BitBtnNovo.Enabled := true;
+        MKEdCod.ReadOnly := false;
+        MemoTip.Visible := true;
+             
       except on e: exception do
         begin
-          application.MessageBox(PChar('Ocorreu um erro falta: '+#10+e.Message),'Ads',MB_OK+MB_ICONERROR);
+          application.MessageBox(PChar(e.Message),'ADS', MB_OK + MB_ICONERROR);
         end;
       end;
     end;
 end;
 
-
-procedure TFrmCadSucursal.altera;
+procedure TFrmCadSucursal.EdCidadeKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 begin
-  with dm do
-   begin
-     SqlAux1.Close;
-     SqlAux1.Sql.Clear;
-     SqlAux1.Sql.Add('update TbBradDptos set depto = :ag, ender = :end,cep = :cep,cidade = :cid,uf = :uf where (juncao = :cod)');
-     SqlAux1.Params[0].Text := Trim(EdAgencia.Text);
-     SqlAux1.Params[1].Text := trim(EdEnd.Text);
-     SqlAux1.Params[2].Text := trim(MkEdCep.Text);
-     SqlAux1.Params[3].Text := trim(EdCid.Text);
-     SqlAux1.Params[4].Text := trim(EdUf.Text);
-     SqlAux1.Params[5].Text := Trim(EdCod.Text);
-     try
-       SqlAux1.ExecSql;
-       SqlTbBradDeptos.Refresh;
-       application.MessageBox('Alteração concluída com sucesso!!!','Ads',MB_OK+MB_ICONINFORMATION);
-       limpa;
-     except on e: exception do
-       begin
-         application.MessageBox(PChar(e.Message),'Ads',MB_OK+MB_ICONERROR);
-       end;
-     end;
-   end;
+  if NOT MKEdCod.ReadOnly then 
+    selagencia;
 end;
 
 procedure TFrmCadSucursal.EdCodKeyPress(Sender: TObject; var Key: Char);
 begin
   if KEY = #13 then
     SelectNext(ActiveControl , true,true);
-  selagencia;
+end;
+
+procedure TFrmCadSucursal.EdEnderecoKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if NOT MKEdCod.ReadOnly then 
+    selagencia;
+end;
+
+procedure TFrmCadSucursal.EdNomeDestinoKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if NOT MKEdCod.ReadOnly then 
+    selagencia;
 end;
 
 procedure TFrmCadSucursal.Atualiza;
 begin
   with Dm do
     begin
-      MkEdCep.Text        := StringReplace(SqlTbBradDeptoscep.Text, '-', '', [rfReplaceAll, rfIgnoreCase]);
-      EdAgencia.Text      := SqlTbBradDeptosdepto.Text;
-      EdCod.Text          := SqlTbBradDeptosjuncao.Text;
-      cod                 := SqlTbBradDeptosjuncao.Text;
-      EdEnd.Text          := SqlTbBradDeptosender.Text;
-      EdCid.Text          := SqlTbBradDeptoscidade.Text;
-      EdUf.Text           := SqlTbBradDeptosuf.Text;
+      MkEdCep.Text := SqlTbBradDeptoscep.Text;
+      EdNomeDestino.Text := SqlTbBradDeptosdepto.Text;
+      MkEdCod.Text := SqlTbBradDeptosjuncao.Text;
+      EdEndereco.Text := SqlTbBradDeptosender.Text;
+      EdCidade.Text := SqlTbBradDeptoscidade.Text;
+      CBUf.ItemIndex := CBUf.Items.IndexOf(SqlTbBradDeptosuf.Text);
+      BitBtnAlterar.Enabled := true;
     end;
 end;
 
 procedure TFrmCadSucursal.DBGridAgCellClick(Column: TColumn);
 begin
   atualiza;
+  if BitBtnCancelar.Enabled then
+      BitBtnCancelar.Click;  
 end;
 
 procedure TFrmCadSucursal.DBGridAgKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  atualiza
+  atualiza;
+  if BitBtnCancelar.Enabled then
+      BitBtnCancelar.Click;  
 end;
 
 procedure TFrmCadSucursal.DBGridAgKeyPress(Sender: TObject; var Key: Char);
 begin
-  atualiza
+  atualiza;
+  if BitBtnCancelar.Enabled then
+      BitBtnCancelar.Click;  
 end;
 
 procedure TFrmCadSucursal.DBGridAgKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   atualiza;
+  if BitBtnCancelar.Enabled then
+      BitBtnCancelar.Click;  
 end;
 
 
@@ -197,9 +327,97 @@ begin
   close;
 end;
 
-procedure TFrmCadSucursal.BtnAlterarClick(Sender: TObject);
+procedure TFrmCadSucursal.BitBtnSalvarClick(Sender: TObject);
 begin
-  altera;
+  // Validando Campos
+  // Validando o CEP 
+  if (Length(trim(MKEdCep.Text)) < 9) then
+    begin
+       application.MessageBox('CEP inválido!', 'Ads', MB_OK + MB_ICONERROR);
+       MKEdCep.SetFocus;
+       exit;
+    end;
+
+  // Validando o nome
+  if (trim(EdNomeDestino.Text) = '') then
+    begin
+      application.MessageBox('Por favor preencha o campo Nome de Destino!', 'Ads', MB_OK + MB_ICONERROR);
+      EdNomeDestino.SetFocus;
+      exit;
+    end;
+
+  // Validando o endereço
+  if (trim(EdEndereco.Text) = '') then
+    begin
+      application.MessageBox('Por favor preencha o campo Endereço!', 'Ads', MB_OK + MB_ICONERROR);
+      EdEndereco.SetFocus;
+      exit;
+    end;
+
+  // Validando a cidade
+  if (trim(EdCidade.Text) = '') then
+    begin
+      application.MessageBox('Por favor preencha o campo Cidade!', 'Ads', MB_OK + MB_ICONERROR);
+      EdCidade.SetFocus;
+      exit;
+    end;
+
+  // Validando a UF
+  if (CBUf.ItemIndex < 0) then
+    begin
+      application.MessageBox('Por favor selecione uma UF!', 'Ads', MB_OK + MB_ICONERROR);
+      CBUf.SetFocus;
+      exit;
+    end;
+   
+  if (MKEdCod.ReadOnly) then   
+    altera // edição
+  else   
+    salvar; // inclusão
+
+end;
+
+procedure TFrmCadSucursal.BitBtnAlterarClick(Sender: TObject);
+begin
+  // Desativando tudo o que não precisa estar ativado para criar um novo registro
+  MKEdCod.ReadOnly := true;
+  BitBtnNovo.Enabled := false;
+  BitBtnCancelar.Enabled := true;
+  BitBtnSalvar.Enabled := true;
+  MemoTip.Visible := false;
+  BitBtnAlterar.Enabled := false;
+end;
+
+procedure TFrmCadSucursal.BitBtnFecharClick(Sender: TObject);
+begin
+  close;
+end;
+
+procedure TFrmCadSucursal.BitBtnCancelarClick(Sender: TObject);
+var s: String;
+begin
+  if (MKEdCod.ReadOnly) then   // Cancelando uma edição
+    begin
+      s := MKEdCod.Text;
+      limpa;
+      MKEdCod.ReadOnly := false;
+      MKEdCod.Text := s;
+      selagencia;
+      BitBtnAlterar.Enabled := true;
+    end
+  else   // Cancelando uma inclusão
+    limpa;
+
+  BitBtnNovo.Enabled := true;
+  MemoTip.Visible := true;
+  BitBtnSalvar.Enabled := false;
+  BitBtnCancelar.Enabled := false;  
+  
+end;
+
+procedure TFrmCadSucursal.FormClick(Sender: TObject);
+begin
+  close;
 end;
 
 procedure TFrmCadSucursal.FormClose(Sender: TObject;
@@ -217,16 +435,42 @@ begin
   DBGridAg.Refresh;
 end;
 
+{
+
+}
 procedure TFrmCadSucursal.selagencia;
+var codjuncao : Longint;
+var s, c : String;
 begin
-with Dm do
-begin
-  SqlTbBradDeptos.Close;
-  SqlTbBradDeptos.SQL.Clear;
-  SqlTbBradDeptos.SQL.Add('select * from tbbraddptos where (juncao like '''+EdCod.Text+'%'') order by to_number(juncao,''9999'')');
-//  inputbox('','',SqlTbBradDeptos.SQL.Text);
-  SqlTbBradDeptos.Open;
+
+  if NOT TryStrToInt(MkEdCod.Text, codjuncao) then
+    codjuncao := 0;
+
+  if codjuncao > 0 then
+    s := IntToStr(codjuncao)
+  else
+    s := '';
+
+  c := trim(MKEdCep.Text);
+
+  With Dm do
+    begin
+      SqlTbBradDeptos.Close;
+      SqlTbBradDeptos.SQL.Clear;
+      SqlTbBradDeptos.SQL.Add('SELECT * FROM tbbraddptos ');
+      SqlTbBradDeptos.SQL.Add('WHERE CAST(juncao AS VARCHAR) LIKE :codjuncao ');
+      SqlTbBradDeptos.SQL.Add(' AND depto ILIKE :depto AND REPLACE(cep, ''-'','''') LIKE :cep ');
+      SqlTbBradDeptos.SQL.Add(' AND ender ILIKE :end  AND cidade ILIKE :cid ');
+      SqlTbBradDeptos.SQL.Add('ORDER BY juncao LIMIT 100');
+
+      SqlTbBradDeptos.ParamByName('codjuncao').AsString := s + '%';
+      SqlTbBradDeptos.ParamByName('depto').AsString := '%' + EdNomeDestino.Text + '%';
+      SqlTbBradDeptos.ParamByName('cep').AsString := StringReplace(c, '-', '', [rfReplaceAll]) + '%';
+      SqlTbBradDeptos.ParamByName('cid').AsString := '%' + EdCidade.Text + '%';
+      SqlTbBradDeptos.ParamByName('end').AsString := '%' + EdEndereco.Text + '%';
+      SqlTbBradDeptos.Open;
+    end;
   DBGridAg.Refresh;
 end;
-end;
+
 end.

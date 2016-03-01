@@ -1830,7 +1830,7 @@ object Dm: TDm
   object SqlTbBradDeptos: TZQuery
     Connection = Ads
     SQL.Strings = (
-      'select * from tbbraddptos order by to_number(juncao,'#39'99999'#39')')
+      'SELECT * FROM tbbraddptos ORDER BY juncao LIMIT 10')
     Params = <>
     Left = 574
     Top = 685

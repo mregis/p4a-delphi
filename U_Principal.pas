@@ -12,7 +12,6 @@ type
     MainMenu1: TMainMenu;
     Cadastros: TMenuItem;
     Agencia: TMenuItem;
-    Sucursal: TMenuItem;
     Carga1: TMenuItem;
     ExtratoConsolidado1: TMenuItem;
     ExtratoContaCorrentePoupana1: TMenuItem;
@@ -699,8 +698,10 @@ end;
 
 procedure TFrmPrincipal.AgenciaClick(Sender: TObject);
 begin
-  //Application.CreateForm(TFrmCadAgBrad,FrmCadAgBrad);
-  //FrmCadAgBrad.ShowModal;
+  Application.CreateForm(TFrmCadSucursal,FrmCadSucursal);
+  Dm.SqlTbBradDeptos.Open;
+  FrmCadSucursal.ShowModal;
+  setfocus;
 end;
 
 procedure TFrmPrincipal.RelatorioCartaParaAgencia1Click(Sender: TObject);
