@@ -134,7 +134,7 @@ begin
             end;
 
           SqlAux1.ParamByName('ag').AsString :=  LPad(trim(EdAgencia.Text), 4, '0');
-          SqlAux1.ParamByName('ag2').AsInteger :=  StrToInt(EdAgencia.Text);
+          SqlAux1.ParamByName('ag2').AsString :=  EdAgencia.Text;
           SqlAux1.ParamByName('lote').AsString :=  LPad(trim(EdNumlote.Text), 6, '0');
           SqlAux1.Open;
           case SqlAux1.Fields[0].Value of
@@ -165,8 +165,8 @@ begin
                   end;
 
                 SqlAux1.ParamByName('ag').AsString :=  LPad(trim(EdAgencia.Text), 4, '0');
-                SqlAux1.ParamByName('ag2').AsInteger :=  StrToInt(EdAgencia.Text);
-                SqlAux1.ParamByName('numlote').AsString :=  LPad(trim(EdNumlote.Text), 6, '0');
+                SqlAux1.ParamByName('ag2').AsString :=  EdAgencia.Text;
+                SqlAux1.ParamByName('lote').AsString :=  LPad(trim(EdNumlote.Text), 6, '0');
 
                 try
                   SqlAux1.ExecSQL;
@@ -273,8 +273,8 @@ begin
         end;
 
       SqlAux1.ParamByName('ag').AsString :=  LPad(trim(EdAgencia.Text), 4, '0');
-      SqlAux1.ParamByName('ag2').AsInteger :=  StrToInt(EdAgencia.Text);
-      SqlAux1.ParamByName('numlote').AsString :=  LPad(trim(EdNumlote.Text), 6, '0');
+      SqlAux1.ParamByName('ag2').AsString :=  EdAgencia.Text;
+      SqlAux1.ParamByName('lote').AsString :=  LPad(trim(EdNumlote.Text), 6, '0');
 
       try
         SqlAux1.ExecSQL;

@@ -1673,7 +1673,7 @@ begin
           dm.SqlAux1.SQL.Add('WHERE (cg77_ag = :ag OR cg77_ag = :ag2) AND cg77_numlote = :numlote ');
           dm.SqlAux1.SQL.Add('    AND cg77_status = :status');
           dm.SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-          dm.SqlAux1.ParamByName('ag2').AsInteger := StrToInt(Edremessa2.Text);
+          dm.SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
           dm.SqlAux1.ParamByName('numlote').AsString :=  LPad(trim(Ednumlote.Text), 6, '0');
           dm.SqlAux1.ParamByName('status').AsString := '0';
           dm.SqlAux1.Open;
@@ -1689,7 +1689,7 @@ begin
               dm.SqlAux1.SQL.Add('WHERE (cg76_ag = :ag OR cg76_ag = :ag2) ');
               dm.SqlAux1.SQL.Add('    AND cg76_numlote = :numlote');
               dm.SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-              dm.SqlAux1.ParamByName('ag2').AsInteger := StrToInt(Edremessa2.Text);
+              dm.SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
               dm.SqlAux1.ParamByName('numlote').AsString :=  LPad(trim(Ednumlote.Text), 6, '0');
               dm.SqlAux1.Open;
               if (qtde - dm.SqlAux1.FieldByName('qt').AsInteger) > 0 then // If 4
@@ -1746,7 +1746,7 @@ begin
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsInteger := StrToInt(Edremessa2.Text);
+     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
 
      SqlAux1.Open;
      if (SqlAux1.Fields[0].Value = 0) and (CheckBox1.Checked = false) then
@@ -1870,7 +1870,7 @@ begin
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text),6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsInteger := StrToInt(Edremessa2.Text);
+     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
 //     SqlAux1.Params[4].AsString := '0';
      try
        SqlAux1.ExecSQL;
@@ -1898,7 +1898,7 @@ begin
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsInteger := StrToInt(Edremessa2.Text);
+     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
      SqlAux1.ParamByName('tokini').AsString := '0';
      SqlAux1.Open;
      case SqlAux1.Fields[0].Value of
@@ -1922,7 +1922,7 @@ begin
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsInteger := StrToInt(Edremessa2.Text);
+     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
      SqlAux1.ParamByName('toki').AsString := copy(trim(EdRemessa.Text), 1, 9);
      SqlAux1.ParamByName('tokf').AsString := copy(trim(EdRemessa.Text), 1, 9);
      SqlAux1.Open;
@@ -1941,7 +1941,7 @@ begin
            SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
            SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
            SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-           SqlAux1.ParamByName('ag2').AsInteger := StrToInt64(Edremessa2.Text);
+           SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
            SqlAux1.ParamByName('tok').AsString := '0';
            try
              begin

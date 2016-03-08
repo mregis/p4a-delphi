@@ -813,7 +813,10 @@ begin
         end
       // Consulta 
       else if FrmRemessaSedex.Tag = 6 then
-        EdJuncao.Enabled  := True;
+        begin
+          EdJuncao.Enabled  := True;
+          EdJuncao.ReadOnly := False;
+        end;
 
 
     end;

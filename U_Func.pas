@@ -1375,6 +1375,10 @@ begin
     end;
     Result := Buffer;
 end;
+
+{
+  @ Deprecated
+}
 function procarqconf(conf:string):String;
 var
  configura : TStringList;
@@ -1388,9 +1392,6 @@ begin
       try configura.LoadFromFile(Dm.currdir+'\ads.conf');
       except on e:exception do
         begin
-//          Application.CreateForm(TFrmCadHost,FrmCadHost);
-//          FrmCadHost.ShowModal;
-//          configura.LoadFromFile(DmDadosZ.currdir+'\spt.conf');
           exit;
         end;
       end;
