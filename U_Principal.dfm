@@ -4,7 +4,7 @@ object FrmPrincipal: TFrmPrincipal
   Align = alCustom
   BorderStyle = bsSingle
   Caption = 'Address S.A - SISTEMA ADS'
-  ClientHeight = 506
+  ClientHeight = 620
   ClientWidth = 734
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -327,18 +327,19 @@ object FrmPrincipal: TFrmPrincipal
     Left = 0
     Top = 0
     Width = 734
-    Height = 506
+    Height = 620
     VertScrollBar.Range = 19
     Align = alClient
     AutoScroll = False
     Color = 16707787
     ParentColor = False
     TabOrder = 0
+    ExplicitHeight = 601
     object Image1: TImage
       Left = 0
       Top = 0
       Width = 730
-      Height = 483
+      Height = 597
       Align = alClient
       Picture.Data = {
         07544269746D6170B6620300424DB66203000000000036040000280000002602
@@ -7284,7 +7285,7 @@ object FrmPrincipal: TFrmPrincipal
     end
     object StsMenu: TStatusBar
       Left = 0
-      Top = 483
+      Top = 597
       Width = 730
       Height = 19
       Color = 16776697
@@ -7308,6 +7309,7 @@ object FrmPrincipal: TFrmPrincipal
         item
           Width = 120
         end>
+      ExplicitTop = 578
     end
     object BitBtnCargaAR: TBitBtn
       Left = 24
@@ -10110,12 +10112,14 @@ object FrmPrincipal: TFrmPrincipal
         end
         object ExtratoContaCorrentePoupana2: TMenuItem
           Caption = 'Extrato Conta Corrente Poupan'#231'a'
+          Visible = False
           OnClick = ExtratoContaCorrentePoupana2Click
         end
         object DRC: TMenuItem
           Caption = 'DRC'
           object DrcCobranca: TMenuItem
             Caption = 'DRC (Cobran'#231'a)'
+            Visible = False
             OnClick = DrcCobrancaClick
           end
           object DRCCartaConvite: TMenuItem
@@ -10124,6 +10128,7 @@ object FrmPrincipal: TFrmPrincipal
           end
           object DRCCLLP: TMenuItem
             Caption = 'DRC (Aviso de Cob - CLLP)'
+            Visible = False
             OnClick = DRCCLLPClick
           end
           object DRCPrvLbl: TMenuItem
@@ -10131,15 +10136,15 @@ object FrmPrincipal: TFrmPrincipal
             OnClick = DRCPrvLblClick
           end
           object DRCCrtFat: TMenuItem
-            Caption = 'DRC -(Cart'#227'o Fatura)'
+            Caption = 'DRC (Cart'#227'o Fatura)'
             OnClick = DRCCrtFatClick
           end
           object DRCZogMsci: TMenuItem
-            Caption = 'DRC - Zogbi - Msci'
+            Caption = 'DRC - Zogbi - MSCI'
             OnClick = DRCZogMsciClick
           end
           object DRCBolAmex: TMenuItem
-            Caption = 'DRC-Boleto Amex'
+            Caption = 'DRC - Boleto Amex'
             OnClick = DRCBolAmexClick
           end
         end
@@ -10151,6 +10156,7 @@ object FrmPrincipal: TFrmPrincipal
           Caption = 'Cart'#227'o'
           object RetCrtConv: TMenuItem
             Caption = 'Convencional'
+            Visible = False
             OnClick = RetCrtConvClick
           end
           object RetCrtSeg: TMenuItem
@@ -10160,6 +10166,7 @@ object FrmPrincipal: TFrmPrincipal
         end
         object CartesExtratoPequeno2: TMenuItem
           Caption = '&Cart'#245'es Extrato Pequeno'
+          Visible = False
           object Bradesco2: TMenuItem
             Caption = 'Bradesco'
             OnClick = Bradesco2Click
@@ -10173,6 +10180,7 @@ object FrmPrincipal: TFrmPrincipal
         end
         object GerCodEtica: TMenuItem
           Caption = 'C'#243'digo de '#201'tica'
+          Visible = False
           object RetCadCodEtica: TMenuItem
             Caption = 'Cadastro'
             OnClick = RetCadCodEticaClick
@@ -10265,6 +10273,7 @@ object FrmPrincipal: TFrmPrincipal
         end
         object GExtratoFinasa: TMenuItem
           Caption = 'Finasa'
+          Visible = False
           object GERFPE001: TMenuItem
             Caption = 'FPE'
             OnClick = GERFPE001Click
