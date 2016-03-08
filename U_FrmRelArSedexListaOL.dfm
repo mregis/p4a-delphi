@@ -1,9 +1,9 @@
 object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
-  Left = 0
+  Left = 44
   Top = 0
   Caption = 'FrmRelArSedexListaOl'
   ClientHeight = 578
-  ClientWidth = 804
+  ClientWidth = 877
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,11 +11,12 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesigned
   PixelsPerInch = 96
   TextHeight = 13
   object RLReport1: TRLReport
-    Left = -436
-    Top = 32
+    Left = 0
+    Top = -8
     Width = 1123
     Height = 794
     Margins.LeftMargin = 5.000000000000000000
@@ -34,7 +35,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       Left = 19
       Top = 19
       Width = 1085
-      Height = 205
+      Height = 178
       BandType = btHeader
       BeforePrint = RLBand1BeforePrint
       object Lista: TRLLabel
@@ -52,7 +53,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object cabsedex: TRLLabel
         Left = 8
-        Top = 66
+        Top = 46
         Width = 56
         Height = 15
         Caption = 'SERVI'#199'O'
@@ -65,7 +66,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object Codigo: TRLLabel
         Left = 390
-        Top = 66
+        Top = 46
         Width = 49
         Height = 15
         Caption = 'CART'#195'O'
@@ -78,7 +79,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object Numero: TRLLabel
         Left = 544
-        Top = 66
+        Top = 46
         Width = 70
         Height = 15
         Caption = 'N'#218'MERO DO'
@@ -91,7 +92,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel1: TRLLabel
         Left = 680
-        Top = 102
+        Top = 82
         Width = 38
         Height = 15
         Alignment = taCenter
@@ -105,8 +106,8 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         ParentFont = False
       end
       object ltotfol: TRLLabel
-        Left = 495
-        Top = 102
+        Left = 498
+        Top = 82
         Width = 14
         Height = 15
         Alignment = taCenter
@@ -120,7 +121,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel4: TRLLabel
         Left = 943
-        Top = 102
+        Top = 82
         Width = 70
         Height = 15
         Caption = '05311-970'
@@ -133,7 +134,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel2: TRLLabel
         Left = 8
-        Top = 147
+        Top = 106
         Width = 84
         Height = 15
         Caption = 'REMETENTE: '
@@ -146,7 +147,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel5: TRLLabel
         Left = 396
-        Top = 147
+        Top = 106
         Width = 77
         Height = 15
         Caption = 'ENDERE'#199'O: '
@@ -159,20 +160,20 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel6: TRLLabel
         Left = 98
-        Top = 147
-        Width = 238
-        Height = 15
-        Caption = 'ADDRESS LOGISTICA E SERVI'#199'OS LTDA'
+        Top = 106
+        Width = 91
+        Height = 16
+        Caption = 'ADDRESS S.A.'
         Font.Charset = ANSI_CHARSET
         Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Courier New'
-        Font.Style = []
+        Font.Style = [fsBold]
         ParentFont = False
       end
       object RLLabel7: TRLLabel
         Left = 597
-        Top = 163
+        Top = 122
         Width = 42
         Height = 15
         Caption = 'CEP: '
@@ -185,7 +186,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel8: TRLLabel
         Left = 639
-        Top = 163
+        Top = 122
         Width = 77
         Height = 15
         Caption = '05311-030 '
@@ -198,7 +199,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel9: TRLLabel
         Left = 72
-        Top = 187
+        Top = 157
         Width = 91
         Height = 14
         Caption = 'DESTINAT'#193'RIO'
@@ -211,7 +212,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel10: TRLLabel
         Left = 452
-        Top = 187
+        Top = 157
         Width = 54
         Height = 16
         AutoSize = False
@@ -225,7 +226,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel11: TRLLabel
         Left = 667
-        Top = 187
+        Top = 157
         Width = 28
         Height = 14
         Caption = 'UF '
@@ -236,23 +237,9 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object RLLabel12: TRLLabel
-        Left = 767
-        Top = 187
-        Width = 34
-        Height = 16
-        AutoSize = False
-        Caption = 'TIPO'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -11
-        Font.Name = 'Courier New'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
       object RLLabel13: TRLLabel
         Left = 9
-        Top = 187
+        Top = 157
         Width = 55
         Height = 16
         AutoSize = False
@@ -265,8 +252,8 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         ParentFont = False
       end
       object RLLabel14: TRLLabel
-        Left = 809
-        Top = 187
+        Left = 771
+        Top = 157
         Width = 49
         Height = 14
         Caption = 'OBJETO'
@@ -293,7 +280,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel16: TRLLabel
         Left = 152
-        Top = 66
+        Top = 46
         Width = 21
         Height = 15
         Caption = 'DR'
@@ -306,7 +293,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel17: TRLLabel
         Left = 197
-        Top = 66
+        Top = 46
         Width = 56
         Height = 15
         Caption = 'UNIDADE'
@@ -319,7 +306,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel18: TRLLabel
         Left = 197
-        Top = 83
+        Top = 63
         Width = 63
         Height = 15
         Caption = 'POSTAGEM'
@@ -332,7 +319,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel19: TRLLabel
         Left = 197
-        Top = 102
+        Top = 82
         Width = 67
         Height = 15
         AutoSize = False
@@ -346,7 +333,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel20: TRLLabel
         Left = 736
-        Top = 66
+        Top = 46
         Width = 36
         Height = 15
         AutoSize = False
@@ -360,7 +347,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel21: TRLLabel
         Left = 482
-        Top = 66
+        Top = 46
         Width = 42
         Height = 15
         Caption = 'FOLHA'
@@ -373,7 +360,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel24: TRLLabel
         Left = 680
-        Top = 66
+        Top = 46
         Width = 38
         Height = 15
         Alignment = taCenter
@@ -388,7 +375,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel25: TRLLabel
         Left = 943
-        Top = 66
+        Top = 46
         Width = 28
         Height = 15
         Caption = 'CEP'
@@ -401,7 +388,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel26: TRLLabel
         Left = 943
-        Top = 83
+        Top = 63
         Width = 49
         Height = 15
         Caption = 'ORIGEM'
@@ -414,7 +401,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel27: TRLLabel
         Left = 297
-        Top = 66
+        Top = 46
         Width = 35
         Height = 15
         Caption = 'DATA'
@@ -427,7 +414,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel28: TRLLabel
         Left = 297
-        Top = 82
+        Top = 63
         Width = 63
         Height = 15
         Caption = 'POSTAGEM'
@@ -440,34 +427,20 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object QTDE: TRLLabel
         Left = 736
-        Top = 102
+        Top = 82
         Width = 77
-        Height = 15
+        Height = 16
         Caption = '240 gramas'
         Font.Charset = ANSI_CHARSET
         Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Courier New'
-        Font.Style = []
-        ParentFont = False
-      end
-      object RLLabel29: TRLLabel
-        Left = 545
-        Top = 103
-        Width = 81
-        Height = 15
-        AutoSize = False
-        Caption = '9912232238'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -12
-        Font.Name = 'Courier New'
-        Font.Style = []
+        Font.Style = [fsBold]
         ParentFont = False
       end
       object RLLabel30: TRLLabel
         Left = 544
-        Top = 82
+        Top = 63
         Width = 63
         Height = 15
         Caption = 'CONTRATO'
@@ -480,21 +453,14 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel31: TRLLabel
         Left = 152
-        Top = 102
+        Top = 82
         Width = 21
         Height = 15
         Caption = '72'
       end
-      object RLLabel32: TRLLabel
-        Left = 390
-        Top = 102
-        Width = 63
-        Height = 15
-        Caption = '58552553'
-      end
       object RLLabel33: TRLLabel
         Left = 297
-        Top = 102
+        Top = 82
         Width = 70
         Height = 15
         Font.Charset = ANSI_CHARSET
@@ -506,7 +472,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object Label34: TRLLabel
         Left = 8
-        Top = 83
+        Top = 63
         Width = 42
         Height = 15
         Caption = 'SEDEX'
@@ -519,7 +485,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel34: TRLLabel
         Left = 390
-        Top = 83
+        Top = 63
         Width = 63
         Height = 15
         Caption = 'POSTAGEM'
@@ -531,27 +497,25 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         ParentFont = False
       end
       object RLSystemInfo1: TRLSystemInfo
-        Left = 459
-        Top = 102
-        Width = 36
+        Left = 405
+        Top = 82
+        Width = 91
         Height = 15
-        Alignment = taCenter
-        AutoSize = False
+        Alignment = taRightJustify
         Info = itPageNumber
         Layout = tlJustify
       end
       object RLSystemInfo2: TRLSystemInfo
-        Left = 509
-        Top = 102
-        Width = 33
+        Left = 512
+        Top = 82
+        Width = 119
         Height = 15
-        AutoSize = False
         Info = itLastPageNumber
         Layout = tlJustify
       end
       object RLLabel43: TRLLabel
         Left = 696
-        Top = 187
+        Top = 157
         Width = 28
         Height = 14
         Caption = 'CEP'
@@ -564,7 +528,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel44: TRLLabel
         Left = 893
-        Top = 187
+        Top = 157
         Width = 35
         Height = 16
         AutoSize = False
@@ -578,7 +542,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel45: TRLLabel
         Left = 947
-        Top = 187
+        Top = 157
         Width = 98
         Height = 16
         AutoSize = False
@@ -592,7 +556,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel46: TRLLabel
         Left = 479
-        Top = 147
+        Top = 106
         Width = 266
         Height = 15
         Caption = 'R. MERGENTHALER,1177 - VL. LEOPOLDINA'
@@ -605,7 +569,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel3: TRLLabel
         Left = 479
-        Top = 163
+        Top = 122
         Width = 112
         Height = 15
         Caption = 'S'#195'O PAULO -  SP'
@@ -618,7 +582,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel47: TRLLabel
         Left = 829
-        Top = 66
+        Top = 46
         Width = 98
         Height = 15
         AutoSize = False
@@ -632,7 +596,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object valdec: TRLLabel
         Left = 829
-        Top = 103
+        Top = 82
         Width = 98
         Height = 15
         AutoSize = False
@@ -641,12 +605,12 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Font.Color = clBlack
         Font.Height = -12
         Font.Name = 'Courier New'
-        Font.Style = []
+        Font.Style = [fsBold]
         ParentFont = False
       end
       object RLLabel35: TRLLabel
         Left = 643
-        Top = 65
+        Top = 46
         Width = 26
         Height = 15
         Alignment = taCenter
@@ -659,24 +623,9 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Font.Style = []
         ParentFont = False
       end
-      object RLLabel48: TRLLabel
-        Left = 643
-        Top = 102
-        Width = 26
-        Height = 15
-        Alignment = taCenter
-        AutoSize = False
-        Caption = '01'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -12
-        Font.Name = 'Courier New'
-        Font.Style = []
-        ParentFont = False
-      end
       object RLLabel49: TRLLabel
         Left = 1020
-        Top = 66
+        Top = 46
         Width = 42
         Height = 15
         Caption = 'SIGLA'
@@ -688,8 +637,8 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         ParentFont = False
       end
       object RLDBText5: TRLDBText
-        Left = 1025
-        Top = 83
+        Left = 1031
+        Top = 82
         Width = 20
         Height = 15
         AutoSize = False
@@ -702,10 +651,53 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Font.Style = []
         ParentFont = False
       end
+      object RLDBText7: TRLDBText
+        Left = 390
+        Top = 82
+        Width = 119
+        Height = 15
+        DataField = 'tbsdxserv_crtpst'
+        DataSource = Dm.DtsSdx3
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+      end
+      object RLDBText9: TRLDBText
+        Left = 544
+        Top = 85
+        Width = 119
+        Height = 15
+        DataField = 'tbsdxserv_nrocto'
+        DataSource = Dm.DtsSdx3
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+      end
+      object RLLabel48: TRLLabel
+        Left = 643
+        Top = 82
+        Width = 26
+        Height = 15
+        Alignment = taCenter
+        AutoSize = False
+        Caption = '01'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+      end
     end
     object RLBand2: TRLBand
       Left = 19
-      Top = 224
+      Top = 197
       Width = 1085
       Height = 32
       AfterPrint = RLBand2AfterPrint
@@ -770,21 +762,6 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Font.Style = []
         ParentFont = False
       end
-      object RLDBText7: TRLDBText
-        Left = 809
-        Top = 2
-        Width = 76
-        Height = 16
-        AutoSize = False
-        DataField = 'sdx_numobj'
-        DataSource = Dm.DtsSdx3
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -12
-        Font.Name = 'Courier New'
-        Font.Style = []
-        ParentFont = False
-      end
       object RLDBText8: TRLDBText
         Left = 696
         Top = 2
@@ -805,14 +782,6 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Top = 6
         Width = 42
         Height = 15
-      end
-      object RLLabel42: TRLLabel
-        Left = 771
-        Top = 2
-        Width = 23
-        Height = 15
-        AutoSize = False
-        Caption = 'DG'
       end
       object LblPeso: TRLLabel
         Left = 890
@@ -836,12 +805,26 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         DrawKind = dkLine
         Pen.Style = psDot
       end
+      object RLDBText6: TRLDBText
+        Left = 771
+        Top = 2
+        Width = 84
+        Height = 15
+        DataField = 'sdx_numobj2'
+        DataSource = Dm.DtsSdx3
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+      end
     end
     object RLBand3: TRLBand
       Left = 19
-      Top = 256
+      Top = 229
       Width = 1085
-      Height = 86
+      Height = 108
       BandType = btSummary
       object RLLabel22: TRLLabel
         Left = 197
@@ -866,7 +849,7 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel37: TRLLabel
         Left = 197
-        Top = 69
+        Top = 85
         Width = 154
         Height = 15
         Caption = 'assinat. e matric ECT'
@@ -879,21 +862,21 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
       end
       object RLLabel38: TRLLabel
         Left = 489
-        Top = 69
+        Top = 85
         Width = 133
         Height = 15
         Caption = 'assinat. remetente'
       end
       object RLDraw1: TRLDraw
         Left = 197
-        Top = 69
+        Top = 81
         Width = 239
         Height = 1
         DrawKind = dkLine
       end
       object RLDraw2: TRLDraw
         Left = 489
-        Top = 69
+        Top = 81
         Width = 239
         Height = 1
         DrawKind = dkLine
@@ -902,19 +885,37 @@ object FrmRelArSedexListaOl: TFrmRelArSedexListaOl
         Left = 390
         Top = 1
         Width = 70
-        Height = 15
+        Height = 16
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object RLLabel40: TRLLabel
         Left = 390
         Top = 18
         Width = 70
-        Height = 15
+        Height = 16
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object RLLabel41: TRLLabel
         Left = 390
         Top = 35
         Width = 70
-        Height = 15
+        Height = 16
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object RLDraw3: TRLDraw
         Left = 0

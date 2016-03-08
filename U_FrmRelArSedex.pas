@@ -124,10 +124,6 @@ uses DmDados;
 
 procedure TFrmRelArSedex.RLBand1BeforePrint(Sender: TObject;
   var PrintIt: Boolean);
-  var
-    v_cep  : string;
-    v_cep1 : string;
-    v_cep2 : string;
 begin
 //     RlcidUf.Caption := Dm.SqlSdx2.Fields[9].AsString + '  ' +  Dm.SqlSdx2.Fields[10].AsString;
  //    RlcidUfb.Caption := Dm.SqlSdx2.Fields[9].AsString + '  ' +  Dm.SqlSdx2.Fields[10].AsString;

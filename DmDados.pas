@@ -6,7 +6,7 @@ uses
   SysUtils,Windows, Messages, Classes, DB, ZAbstractRODataset, ZAbstractDataset, ZDataset,
   ZConnection, RLXLSFilter, RLPDFFilter, RLHTMLFilter, RLFilters,
   RLRichFilter, RpDefine, RpRave, RpCon, RpConDS, RpRender, RpRenderPDF, RpBase,
-  RpSystem;
+  RpSystem, Forms;
 
 type
   TDm = class(TDataModule)
@@ -144,7 +144,6 @@ type
     SqlRelCartaocg50_data: TDateField;
     SqlRelCartaocg50_horaini: TTimeField;
     SqlRelCartaocg50_horafin: TTimeField;
-    SqlRelCartaocolumn: TStringField;
     DstSqlRelCartao: TDataSource;
     SqlCga108: TZQuery;
     dtsCga108: TDataSource;
@@ -504,6 +503,35 @@ type
     SqlSdx4tbsdxserv_codprod: TIntegerField;
     SqlSdxServtbsdxserv_status: TSmallintField;
     SqlSdxServtbsdxserv_txasrv: TFloatField;
+<<<<<<< HEAD
+=======
+    SqlSdx6: TZQuery;
+    DtsSdx6: TDataSource;
+    SqlSdx6Lote: TLargeintField;
+    SqlSdx6QtObjs: TLargeintField;
+    SqlSdx6Dtfin: TDateField;
+    SqlSdx6Dtini: TDateField;
+    SqlSdx6Produto: TStringField;
+    SqlSdx6CodProduto: TIntegerField;
+    SqlSdx4bxasdx_dscbxa: TStringField;
+    SqlSdx7: TZQuery;
+    DtSSdx7: TDataSource;
+    SqlSdx7tbsdxserv_dsc: TStringField;
+    SqlSdx7tbsdxserv_crtpst: TStringField;
+    SqlSdx7tbsdxserv_sigla: TStringField;
+    SqlSdx7qtobjs: TLargeintField;
+    SqlSdx7lote: TLargeintField;
+    SqlSdx7mindt: TDateField;
+    SqlSdx7maxdt: TDateField;
+    SqlSdx7tbsdxserv_prod: TIntegerField;
+    SqlSdx3tbsdxserv_crtpst: TStringField;
+    SqlSdx3tbsdxserv_nrocto: TStringField;
+    SqlSdx3sdx_cmp: TFloatField;
+    SqlSdx3sdx_bas: TFloatField;
+    SqlSdx3sdx_alt: TFloatField;
+    SqlSdx3tbsdxect_sigla: TStringField;
+    SqlRelCartaoPrazo: TTimeField;
+>>>>>>> milestone-v2.0.14
     procedure DataModuleCreate(Sender: TObject);
 
 
@@ -521,28 +549,25 @@ var
 
 implementation
 
-uses U_Func;
+uses U_Func, IniFiles, U_FrmConfig;
 
 {$R *.dfm}
 
 procedure TDm.DataModuleCreate(Sender: TObject);
+var iniFile: TIniFile;
 begin
-    currdir :=  GetCurrentDir;
-    Ads.Connected :=  false;
-    uni           := Trim(copy(procarqconf('Unidade'),10,50));
-    Ads.Database  := Trim(copy(procarqconf('Banco'),10,50));
-    Ads.HostName  := trim(copy(procarqconf('Host'),10,150));
-    Ads.Port      := strtoint(Trim(copy(procarqconf('Porta'),10,50)));
-    Ads.User      := Trim(copy(procarqconf('Usuario'),10,50));//+'res';;
-    Ads.Password  := Trim(copy(procarqconf('Snh'),10,50));
+  currdir :=  GetCurrentDir;
+  Ads.Connected :=  false;
+  if not FileExists(ChangeFileExt(Application.ExeName, '.ini')) then
+    Begin
+      // Criando o formulário de Configuração da aplicação
+      Application.CreateForm(TFrmConfig, FrmConfig);
+      FrmConfig.ShowModal;
+    end;
 
-//  Ads.Connected :=  false;
-//  Ads.Database  :=  'dbads';
-//  Ads.HostName  :=  '192.168.101.77';//'192.168.100.7';//
-//  Ads.Password  :=  'ads!.!';
-//  Ads.Port      :=  5432;
-//  Ads.User      :=  'ads';
+
   try
+<<<<<<< HEAD
     Ads.Connected :=  True;
     Ads.StartTransaction;
     conect        :=  true;
@@ -551,8 +576,46 @@ begin
       Ads.Rollback;
       conect  :=  false;
     end;
-  end;
-end;
+=======
+    // Recuperando as configurações do aplicativo
+    iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+    // Letra da unidade onde o executável que está em execução se encontra
+    uni := iniFile.ReadString('GERAL', 'Unidade', IncludeTrailingBackslash(ExtractFileDrive(currdir)));
+    // Nome do Servidor onde se encontra a Base de Dados Postgres
+    Ads.HostName := iniFile.ReadString('BD', 'Host', '10.1.1.10');;
+    // Nome da base de Dados que a aplicação utilizará
+    Ads.Database := iniFile.ReadString('BD', 'Banco', 'dbads');
+    // Porta de conexão ao banco de Dados
+    Ads.Port := iniFile.ReadInteger('BD', 'Porta', 5432);
+    // Nome de usuario para conexão ao BD
+    Ads.User := iniFile.ReadString('BD', 'Usuario', 'ads');
+    // Senha de acesso ao Bando de Dados
+    Ads.Password := iniFile.ReadString('BD', 'Senha', 'ads!.!');
 
+  except
+    raise Exception.Create('Erro ao ler informações do arquivo de configuração!');
+    iniFile.Free;
+>>>>>>> milestone-v2.0.14
+  end;
+
+  try
+    Ads.Connected := True;
+    Ads.StartTransaction;
+    conect := true;
+    // Forçando o DateStyle a ser sempre o mesmo, independente do
+    // que foi configurado no servidor, devido a Bug da Lib Zeos
+    SqlAux2.Close;
+    SqlAux2.SQL.Clear;
+    SqlAux2.SQL.Add(FORMAT('SET DATESTYLE TO %s', [QuotedStr('ISO, DMY')]));
+    SqlAux2.Open;
+
+    Except on e: exception do
+      begin
+        Ads.Rollback;
+        conect :=  false;
+      end;
+    end;
+
+end;
 
 end.

@@ -138,7 +138,6 @@ procedure TFrmFrBoleto2.RLBand1BeforePrint(Sender: TObject;
 Const Num = '0123456789';
 var
   codbarra : string;
-  i : integer;
 begin
   RlAgCedD.Caption    := '0727/1720719/'+ GeraCodigo((GeraNT(Dm.SqlCga10cg10_codcli.AsString,13))+'07271720719',0);
   RlNosNum.Caption    := Dm.SqlCga10cg10_codcli.AsString;

@@ -93,10 +93,10 @@ uses DmDados,U_pesqImp;
 procedure TFrmFrTokenBradesco.RLBand3BeforePrint(Sender: TObject;
   var PrintIt: Boolean);
 begin
-  Rldata.caption := formatdatetime('dd/mm/yyyy',Dm.SqlRel.Fields[2].AsDateTime);
+  Rldata.caption := formatdatetime('dd/mm/yyyy', Dm.SqlRel.Fields[2].AsDateTime);
   Rlqt.Caption   := inttostr(Dm.SqlRel.Fields[0].AsInteger);
-  RLLabel4.Caption := inttostr(Dm.SqlRel.Fields[0].AsInteger+strtoint(RLLabel4.Caption));
-  RLLabel5.Caption := inttostr(Dm.SqlRel.Fields[0].AsInteger+strtoint(RLLabel5.Caption));
+  RLLabel4.Caption := inttostr(Dm.SqlRel.Fields[0].AsInteger + strtoint(RLLabel4.Caption));
+  RLLabel5.Caption := inttostr(Dm.SqlRel.Fields[0].AsInteger + strtoint(RLLabel5.Caption));
   RlRemes.Caption  := Dm.SqlRel.Fields[1].Value;
   case tag of
     //4:

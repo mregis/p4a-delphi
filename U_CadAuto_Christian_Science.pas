@@ -1,3 +1,4 @@
+{$WARN UNIT_PLATFORM OFF}
 unit U_CadAuto_Christian_Science;
 
 interface
@@ -55,9 +56,6 @@ type
       var CanAdd: Boolean);
   private
     email : textfile;
-    antigo,novo : string;
-    indice : integer;
-    caption : string;
     codemail : string;
     { Private declarations }
   public
@@ -228,8 +226,7 @@ begin
 end;
 
 procedure TFrmCadAutoChristianSciense.salvar;
-var
- resultado : integer;
+
 begin
  if (Trim(EdSexo.Text) = '') or ((EdSexo.Text <> 'F') and (EdSexo.Text <> 'M'))then
     begin

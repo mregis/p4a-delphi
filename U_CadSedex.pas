@@ -1,3 +1,4 @@
+{$WARN UNIT_PLATFORM OFF}
 unit U_CadSedex;
 
 interface
@@ -38,27 +39,17 @@ type
     procedure cargarange;
     procedure altseq;
   private
-   WorkBk : _WorkBook;
-   WorkSheet : _WorkSheet;
-   K, R, X, Y : Integer;
-   RangeMatrix : Variant;
-   FileName : WideString;
-   WorkSheet2 : _WorkSheet;
 
   erro:boolean;
   Lista           :TextFile;
   Linha           :String;
-  v_tothead : string;
-  v_dtgera  : String;
-  v_maxseq  : integer;
   Conta     : integer;
   dtseq     : string;
-  ende,mCEP              : string;
+  mCEP              : string;
   ContVirg              : integer;
-  i                     : integer;
-  CheckVirg,sel         : string;
-  verifica,virgant      : integer;
-  NOME,LOGRADOURO,NUM,COMPL,BAIRRO,CIDADE,ESTADO,CEP5,CEP3  : variant;
+  sel         : string;
+  virgant      : integer;
+  NOME,LOGRADOURO,BAIRRO,CIDADE,ESTADO,CEP5  : variant;
   v_soma : integer;
   CEPr,mteste  : string;
 
@@ -81,7 +72,7 @@ procedure TFrmCadSedex.BtnCarregaClick(Sender: TObject);
 var
   Lista           :TextFile;
   Linha           :String;
-  Reg1,Reg2,Conta :Integer;
+  Conta :Integer;
   v_tothead : string;
   v_dtgera  : String;
   v_maxseq  : integer;
@@ -292,7 +283,6 @@ begin
             mCEP:= copy(CEP5,1,5)+copy(cep5,7,3);//+CEP3;
             LOGRADOURO := LOGRADOURO;// + ' ' + NUM + ' '+ COMPL;
             v_soma := 0;
-            i := 0;
             if copy(mcep,1,2) = '00' then
               begin
                 erro := true;
@@ -421,10 +411,6 @@ begin
                 mCEP:= copy(CEP5,1,5)+copy(cep5,7,3);//+CEP3;
                 LOGRADOURO := LOGRADOURO;// + ' ' + NUM + ' '+ COMPL;
                 v_soma := 0;
-                i := 0;
-
-                v_soma := 0;
-                i := 0;
                   for i:= 1 to 8 do
                   begin
                     try

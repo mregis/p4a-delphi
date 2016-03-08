@@ -65,9 +65,6 @@ end;
 procedure TFrmDigExtratoUnificado.InserirExtrato;
 var
   anterior        : String;
-  calculado       : Integer;
-  numero          : Integer;
-  digito          : Integer;
   total           : Integer;
   conta_corrente  : String;
   digito_corrente : Boolean;
@@ -99,9 +96,6 @@ begin
            case length(NumRemessa) of
              30,34:
                begin
-                 calculado := StrToInt(VerificaDigito11(Copy(NumRemessa,6,7)));
-                 numero    := StrToInt(Copy(NumRemessa,6,7));
-
                  if (Copy(NumRemessa,13,1) = 'P') then
                     begin
                       if (VerificaDigito11(Copy(NumRemessa,6,7)) = '0') then
@@ -132,7 +126,6 @@ begin
                      Dm.SqlAux1.Sql.Add('select count(*) from cga68 where cg68_remes = :cg68_remes');
                      Dm.SqlAux1.Params[0].AsString := NumRemessa;
                      Dm.SqlAux1.Open;
-                     total := 0;
                     total := Dm.SqlAux1.Fields[0].AsInteger;
                     case Dm.SqlAux1.Fields[0].AsInteger of
                       3:

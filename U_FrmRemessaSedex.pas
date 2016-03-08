@@ -4,100 +4,105 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, Grids, DBGrids, ExtCtrls, Mask, DBCtrls, ComCtrls;
+  Dialogs, StdCtrls, Buttons, Grids, DBGrids, ExtCtrls, Mask, DBCtrls,
+  ComCtrls, Math;
 
 type
   TFrmRemessaSedex = class(TForm)
-    Bevel1: TBevel;
     DBGrid001: TDBGrid;
     BtnLimpa: TBitBtn;
     BtnSalva: TBitBtn;
     BtnReenv: TBitBtn;
     BtnSair: TBitBtn;
     EdJuncao: TEdit;
-    EdPeso: TEdit;
-    EdVol: TEdit;
     Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    EdDpto: TEdit;
-    EdEnd: TEdit;
-    EdBairro: TEdit;
-    EdCid: TEdit;
-    EdUF: TEdit;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
-    MkEdCep: TMaskEdit;
-    EdSeqCarga: TEdit;
-    Label10: TLabel;
-    EdValor: TEdit;
-    Label11: TLabel;
-    Label12: TLabel;
-    EdReg: TEdit;
-    EdVvalor: TEdit;
-    Label13: TLabel;
     EdObjeto: TEdit;
     Label14: TLabel;
-    Edvaldec: TEdit;
+    BtnAltera: TBitBtn;
+    StsRemSdx: TStatusBar;
+    Timer1: TTimer;
+    CboProdutoServSedex: TDBLookupComboBox;
+    Label38: TLabel;
+    GroupBox1: TGroupBox;
+    Label5: TLabel;
+    EdEnd: TEdit;
+    Label6: TLabel;
+    EdBairro: TEdit;
+    Label4: TLabel;
+    EdDpto: TEdit;
+    Label7: TLabel;
+    EdCid: TEdit;
+    Label8: TLabel;
+    EdUF: TEdit;
+    MkEdCep: TMaskEdit;
+    Label9: TLabel;
+    GroupBox2: TGroupBox;
+    Label33: TLabel;
+    Ednrocxa: TEdit;
+    Label35: TLabel;
+    Edbas: TEdit;
+    Label36: TLabel;
+    Edcpm: TEdit;
+    Label37: TLabel;
+    Edalt: TEdit;
+    EdVol: TEdit;
+    Label2: TLabel;
+    Label3: TLabel;
+    EdPeso: TEdit;
+    GroupBox3: TGroupBox;
     Label15: TLabel;
-    EdValAr: TEdit;
+    Edvaldec: TEdit;
+    Label11: TLabel;
+    EdValor: TEdit;
+    Label13: TLabel;
+    EdVvalor: TEdit;
     Label16: TLabel;
-    EdPorc: TEdit;
-    EdAdVal: TEdit;
+    EdValAr: TEdit;
     Label17: TLabel;
-    Label18: TLabel;
-    EdValMin: TEdit;
+    EdPorc: TEdit;
     Label19: TLabel;
-    Bevel2: TBevel;
-    Label20: TLabel;
-    EdNovoAr: TEdit;
-    Label21: TLabel;
-    EdNovoLote: TEdit;
-    Label22: TLabel;
-    EdNovReg: TEdit;
-    Label23: TLabel;
-    EdNovoEnd: TEdit;
-    Label24: TLabel;
-    EdNovaAg: TEdit;
-    Label25: TLabel;
-    EdNovaCid: TEdit;
-    Label26: TLabel;
-    EdNovaUf: TEdit;
-    Label27: TLabel;
-    MkEdNovoCep: TMaskEdit;
+    EdValMin: TEdit;
+    Label18: TLabel;
+    EdAdVal: TEdit;
     Label28: TLabel;
     EdQtde: TEdit;
-    BtnAltera: TBitBtn;
-    MkEdDtMov: TMaskEdit;
+    Label10: TLabel;
+    EdSeqCarga: TEdit;
+    Label12: TLabel;
+    EdReg: TEdit;
+    MkEdBaixa: TMaskEdit;
+    Label32: TLabel;
     MkEdDtEnvio: TMaskEdit;
-    Label29: TLabel;
     Label30: TLabel;
     MkEdCarga: TMaskEdit;
     Label31: TLabel;
-    Label32: TLabel;
-    MkEdBaixa: TMaskEdit;
-    DBCboBaixa: TDBLookupComboBox;
+    MkEdDtMov: TMaskEdit;
+    Label29: TLabel;
+    Bevel1: TBevel;
+    GroupBox4: TGroupBox;
+    Label20: TLabel;
+    Label21: TLabel;
+    Label22: TLabel;
+    Label23: TLabel;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    Label27: TLabel;
     Label34: TLabel;
-    StsRemSdx: TStatusBar;
-    Timer1: TTimer;
-    Ednrocxa: TEdit;
-    Edbas: TEdit;
-    Edcpm: TEdit;
-    Edalt: TEdit;
-    Label33: TLabel;
-    Label35: TLabel;
-    Label36: TLabel;
-    Label37: TLabel;
+    EdNovoAr: TEdit;
+    EdNovoLote: TEdit;
+    EdNovReg: TEdit;
+    EdNovoEnd: TEdit;
+    EdNovaAg: TEdit;
+    EdNovaCid: TEdit;
+    EdNovaUf: TEdit;
+    MkEdNovoCep: TMaskEdit;
+    DBCboBaixa: TDBLookupComboBox;
     procedure EdnrocxaKeyPress(Sender: TObject; var Key: Char);
     procedure EdbasEnter(Sender: TObject);
     procedure EdaltKeyPress(Sender: TObject; var Key: Char);
     procedure EdcpmKeyPress(Sender: TObject; var Key: Char);
     procedure EdbasKeyPress(Sender: TObject; var Key: Char);
-//    procedure EdVolKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure EdVolKeyPress(Sender: TObject; var Key: Char);
     procedure EdVolEnter(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -135,15 +140,10 @@ type
     procedure calcvol;
     procedure proccxa(tipo:Integer);
   private
-  uf,numobjdv,cepr,mcep,selcga77,numobj,mpeso  : String;
+  uf, cepr, mpeso : String;
   v_soma,codcxa              : Integer;
   vvalor,txcor,pescub,volcub,pescal: Real;
-  dt                  : TDate;
   selcxa  : Boolean;
-
-
-  //Variável que armazenará o modelo da balança, função ObtemNomeBalanca
-
 
     { Private declarations }
   public
@@ -168,7 +168,7 @@ var
 
 implementation
 
-uses U_Func, DmDados, U_Principal;
+uses U_Func, DmDados, U_Principal, DB;
 
 {$R *.dfm}
 function AttachScale(hScale : THandleStream;Com,BaudRate,ByteSize,StopBits,Parity: Integer): Integer; stdcall;
@@ -228,26 +228,27 @@ begin
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('update tbsdx02 set sdx_nomdest = :nom,sdx_endedest = :end,sdx_cidade = :cid,sdx_uf = :uf,sdx_cep = :cep where (sdx_numobj4 = :numobj) and (sdx_siglaobj = :sigla)');
-      SqlAux1.Params[0].Text  :=  EdJuncao.Text+': '+EdNovaAg.Text;
-      SqlAux1.Params[1].Text  :=  EdNovoEnd.Text;
-      SqlAux1.Params[2].Text  :=  EdNovaCid.Text;
-      SqlAux1.Params[3].Text  :=  EdNovaUF.Text;
-      SqlAux1.Params[4].Text  :=  MkEdNovoCep.Text;
-      SqlAux1.Params[5].Text  :=  EdObjeto.Text;
-      if FrmRemessaSedex.Tag = 3 then
-        SqlAux1.Params[6].Text  := 'OL'
-      else if FrmRemessaSedex.Tag = 4 then
-        SqlAux1.Params[6].Text  := 'KD'//'TC'
-      else if FrmRemessaSedex.Tag = 5 then
-        SqlAux1.Params[6].Text  := 'KE'//'TK'
-      else
-        SqlAux1.Params[6].Value := null;
+      SqlAux1.SQL.Add('UPDATE tbsdx02 SET sdx_nomdest = :nom, ');
+      SqlAux1.SQL.Add('sdx_endedest = :end, sdx_cidade = :cid, ');
+      SqlAux1.SQL.Add('sdx_uf = :uf, sdx_cep = :cep ');
+      SqlAux1.SQL.Add('WHERE sdx_numobj2 = :numobj2 ');
+      SqlAux1.ParamByName('nom').AsString := EdJuncao.Text + ': ' + EdNovaAg.Text;
+      SqlAux1.ParamByName('end').AsString := EdNovoEnd.Text;
+      SqlAux1.ParamByName('cid').AsString := EdNovaCid.Text;
+      SqlAux1.ParamByName('uf').AsString := EdNovaUF.Text;
+      SqlAux1.ParamByName('cep').AsString := MkEdNovoCep.Text;
+      SqlAux1.ParamByName('numobj2').AsString := EdObjeto.Text;
+
       try
         SqlAux1.ExecSQL;
-        Application.MessageBox('AR-Sedex Alterado','ADS',ID_OK);
+        if SqlAux1.RowsAffected > 0 then
+          Application.MessageBox('Informações alteradas com sucesso!', 'ADS', ID_OK)
+        else
+          Application.MessageBox('Nenhum dado foi alterado"!','ADS', ID_OK)
+
       except on e: exception do
-        Application.MessageBox(PChar(e.Message),'ADS',ID_OK);
+        Application.MessageBox(PChar('Erro ao tentar atualizar dados do Objeto.' +
+            'Detalhes: ' + e.Message), 'ADS', ID_OK);
       end;
     end;
 
@@ -260,98 +261,151 @@ begin
 end;
 
 procedure TFrmRemessaSedex.BtnReenvClick(Sender: TObject);
+var sqldadosobj, num_obj, dv, sigla_obj,
+  sigla_prod, insmov : String;
 begin
+
+// validação básica
+if (dm.SqlSdx4sdx_numobj2.Text <> EdObjeto.Text) then
+  begin
+    application.MessageBox(
+              PChar('Para efetuar uma repostagem é necessário indicar o número' +
+                ' de objeto anterior.'),
+              'ADS', MB_OK + MB_ICONERROR);
+    exit;
+  end;
+
+if (DBCboBaixa.KeyValue = null) then
+  begin
+    application.MessageBox(
+              PChar('Indique o motivo da devolução do objeto.'),
+              'ADS', MB_OK + MB_ICONERROR);
+    exit;
+  end;
+
+
   with Dm do
     begin
       SqlAux3.Close;
       SqlAux3.SQL.Clear;
-      SqlAux3.SQL.Add('select min(tbsdxect_num),tbsdxect_dv from tbsdx_ect where (tbsdx_use is null) ');
-      if FrmRemessaSedex.Tag = 3 then
-        SqlAux3.SQL.Add('and (tbsdxect_prod = ''1660'') ')
-      else  if FrmRemessaSedex.Tag = 4 then
-        SqlAux3.SQL.Add('and (tbsdxect_prod = ''2240'') ')
-      else  if FrmRemessaSedex.Tag = 5 then
-        SqlAux3.SQL.Add('and (tbsdxect_prod = ''2241'') ');
-      SqlAux3.SQL.Add('group by tbsdxect_num,tbsdxect_dv order by tbsdxect_num limit 1');
+      // Procurar o próximo número de objeto livre para o produto
+      // selecionado
+      sqldadosobj := 'SELECT DISTINCT t.tbsdxect_num, t.tbsdxect_dv, t.tbsdxect_sigla, ' +
+          's.tbsdxserv_sigla ' +
+          'FROM public.tbsdx_ect t ' +
+          'INNER JOIN (' +
+          'SELECT MIN(tsub.tbsdxect_num) as numobj, tsub.tbsdxect_prod ' +
+          'FROM public.tbsdx_ect tsub ' +
+          'WHERE tsub.tbsdxect_dtvenc > CURRENT_DATE ' +
+          ' AND tsub.tbsdx_use IS NULL ' +
+          'GROUP BY 2 ' +
+          ') t2 ON (t.tbsdxect_prod = t2.tbsdxect_prod) AND t.tbsdxect_num = t2.numobj ' +
+          '  INNER JOIN tbsdxserv s  ON t2.tbsdxect_prod = s.tbsdxserv_prod ' +
+          'WHERE t.tbsdxect_prod = :prod ';
+
+      SqlAux3.SQL.Add(sqldadosobj);
+      SqlAux3.ParamByName('prod').AsInteger := CboProdutoServSedex.KeyValue;
       SqlAux3.Open;
-      numobj:= SqlAux3.Fields[0].AsString+SqlAux3.Fields[1].AsString;
+      num_obj := SqlAux3.Fields[0].AsString;
+      dv := SqlAux3.Fields[1].AsString;
+      sigla_obj := SqlAux3.Fields[2].AsString;
+      sigla_prod := SqlAux3.Fields[3].AsString;
+
+      // Pegando dados do destino para o Novo Envio
       SqlTbBradDeptos.Close;
       SqlTbBradDeptos.SQL.Clear;
-      SqlTbBradDeptos.SQL.Add('select * from tbbraddptos where (juncao = :juncao) limit 1');
-      SqlTbBradDeptos.Params[0].AsString  :=  IntToStr(StrToInt(EdJuncao.Text));
+      SqlTbBradDeptos.SQL.Add('SELECT * FROM tbbraddptos WHERE juncao = :juncao');
+      SqlTbBradDeptos.Params[0].AsInteger := StrToInt(EdJuncao.Text);
       SqlTbBradDeptos.Open;
-      EdNovolote.Text   :=  IntToStr(Random(99))+gerant(formatdatetime('hhmm',Time),4);
+      if (SqlTbBradDeptos.RecordCount < 1) then
+        begin
+          application.MessageBox(
+              PChar('AGÊNCIA ' + EdJuncao.Text + ' não encontrada'),
+              'ADS', MB_OK + MB_ICONERROR);
+          exit;
+        end;
+      // Novo Lote
+      EdNovolote.Text   :=  IntToStr(Random(99)) + GeraNt(formatdatetime('hhmm', Time), 4);
       EdNovolote.Refresh;
+
+      insmov :='INSERT INTO tbsdx02 (sdx_codcli, sdx_idcli, sdx_siglaobj, ' +
+          'sdx_numobj, sdx_paisorigem, sdx_numobj4, sdx_nomdest, ' +
+          'sdx_endedest, sdx_cidade, sdx_uf, sdx_cep, sdx_numseqarq, ' +
+          'sdx_numseqreg, sdx_dtcarga, sdx_numobj2, sdx_numobj1, ' +
+          'sdx_codusu, sdx_valdec, sdx_seqcarga, sdx_qtprod, sdx_dtmov) ' +
+          'VALUES (99,''99'',:sigla, :numobj, ''BR'', :numobj4, :nomdest, ' +
+          ':enddest, :ciddest, :ufdest, :cepdest, 99, :numreg, ' +
+          'CURRENT_DATE, :numobj2, :numobj1, :codusu, :sdx_valdec, ' +
+          ':sdx_seqcarga, :qtprod, :sdx_dtmov)';
+
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('insert into tbsdx02 ');
-      SqlAux1.SQL.Add('(sdx_codcli,sdx_idcli,sdx_siglaobj,sdx_numobj,sdx_paisorigem,');
-      SqlAux1.SQL.Add('sdx_numobj4,sdx_nomdest,sdx_endedest,sdx_cidade,sdx_uf,');
-      SqlAux1.SQL.Add('sdx_cep,sdx_numseqarq,sdx_numseqreg,sdx_dtcarga,sdx_numobj2,');
-      SqlAux1.SQL.Add('sdx_numobj1,sdx_codusu,sdx_valdec,sdx_seqcarga,sdx_qtprod,sdx_dtmov) ');
-      SqlAux1.SQL.Add('values (');
-      //                              0     1
-      SqlAux1.SQL.Add('99,''99'',:sigla,:numobj,''BR'',');
-      //                  2       3         4         5       6
-      SqlAux1.SQL.Add(':numobj4,:nomdest,:enddest,:ciddest,:ufdest,');
-      //                  7            8                            9
-      SqlAux1.SQL.Add(':cepdest,99,:numreg,(select current_date),:numobj2,');
-      //                  10      11       12          13           14      15
-      SqlAux1.SQL.Add(':numobj1,:codusu,:sdx_valdec,:sdx_seqcarga,:qtprod,:sdx_dtmov)');
-      if FrmRemessaSedex.Tag = 3 then
-        SqlAux1.Params[00].AsString  :=  'OL' //
-      else  if FrmRemessaSedex.Tag = 4 then
-        SqlAux1.Params[00].AsString  :=  'KD'//'TC' //
-      else  if FrmRemessaSedex.Tag = 5 then
-        SqlAux1.Params[00].AsString  :=  'KE';//'TK';//
-      SqlAux1.Params[01].AsString  :=  numobj;
-      if FrmRemessaSedex.Tag = 3 then
-        SqlAux1.Params[02].AsString  :=  'AR'+ numobj + 'OL'  //
-      else  if FrmRemessaSedex.Tag = 4 then
-        SqlAux1.Params[02].AsString  :=  'AR'+ numobj + 'KD'//'TC'  //
-      else  if FrmRemessaSedex.Tag = 5 then
-        SqlAux1.Params[02].AsString  :=  'AR'+ numobj + 'KE';//'TK';
-      SqlAux1.Params[03].AsString  :=  gerant(SqlTbBradDeptosjuncao.AsString,4)+': '+SqlTbBradDeptosdepto.AsString;
-      SqlAux1.Params[04].AsString  :=  SqlTbBradDeptosender.AsString;
-      SqlAux1.Params[05].AsString  :=  SqlTbBradDeptoscidade.Text;
-      SqlAux1.Params[06].AsString  :=  SqlTbBradDeptosuf.Text;
-      SqlAux1.Params[07].AsString  :=  copy(SqlTbBradDeptoscep.Text,1,5)+copy(SqlTbBradDeptoscep.Text,7,3);
-      EdNovReg.Text :=  gerant(inttostr(random(999)),3)+FormatDateTime('yyyymmdd',date)+FormatDateTime('hhmmss',Time)+GeraNT(sqlcga_acessocodigo.AsString,4)+gerant(inttostr(random(999)),3);
+      SqlAux1.SQL.Add(insmov);
+      SqlAux1.ParamByName('sigla').AsString := SqlSdxServtbsdxserv_sigla.AsString;
+      SqlAux1.ParamByName('numobj').AsInteger := StrToInt(num_obj + dv);
+      SqlAux1.ParamByName('numobj4').AsString := 'AR'+ num_obj + dv + sigla_prod;
+      SqlAux1.ParamByName('nomdest').AsString :=  gerant(SqlTbBradDeptosjuncao.AsString,4) +
+          ': ' +  SqlTbBradDeptosdepto.AsString;
+      SqlAux1.ParamByName('enddest').AsString := SqlTbBradDeptosender.AsString;
+      SqlAux1.ParamByName('ciddest').AsString := SqlTbBradDeptoscidade.Text;
+      SqlAux1.ParamByName('ufdest').AsString := SqlTbBradDeptosuf.Text;
+      SqlAux1.ParamByName('cepdest').AsString := StringReplace(SqlTbBradDeptoscep.Text, '-', '', [rfReplaceAll, rfIgnoreCase]);
+      EdNovReg.Text := GeraNt(inttostr(random(999)), 3) +
+            FormatDateTime('yyyymmdd', date) + FormatDateTime('hhmmss', Time) +
+            GeraNT(sqlcga_acessocodigo.AsString, 4) + GeraNt(inttostr(random(999)) , 3);
       EdNovReg.Refresh;
-      SqlAux1.Params[08].AsString  := EdNovReg.Text;
-      SqlAux1.Params[09].AsString  :=  'DL'+ numobj + 'BR';
-      if FrmRemessaSedex.Tag = 3 then
-        SqlAux1.Params[10].AsString  :=  'AR'+ numobj + 'OL'  //
-      else  if FrmRemessaSedex.Tag = 4 then
-        SqlAux1.Params[10].AsString  :=  'AR'+ numobj + 'KD'//'TC'  //
-      else  if FrmRemessaSedex.Tag = 5 then
-        SqlAux1.Params[10].AsString  :=  'AR'+ numobj + 'KE';//'TK';//
-      if FrmRemessaSedex.Tag = 3 then
-        EdNovoAr.Text  :=  'AR'+ numobj + 'OL'  //
-      else  if FrmRemessaSedex.Tag = 4 then
-        EdNovoAr.Text  :=  'AR'+ numobj + 'KD'//'TC'  //
-      else  if FrmRemessaSedex.Tag = 5 then
-        EdNovoAr.Text  :=  'AR'+ numobj + 'KE';//'TK';//
-      EdNovoAr.Refresh;
-      SqlAux1.Params[11].AsString  :=  sqlcga_acessocodigo.AsString;
-      SqlAux1.Params[12].Value     :=  SqlSdx4sdx_valdec.Value;
-      SqlAux1.Params[13].AsString  :=  trim(EdNovolote.Text);
-      SqlAux1.Params[14].Value     :=  SqlSdx4sdx_qtprod.value;
-      SqlAux1.Params[15].Value     :=  SqlSdx4sdx_dtmov.Value;
+      SqlAux1.ParamByName('numreg').AsString := EdNovReg.Text;
+
+      SqlAux1.ParamByName('numobj2').AsString := sigla_obj + num_obj + dv + 'BR';
+
+      SqlAux1.ParamByName('numobj1').AsString := 'AR'+ num_obj + dv + sigla_prod;
+
+      SqlAux1.ParamByName('codusu').AsString := sqlcga_acessocodigo.AsString;
+      SqlAux1.ParamByName('sdx_valdec').AsFloat := SqlSdx4sdx_valdec.Value;
+      SqlAux1.ParamByName('sdx_seqcarga').AsInteger := StrToInt64(EdNovolote.Text);
+      SqlAux1.ParamByName('qtprod').AsInteger :=  SqlSdx4sdx_qtprod.value;
+      SqlAux1.ParamByName('sdx_dtmov').AsString := FormatDateTime('yyyy-mm-dd', SqlSdx4sdx_dtmov.Value);
       try
         SqlAux1.ExecSQL;
         EdNovoEnd.Text  :=  SqlTbBradDeptosender.Text;
         EdNovoEnd.Refresh;
+
         SqlAux1.Close;
         SqlAux1.SQL.Clear;
-        SqlAux1.SQL.Add('update tbsdx_ect set tbsdx_use = ''S'' where (tbsdxect_num = :num)');
-        SqlAux1.Params[0].AsString  :=  SqlAux3.Fields[0].AsString;
+
+        SqlAux1.SQL.Add('UPDATE tbsdx_ect SET tbsdx_use = :use ' +
+                          'WHERE tbsdxect_num = :numobj AND tbsdxect_prod = :prod');
+        SqlAux1.ParamByName('use').AsString := 'S';
+        SqlAux1.ParamByName('numobj').AsString := num_obj;
+        SqlAux1.ParamByName('prod').AsInteger := CboProdutoServSedex.KeyValue;
         SqlAux1.ExecSQL;
-      except on e:exception do
-        begin
-          Application.MessageBox(PChar(e.Message),'ADS',ID_OK);
-          exit;
+        if (SqlAux1.RowsAffected < 1 ) then
+          raise Exception.Create('Numero de objeto ' + sigla_obj + num_obj +
+              dv + 'BR' + ' não pode ser marcado como utilizado.');
+
+        SqlAux1.Close;
+        SqlAux1.SQL.Clear;
+        // Marcar o motivo de devolução no objeto anterior
+        SqlAux1.SQL.Add('UPDATE tbsdx02 SET sdx_codbxa = :motivo '+
+                          'WHERE sdx_numobj2 = :numobj2');
+        SqlAux1.ParamByName('motivo').AsInteger := DBCboBaixa.KeyValue;
+        SqlAux1.ParamByName('numobj2').AsString := SqlSdx4sdx_numobj2.Value;
+        SqlAux1.ExecSQL;
+        if (SqlAux1.RowsAffected < 1 ) then
+          raise Exception.Create('Ocorreu um erro ao tentar informar o motivo de ' +
+            'devolução para o objeto ' + SqlSdx4sdx_numobj2.Value + #13#10 +
+            'O processo foi abortado.');
+
+        // Tudo OK
+        EdNovoAr.Text := sigla_obj + num_obj + dv + 'BR';
+        EdNovoAr.Refresh;
+        except on e: Exception do
+          begin
+            application.MessageBox(PChar('Ocorreu um erro fatal ao tentar ' +
+                'vincular um numero de objeto. Detalhes: '+ e.Message + chr(10) +
+                'Nro Objeto: ' + sigla_obj + num_obj + dv + 'BR'), 'Ads', MB_OK + MB_ICONERROR);
+            exit;
+          end;
         end;
-      end;
     end;
 
 end;
@@ -364,14 +418,13 @@ end;
 procedure TFrmRemessaSedex.BtnSalvaClick(Sender: TObject);
 var i:Integer;
 begin
-//  Timer1.Enabled := false;
-//      EdPeso.Text        := FormatFloat('#,##0.000;0;0', StrToint(EdPeso.Text)/1000);
-{  if (trim(Edcodcxa.Text) = '') or (vernum(Edcodcxa.Text) = false) then
+  if trim(EdObjeto.Text) = '' then
     begin
-      //Application.MessageBox(Pchar('Digite ou Leia o Código da Caixa !'),'ADS',ID_OK);
-     // Edcodcxa.SetFocus;
-    end
-  else}
+      Application.MessageBox('Digite o Número de Objeto', 'ADS', ID_OK);
+      EdObjeto.SetFocus;
+      exit;
+    end;
+
     calcvol;
     mpeso       :=  EdPeso.Text;
 
@@ -380,67 +433,65 @@ begin
     else
       pescal  :=  pescub;
 
-
   calcvalor;
 
-  if trim(EdObjeto.Text) = '' then
-    begin
-      Application.MessageBox('Digite Ar','ADS',ID_OK);
-      EdObjeto.SetFocus;
-      exit;
-    end;
+  // Início Calculo DV CEP
   v_soma := 0;
-  i := 0;
-  //    mcep  :=  MkEdCep.Text
-  for i:= 1 to 8 do
-    v_soma := v_soma + strtoint(copy(MkEdCep.Text,i,1));
-  v_soma := strtoint(copy(intTostr(v_soma),length(inttostr(v_soma)),1));
-  if v_soma = 0 then
-    CEPr := MkEdCep.Text + '0'
-  else
-    begin
+  for i:= 1 to Length(MkEdCep.Text) do
+    v_soma := v_soma + StrToInt(copy(MkEdCep.Text, i, 1));
+
+  v_soma := v_soma mod 10;
+  if v_soma > 0 then
       v_soma := 10 - v_soma;
-      CEPr := '/'+MkEdCep.Text + intToStr(v_soma)+'\';
-    end;
+
+  CEPr := Format('/%s%d\', [MkEdCep.Text, v_soma]);
+  // Fim Calculo DV CEP
+
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('update tbsdx02 ');
-      SqlAux1.SQL.Add('set sdx_cepnet = :cepnet,sdx_valor = :valor,sdx_peso = :peso,sdx_qtde = :qtde,sdx_tvalor = :tvalor,');
-      SqlAux1.SQL.Add('sdx_dtenvio = (select current_date)');
-      case FrmRemessaSedex.Tag of
-        0..2  : SqlAux1.SQL.Add(',sdx_valar = (select distinct(tbsdxserv_txasrv) from tbsdxserv where (tbsdxserv_prod in(0,1,1660)))');
-      end;
-      SqlAux1.SQL.Add(',sdx_porc = 0.003,sdx_valmin = 275.00, sdx_difval = :valdif,sdx_horaenvio = (select current_time(0)),');
-      SqlAux1.SQL.Add('sdx_bas = :bas,sdx_cmp = :cmp,sdx_alt = :alt,sdx_pescub = :pescub,sdx_codcxa = :codcxa ');
-      SqlAux1.SQL.Add('where (sdx_numobj = :numboj) ');
-      SqlAux1.Params[00].AsString  :=  cepr;
-      SqlAux1.Params[01].AsString  :=  VirgPonto2(EdValor.Text);
-      SqlAux1.Params[02].AsString  :=  U_Func.VirgPonto2(EdPeso.Text);
-      SqlAux1.Params[03].AsString  :=  VirgPonto2(EdVol.Text);
-      SqlAux1.Params[04].AsFloat   :=  vvalor;
-      if  SqlSdx4sdx_valdec.Value  > 275.00 then
-        SqlAux1.Params[05].AsFloat   :=  (SqlSdx4sdx_valdec.Value-275.00)
-      else
-        SqlAux1.Params[05].AsFloat   :=  0;
-      SqlAux1.Params[06].AsString  :=  VirgPonto2(Edbas.Text);
-      SqlAux1.Params[07].AsString  :=  VirgPonto2(Edcpm.Text);
-      SqlAux1.Params[08].AsString  :=  VirgPonto2(Edalt.Text);
-      SqlAux1.Params[09].AsFloat   :=  pescal;
-      SqlAux1.Params[10].AsInteger :=  codcxa;
-      SqlAux1.Params[11].AsString  :=  copy(EdObjeto.Text,3,9);//SqlSdx4sdx_valdec.Value  > 275.00
+      SqlAux1.SQL.Add('UPDATE tbsdx02 ');
+      SqlAux1.SQL.Add('SET sdx_cepnet = E:cepnet, sdx_valor = :valor, ');
+      SqlAux1.SQL.Add('sdx_peso = :peso, sdx_qtde = :qtde, sdx_tvalor = :tvalor,');
+      SqlAux1.SQL.Add('sdx_dtenvio = CURRENT_DATE, sdx_valar = :valar, ');
+      { TODO : Procurar saber o que é esse porc com valor de 0.003 }
+      SqlAux1.SQL.Add('sdx_porc = 0.003, sdx_valmin = 275.00, ');
+      SqlAux1.SQL.Add('sdx_difval = :valdif, sdx_horaenvio = CURRENT_TIME,');
+      SqlAux1.SQL.Add('sdx_bas = :bas, sdx_cmp = :cmp, sdx_alt = :alt, ');
+      SqlAux1.SQL.Add('sdx_pescub = :pescub, sdx_codcxa = :codcxa ');
+      SqlAux1.SQL.Add('WHERE sdx_numobj2 = :numboj2 ');
+      SqlAux1.ParamByName('cepnet').AsString := CEPr;
+      SqlAux1.ParamByName('valor').AsFloat := Moeda2Float(EdValor.Text);
+      SqlAux1.ParamByName('peso').AsFloat := Moeda2Float(EdPeso.Text);
+      SqlAux1.ParamByName('qtde').AsInteger := StrToInt(EdVol.Text);
+      SqlAux1.ParamByName('valor').AsFloat := vvalor;
+      SqlAux1.ParamByName('valar').AsFloat := SqlSdxServtbsdxserv_txasrv.Value;
+      SqlAux1.ParamByName('valdif').AsFloat := max(0, (SqlSdx4sdx_valdec.Value - 275.00));
+      SqlAux1.ParamByName('bas').AsFloat := Moeda2Float(Edbas.Text);
+      SqlAux1.ParamByName('cmp').AsFloat := Moeda2Float(Edcpm.Text);
+      SqlAux1.ParamByName('alt').AsFloat := Moeda2Float(Edalt.Text);
+      SqlAux1.ParamByName('pescub').AsFloat := pescal;
+      SqlAux1.ParamByName('codcxa').AsInteger := codcxa;
+      SqlAux1.ParamByName('numboj2').AsString := EdObjeto.Text;
       try
-//       inputbox('','',SqlAux1.SQL.Text);
         SqlAux1.ExecSQL;
-        Timer1.Enabled  :=  false;
+        if SqlAux1.RowsAffected > 0 then
+          Application.MessageBox('Informações alteradas com sucesso!', 'ADS', ID_OK)
+        else
+          Application.MessageBox('Nenhum dado foi alterado"!', 'ADS', ID_OK);
+
+        SqlAux1.Close;
+
+        Timer1.Enabled := false;
         limpa;
         FinalizaLeitura(0);
         EdObjeto.SetFocus;
       except on e: exception do
         begin
-          Application.MessageBox(PChar('Erro: '+e.Message+chr(10)+'Verifique com o CPD'),'ADS',ID_OK);
-          EdJuncao.SetFocus;
+          Application.MessageBox(PChar('Erro: ' + e.Message + chr(10) +
+              'Verifique com o CPD'),'ADS',ID_OK);
+          EdObjeto.SetFocus;
           exit;
         end;
       end;
@@ -515,18 +566,19 @@ end;
 
 procedure TFrmRemessaSedex.EdJuncaoKeyPress(Sender: TObject; var Key: Char);
 begin
-  if key = #13 then
+  if (key = #13) and (trim(EdJuncao.Text) <> '') then
     begin
       if vernum(EdJuncao.Text) =  true then
         begin
           verag;
-          EdJuncao.Text :=  GeraNT(EdJuncao.Text,4);
+          EdJuncao.Text :=  GeraNT(EdJuncao.Text, 4);
+          EdObjeto.Clear;
           objtbsdx02(1);
           DBGrid001.SetFocus;
         end
       else
         begin
-          Application.MessageBox(PChar('Digite números'),'ADS',ID_OK);
+          Application.MessageBox(PChar('Digite números'), 'ADS', ID_OK);
           EdJuncao.SetFocus;
           Exit;
         end;
@@ -538,26 +590,28 @@ procedure TFrmRemessaSedex.EdnrocxaKeyPress(Sender: TObject; var Key: Char);
 begin
   if (Key = #13) then
     proccxa(0);
-  
+
 end;
 
 procedure TFrmRemessaSedex.EdObjetoKeyPress(Sender: TObject; var Key: Char);
 begin
-  if key = #13 then
+  if (key = #13) and  (Length(EdObjeto.Text) > 10) then
     begin
-      if vernum(copy(EdObjeto.Text,3,9)) =  true then
+      if vernum(copy(EdObjeto.Text, 3, 9)) =  true then
         begin
+          EdJuncao.Clear;
           objtbsdx02(0);
-          selcxa:=false;
-          if Tag in [0..2] then
+          selcxa := false;
+          if Tag = 9 then
             Ednrocxa.SetFocus
-            //EdVol.SetFocus
           else
             BtnReenv.SetFocus;
         end
       else
         begin
-          Application.MessageBox(PChar('Erro Ler Ou Digite Novamente'),'ADS',ID_OK);
+          Application.MessageBox(PChar(EdObjeto.Text + ' não é um número ' +
+              'de objeto ou AR válido. Tente novamente.'),
+            'ADS',  ID_OK);
           EdObjeto.Clear;
           EdObjeto.SetFocus;
           Exit;
@@ -575,11 +629,8 @@ begin
 procedure TFrmRemessaSedex.EdPesoKeyPress(Sender: TObject; var Key: Char);
 begin
   if key = #13 then
-    begin
- //     EdPeso.Text        := FormatFloat('#,##0.000;0;0', StrToint(EdPeso.Text)/1000);
-//      mpeso       :=  EdPeso.Text;
-//      calcvalor;
-    end;
+    if FrmRemessaSedex.Tag = 9 then
+      BtnSalva.SetFocus;
 end;
 procedure TFrmRemessaSedex.calcvol;
 begin
@@ -630,8 +681,6 @@ begin
       Ednrocxa.SetFocus;
       exit;
     end;
-  //
-  //
 end;
 
 procedure TFrmRemessaSedex.EdVolEnter(Sender: TObject);
@@ -639,13 +688,14 @@ begin
   if (selcxa = false) then
     proccxa(1);
 end;
+
 procedure TFrmRemessaSedex.proccxa(tipo:Integer);
 begin
   with Dm do
     begin
       if (trim(Ednrocxa.Text) = '') or (vernum(Ednrocxa.Text) = false) then
         begin
-          Application.MessageBox(Pchar('Digite ou Leia o Código da Caixa !'),'ADS',ID_OK);
+          Application.MessageBox(Pchar('Digite ou Leia o Código da Caixa !'), 'ADS', ID_OK);
           Ednrocxa.SetFocus;
         end
       else
@@ -654,30 +704,35 @@ begin
             begin
               SqlAux1.Close;
               SqlAux1.SQL.Clear;
-              SqlAux1.SQL.Add('select * from tbcadcaixa where (nrocxa='+chr(39)+Ednrocxa.Text+chr(39)+') limit 1');
+              SqlAux1.SQL.Add('SELECT t.id_cxa, t.nrocxa, t.cmpcxa, ');
+              SqlAux1.SQL.Add('  t.bascxa, t.altcxa, t.volcxa ');
+              SqlAux1.SQL.Add('FROM tbcadcaixa t ');
+              SqlAux1.SQL.Add('WHERE t.nrocxa = :nrocxa ');
+              SqlAux1.SQL.Add('LIMIT 1');
+              SqlAux1.ParamByName('nrocxa').AsString := Ednrocxa.Text;
               SqlAux1.Open;
               case SqlAux1.RecordCount of
                 1:
                   begin
-                    codcxa          :=  SqlAux1.Fields[0].AsInteger;
+                    codcxa          :=  SqlAux1.FieldByName('id_cxa').AsInteger;
                     Edbas.Enabled   :=  false;
                     Edcpm.Enabled   :=  false;
                     Edalt.Enabled   :=  false;
-                    Edbas.Text      :=  FormatFloat('##0.00;;',SqlAux1.Fields[2].AsFloat);
-                    Edcpm.Text      :=  FormatFloat('##0.00;;',SqlAux1.Fields[3].AsFloat);
-                    Edalt.Text      :=  FormatFloat('##0.00;;',SqlAux1.Fields[4].AsFloat);
+                    Edbas.Text      :=  FormatFloat('##0.00;;', SqlAux1.FieldByName('bascxa').AsFloat);
+                    Edcpm.Text      :=  FormatFloat('##0.00;;', SqlAux1.FieldByName('cmpcxa').AsFloat);
+                    Edalt.Text      :=  FormatFloat('##0.00;;', SqlAux1.FieldByName('altcxa').AsFloat);
                     EdVol.SetFocus;
                   end;
                 else
                   begin
-                    codcxa          :=  SqlAux1.Fields[0].AsInteger;
+                    codcxa          :=  SqlAux1.FieldByName('id_cxa').AsInteger;
                     Edbas.Enabled   :=  true;
                     Edcpm.Enabled   :=  true;
                     Edalt.Enabled   :=  true;
                     Edbas.SetFocus;
                   end;
               end;
-              selcxa:=true;
+              selcxa := true;
             end;
         end;
     end;
@@ -710,36 +765,63 @@ begin
     begin
       SqlSdx4.Close;
       SqlSdx4.SQL.Clear;
-      SqlSdx4.SQL.Add('select * from tbsdx02 where (sdx_siglaobj = :sigla) and (sdx_dtcarga = (select current_date)) ');
-      case FrmRemessaSedex.Tag of
-        0,3:  SqlSdx4.Params[0].AsString  :=  'OL';//
-        1,4:  SqlSdx4.Params[0].AsString  :=  'KD';//'TC';//
-        2,5:  SqlSdx4.Params[0].AsString  :=  'KE';//'TK';//
-      end;
-      if FrmRemessaSedex.tag in [3..5] then
+      SqlSdx4.SQL.Add('SELECT t.*, ' +
+        's.tbsdxserv_sigla, s.tbsdxserv_dsc, s.tbsdxserv_prod, ' +
+        'd.bxasdx_dscbxa');
+      SqlSdx4.SQL.Add('FROM public.tbsdx02 t ');
+      SqlSdx4.SQL.Add('    INNER JOIN public.tbsdx_ect e ON ' +
+            '(t.sdx_numobj2 = e.tbsdxect_sigla || ' +
+            'e.tbsdxect_num || e.tbsdxect_dv || ''BR'') ');
+      SqlSdx4.SQL.Add('    INNER JOIN public.tbsdxserv s ON ' +
+            '(e.tbsdxect_prod = s.tbsdxserv_prod)');
+      SqlSdx4.SQL.Add('    LEFT JOIN public.tbbxasdx d ON ' +
+            '(t.sdx_codbxa = d.bxasdx_codbxa)');
+      SqlSdx4.SQL.Add('ORDER BY t.sdx_dtcarga DESC LIMIT 10	');
+
+
+      dm.SqlSdxServ.Close;
+      dm.SqlSdxServ.SQL.Clear;
+      dm.SqlSdxServ.SQL.Add('SELECT t.* FROM public.tbsdxserv t ');
+      dm.SqlSdxServ.Open;
+      CboProdutoServSedex.Refresh;
+      // Reenvio
+      if FrmRemessaSedex.tag = 8 then
         begin
-          BtnReenv.Enabled  :=  true;
-          BtnSalva.Enabled  :=  false;
-          EdJuncao.Enabled  :=  true;
-          EdJuncao.ReadOnly :=  false;
-          BtnAltera.Enabled :=  true;
-        end;
-      if FrmRemessaSedex.tag in [6] then
-        begin
-          EdJuncao.Enabled  :=  true;
-          EdJuncao.ReadOnly :=  false;
-          BtnSalva.Enabled  :=  false;
-          Sqltbbxasdx.Close;
-          Sqltbbxasdx.SQL.Clear;
-          Sqltbbxasdx.SQL.Add('select * from tbbxasdx ');
+          EdJuncao.Enabled  := True;
+          EdJuncao.ReadOnly := False;
+          BtnReenv.Enabled := True;
+          // Combo de Motivos de Devolução
           Sqltbbxasdx.Open;
-          //DBCboBaixa.Enabled  :=  true;
+          if (Sqltbbxasdx.RecordCount > 0) then
+            begin
+              DBCboBaixa.Enabled  :=  true;
+              DBCboBaixa.Refresh;
+            end;
+          // Grid de Ultimos Registros criados ou resultado de pesquisas
+          SqlSdx4.Open;
+          if (SqlSdx4.RecordCount > 0) then
+            begin
+              SqlSdx4.First;
+              DBGrid001.Refresh;
+            end;
+        end
+      // Pesagem
+      else if FrmRemessaSedex.Tag = 9 then
+        begin
+          BtnSalva.Enabled  := true;
+          BtnAltera.Enabled := true;
+        end
+      // Consulta 
+      else if FrmRemessaSedex.Tag = 6 then
+        begin
+          EdJuncao.Enabled  := True;
+          EdJuncao.ReadOnly := False;
         end;
-      SqlSdx4.Open;
-      SqlSdx4.First;
-      DBGrid001.Refresh;
+
+
     end;
 end;
+
 procedure TFrmRemessaSedex.verag;
 begin
   with dm do
@@ -756,109 +838,89 @@ begin
         EdNovoEnd.Text   := SqlTbBradDeptosender.Text;
         EdNovaCid.Text   := SqlTbBradDeptoscidade.Text;
         EdNovaUF.Text    := SqlTbBradDeptosuf.Text;
-        MkEdNovoCep.Text := copy(SqlTbBradDeptoscep.Text,1,5)+copy(SqlTbBradDeptoscep.Text,7,3);
+        MkEdNovoCep.Text := SqlTbBradDeptoscep.Text;
       end
     else  if SqlTbBradDeptos.RecordCount > 1 then
       begin
-        Application.MessageBox(Pchar('Verificar Junto ao Cpd'+chr(10)+'Mais de Uma Agência Encontrada'),'ADS',ID_OK);
+        Application.MessageBox(Pchar('Verificar Junto ao Cpd' + chr(10) +
+              'Mais de Uma Agência Encontrada'),'ADS',ID_OK);
         EdJuncao.SetFocus;
         exit;
       end
     else
       begin
-        Application.MessageBox(Pchar('Verificar Junto ao Cpd'+chr(10)+'Agencia Não Encontrada'),'ADS',ID_OK);
+        Application.MessageBox(Pchar('Verificar Junto ao Cpd' + chr(10) +
+              'Agencia Não Encontrada'),'ADS',ID_OK);
         EdJuncao.SetFocus;
         exit;
       end
   end;
 end;
+
 procedure TFrmRemessaSedex.atuddsag(tipo: integer);
 begin
-  with dm do
-    begin
-      EdObjeto.Text :=  SqlSdx4sdx_numobj4.Text;
-      case tipo of
-        0:  begin
-              EdJuncao.Text :=  copy(SqlSdx4sdx_nomdest.Text,1,4);
-              EdDpto.Text        :=  SqlSdx4sdx_nomdest.Text;
-              EdEnd.Text         :=  SqlSdx4sdx_endedest.Text;
-              EdCid.Text         :=  SqlSdx4sdx_cidade.Text;
-              EdUF.Text          :=  SqlSdx4sdx_uf.Text;
-              MkEdCep.Text       :=  SqlSdx4sdx_cep.Text;
-              EdVol.Text         :=  SqlSdx4sdx_qtde.AsString;
-              EdPeso.Text        :=  FormatFloat('#,##0.000;;',SqlSdx4sdx_peso.AsFloat);
-              EdValor.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valor.AsFloat);
-              EdVvalor.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_tvalor.AsFloat);
-              Edvaldec.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valdec.AsFloat);
-              EdSeqCarga.Text    :=  SqlSdx4sdx_seqcarga.AsString;
-              EdValAr.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valar.AsFloat);
-              EdValMin.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valmin.AsFloat);
-              EdPorc.Text        :=  FormatFloat('#,##0.000;;',SqlSdx4sdx_porc.AsFloat);
-              EdAdVal.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_difval.AsFloat);
-              EdReg.Text         :=  SqlSdx4sdx_numseqreg.Text;
-              EdQtde.Text        :=  SqlSdx4sdx_qtprod.Text;
-              MkEdDtMov.Text     :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtmov.Value);
-              MkEdCarga.text     :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtcarga.Value);
-              Ednrocxa.Text      :=  SqlSdx4sdx_codcxa.AsString;
-              Edbas.Text         :=  SqlSdx4sdx_bas.AsString;
-              Edcpm.Text         :=  SqlSdx4sdx_cmp.AsString;
-              Edalt.Text         :=  SqlSdx4sdx_alt.Text;
-            end;
-        1:  begin
-              EdJuncao.Text      :=  copy(SqlSdx4sdx_nomdest.Text,1,4);
-              EdDpto.Text        :=  SqlSdx4sdx_nomdest.Text;
-              EdEnd.Text         :=  SqlSdx4sdx_endedest.Text;
-              EdCid.Text         :=  SqlSdx4sdx_cidade.Text;
-              EdUF.Text          :=  SqlSdx4sdx_uf.Text;
-              MkEdCep.Text       :=  SqlSdx4sdx_cep.AsString;
-              EdVol.Text         :=  SqlSdx4sdx_qtde.AsString;
-              EdPeso.Text        :=  FormatFloat('#,##0.000;;',SqlSdx4sdx_peso.AsFloat);
-              EdValor.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valor.AsFloat);
-              EdVvalor.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_tvalor.AsFloat);
-              Edvaldec.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valdec.AsFloat);
-              EdSeqCarga.Text    :=  SqlSdx4sdx_seqcarga.AsString;
-              EdValAr.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valar.AsFloat);
-              EdValMin.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valmin.AsFloat);
-              EdPorc.Text        :=  FormatFloat('#,##0.000;;',SqlSdx4sdx_porc.AsFloat);
-              EdAdVal.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_difval.AsFloat);
-              EdReg.Text         :=  SqlSdx4sdx_numseqreg.Text;
-              EdQtde.Text        :=  SqlSdx4sdx_qtprod.Text;
-              MkEdDtMov.Text     :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtmov.Value);
-              MkEdCarga.text     :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtcarga.Value);
-              Ednrocxa.Text      :=  SqlSdx4sdx_codcxa.AsString;
-              Edbas.Text         :=  FormatFloat('##0.00;;',SqlSdx4sdx_bas.AsFloat);
-              Edcpm.Text         :=  FormatFloat('##0.00;;',SqlSdx4sdx_cmp.AsFloat);
-              Edalt.Text         :=  FormatFloat('##0.00;;',SqlSdx4sdx_alt.AsFloat);
-            end;
-      end;
-      if (SqlSdx4sdx_dtenvio.Value > 0) then
-        MkEdDtEnvio.Text   :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtenvio.Value)
-      else
-        MkEdDtEnvio.Clear;
-      if (SqlSdx4sdx_dtbaixa.Value > 0) then
-        MkEdBaixa.Text   :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtbaixa.Value)
-      else
-        MkEdBaixa.Clear;
+//  if dm.SqlSdx4sdx_numobj4.Text <> '' then
+    with dm do
+      begin
+        EdObjeto.Text :=  SqlSdx4sdx_numobj2.Text;
 
-      if (SqlSdx4.RecordCount > 0) then
-        begin
-          if (FrmRemessaSedex.Tag in[6]) then
-            begin
-              DBCboBaixa.KeyValue :=  SqlSdx4sdx_codbxa.Value;
-              DBCboBaixa.Refresh;
-            end
-          else
-            EdNovoLote.Text   :=  IntToStr(StrToInt(EdSeqCarga.Text)+1)+gerant(formatdatetime('hhmm',Time),4);
-        end;
-    end;
+        // tipo = 0 ou 1
+        EdJuncao.Text      :=  copy(SqlSdx4sdx_nomdest.Text,1,4);
+        EdDpto.Text        :=  SqlSdx4sdx_nomdest.Text;
+        EdEnd.Text         :=  SqlSdx4sdx_endedest.Text;
+        EdCid.Text         :=  SqlSdx4sdx_cidade.Text;
+        EdUF.Text          :=  SqlSdx4sdx_uf.Text;
+        MkEdCep.Text       :=  SqlSdx4sdx_cep.Text;
+        EdVol.Text         :=  SqlSdx4sdx_qtde.AsString;
+        EdPeso.Text        :=  FormatFloat('#,##0.000;;',SqlSdx4sdx_peso.AsFloat);
+        EdValor.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valor.AsFloat);
+        EdVvalor.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_tvalor.AsFloat);
+        Edvaldec.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valdec.AsFloat);
+        EdValAr.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valar.AsFloat);
+        EdValMin.Text      :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_valmin.AsFloat);
+        EdSeqCarga.Text    :=  SqlSdx4sdx_seqcarga.AsString;
+        EdPorc.Text        :=  FormatFloat('#,##0.000;;',SqlSdx4sdx_porc.AsFloat);
+        EdAdVal.Text       :=  FormatFloat('#,##0.00;;',SqlSdx4sdx_difval.AsFloat);
+        EdReg.Text         :=  SqlSdx4sdx_numseqreg.Text;
+        EdQtde.Text        :=  SqlSdx4sdx_qtprod.Text;
+        MkEdDtMov.Text     :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtmov.Value);
+        MkEdCarga.text     :=  FormatDateTime('dd/mm/yyyy',SqlSdx4sdx_dtcarga.Value);
+        Ednrocxa.Text      :=  SqlSdx4sdx_codcxa.AsString;
+        Edbas.Text         :=  FormatFloat('##0.00;;', SqlSdx4sdx_bas.AsFloat);
+        Edcpm.Text         :=  FormatFloat('##0.00;;', SqlSdx4sdx_cmp.AsFloat);
+        Edalt.Text         :=  FormatFloat('##0.00;;', SqlSdx4sdx_alt.AsFloat);
+        CboProdutoServSedex.KeyValue := SqlSdx4tbsdxserv_codprod.Value;
+
+        if (SqlSdx4sdx_dtenvio.Value > 0) then
+          MkEdDtEnvio.Text :=  FormatDateTime('dd/mm/yyyy', SqlSdx4sdx_dtenvio.Value)
+        else
+          MkEdDtEnvio.Clear;
+
+        if (SqlSdx4sdx_dtbaixa.Value > 0) then
+          MkEdBaixa.Text :=  FormatDateTime('dd/mm/yyyy', SqlSdx4sdx_dtbaixa.Value)
+        else
+          MkEdBaixa.Clear;
+
+        if (SqlSdx4.RecordCount > 0) then
+          begin
+            if (FrmRemessaSedex.Tag in[6]) then
+              begin
+                DBCboBaixa.KeyValue :=  SqlSdx4sdx_codbxa.Value;
+                DBCboBaixa.Refresh;
+              end
+            else
+              EdNovoLote.Text   :=  IntToStr(StrToInt(EdSeqCarga.Text)+1)+gerant(formatdatetime('hhmm',Time),4);
+          end;
+      end;
 end;
+
 procedure TFrmRemessaSedex.calcvalor;
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('select tb_valtxaar from tbtxaar');
+      SqlAux1.SQL.Add('SELECT tb_valtxaar FROM tbtxaar');
       SqlAux1.Open;
       txcor :=  SqlAux1.Fields[00].Value; // taxa de Serviço AR - Correio
     end;
@@ -870,13 +932,15 @@ begin
     calcdiv;
 
 end;
+
 procedure TFrmRemessaSedex.calclocal;
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('select tb_pesosdxlocval from tbsdxprecoloc where (:peso between tb_pesosdxlocini and tb_pesosdxlocfin)');
+      SqlAux1.SQL.Add('SELECT tb_pesosdxlocval FROM tbsdxprecoloc ');
+      SqlAux1.SQL.Add('WHERE (:peso between tb_pesosdxlocini AND tb_pesosdxlocfin)');
 //      SqlAux1.Params[0].AsString  := VirgPonto2(EdPeso.Text);
       SqlAux1.Params[0].Value :=   pescal;
       SqlAux1.Open;
@@ -890,20 +954,25 @@ begin
       EdVValor.Text  :=  FormatFloat('#,##0.00;;',vvalor)
     end;
 end;
+
 procedure TFrmRemessaSedex.calcdiv;
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('select tb_ufdiv from tbcepdivisa where (:cep between tb_cepini and tb_cepfin) and (tb_ufdiv = :uf) limit 1');
+      SqlAux1.SQL.Add('SELECT tb_ufdiv FROM tbcepdivisa ');
+      SqlAux1.SQL.Add('WHERE (:cep BETWEEN tb_cepini AND tb_cepfin) ');
+      SqlAux1.SQL.Add('   AND (tb_ufdiv = :uf) LIMIT 1');
       SqlAux1.Params[0].AsString  :=  MkEdCep.Text;
       SqlAux1.Params[1].AsString  :=  EdUF.Text;
       SqlAux1.Open;
       uf := SqlAux1.Fields[0].AsString;
       SqlAux2.Close;
       SqlAux2.SQL.Clear;
-      SqlAux2.SQL.Add('select tb_pesosdxdivval from tbsdxprecodiv where (:peso between tb_pesosdxdivini and tb_pesosdxdivfin) and (tb_ufsdxprcdiv = :uf)');
+      SqlAux2.SQL.Add('SELECT tb_pesosdxdivval FROM tbsdxprecodiv ');
+      SqlAux2.SQL.Add('WHERE (:peso BETWEEN tb_pesosdxdivini AND tb_pesosdxdivfin) ');
+      SqlAux2.SQL.Add('    AND (tb_ufsdxprcdiv = :uf)');
 //      SqlAux2.Params[0].AsString  :=  VirgPonto2(EdPeso.Text);
       SqlAux2.Params[0].Value     :=   pescal;
       SqlAux2.Params[1].AsString  :=  SqlAux1.Fields[0].AsString;
@@ -929,14 +998,18 @@ begin
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('select tb_cepcapuf from tbcepcap where (:cep between tb_cepcapcepini and tb_cepcapcepfin) and (tb_cepcapuf = :uf) limit 1');
+      SqlAux1.SQL.Add('SELECT tb_cepcapuf FROM tbcepcap ');
+      SqlAux1.SQL.Add('WHERE (:cep BETWEEN tb_cepcapcepini AND tb_cepcapcepfin) ');
+      SqlAux1.SQL.Add('    AND (tb_cepcapuf = :uf) LIMIT 1');
       SqlAux1.Params[0].AsString  :=  MkEdCep.Text;
       SqlAux1.Params[1].AsString  :=  EdUF.Text;
       SqlAux1.Open;
       uf := SqlAux1.Fields[0].AsString;
       SqlAux2.Close;
       SqlAux2.SQL.Clear;
-      SqlAux2.SQL.Add('select tb_pesosdxval from tbsdxprecouf where (:peso between tb_pesosdxini and tb_pesosdxfin) and (tb_ufsdxprc = :uf)');
+      SqlAux2.SQL.Add('SELECT tb_pesosdxval FROM tbsdxprecouf ');
+      SqlAux2.SQL.Add('WHERE (:peso BETWEEN tb_pesosdxini AND tb_pesosdxfin) ');
+      SqlAux2.SQL.Add('    AND (tb_ufsdxprc = :uf)');
 //      SqlAux2.Params[0].AsString  :=  VirgPonto2(EdPeso.Text);
       SqlAux2.Params[0].Value     :=   pescal;
       SqlAux2.Params[1].AsString  :=  SqlAux1.Fields[0].AsString;
@@ -955,20 +1028,25 @@ begin
         calcint;
     end;
 end;
+
 procedure TFrmRemessaSedex.calcint;
 begin
   with Dm do
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('select tb_ufint from tbcepinterior where (:cep between tb_cepini and tb_cepfin) and (tb_ufint = :uf) limit 1');
+      SqlAux1.SQL.Add('SELECT tb_ufint FROM tbcepinterior ');
+      SqlAux1.SQL.Add('WHERE (:cep BETWEEN tb_cepini and tb_cepfin) ');
+      SqlAux1.SQL.Add('   AND (tb_ufint = :uf) LIMIT 1');
       SqlAux1.Params[0].AsString  :=  MkEdCep.Text;
       SqlAux1.Params[1].AsString  :=  EdUF.Text;
       SqlAux1.Open;
       uf := SqlAux1.Fields[0].AsString;
       SqlAux2.Close;
       SqlAux2.SQL.Clear;
-      SqlAux2.SQL.Add('select tb_pesosdxval from tbsdxprecoint where (:peso between tb_pesosdxini and tb_pesosdxfin) and (tb_ufsdxprc = :uf)');
+      SqlAux2.SQL.Add('SELECT tb_pesosdxval FROM tbsdxprecoint ');
+      SqlAux2.SQL.Add('WHERE (:peso BETWEEN tb_pesosdxini AND tb_pesosdxfin) ');
+      SqlAux2.SQL.Add('AND (tb_ufsdxprc = :uf)');
 //      SqlAux2.Params[0].AsString  :=  VirgPonto2(EdPeso.Text);
       SqlAux2.Params[0].Value :=   pescal;
       SqlAux2.Params[1].AsString  :=  EdUF.Text;
@@ -1007,7 +1085,7 @@ begin
   EdCid.Clear;
   EdUF.Clear;
   MkEdCep.Clear;
-  //EdPeso.Clear;
+  EdPeso.Clear;
   EdVol.Clear;
   EdValor.Clear;
   EdValor.Clear;
@@ -1025,6 +1103,7 @@ begin
   Edcpm.Clear;
   Edalt.Clear;
 end;
+
 procedure TFrmRemessaSedex.verobj;
 begin
   with dm do
@@ -1052,17 +1131,38 @@ begin
       DBGrid001.Refresh;
     end;
 end;
+
 procedure TFrmRemessaSedex.objtbsdx02(Tipo:Integer);
 begin
   with dm do
     begin
-//      selcga77 :=  'select cg77_ag,cg77_qtd from cga77 where (cg77_dtb = :dtb) limit 1';
       SqlSdx4.Close;
       SqlSdx4.SQL.Clear;
-      SqlSdx4.SQL.Add('select * from tbsdx02 ');
+      SqlSdx4.SQL.Add('SELECT t.*, ' +
+        's.tbsdxserv_sigla, s.tbsdxserv_dsc, s.tbsdxserv_prod, ' +
+        'd.bxasdx_dscbxa');
+      SqlSdx4.SQL.Add('FROM public.tbsdx02 t ');
+      SqlSdx4.SQL.Add('    INNER JOIN public.tbsdx_ect e ON ' +
+            '(t.sdx_numobj2 = e.tbsdxect_sigla || ' +
+            'e.tbsdxect_num || e.tbsdxect_dv || ''BR'') ');
+      SqlSdx4.SQL.Add('    INNER JOIN public.tbsdxserv s ON ' +
+            '(e.tbsdxect_prod = s.tbsdxserv_prod)');
+      SqlSdx4.SQL.Add('    LEFT JOIN public.tbbxasdx d ON ' +
+            '(t.sdx_codbxa = d.bxasdx_codbxa)');
+      SqlSdx4.SQL.Add('WHERE t.sdx_nomdest ILIKE :juncao ');
+      if (copy(EdObjeto.Text, 1, 2) = 'AR') then
+        SqlSdx4.SQL.Add('  AND t.sdx_numobj4 LIKE :obj')
+      else
+        SqlSdx4.SQL.Add('  AND t.sdx_numobj2 LIKE :obj');
+
+      SqlSdx4.SQL.Add('ORDER BY t.sdx_dtcarga DESC');
+      SqlSdx4.ParamByName('obj').AsString :=  EdObjeto.Text + '%';
+      SqlSdx4.ParamByName('juncao').AsString :=  EdJuncao.Text + '%';
+
+{*
       if (tipo = 0) then
         begin
-          SqlSdx4.SQL.Add('where (sdx_numobj = :dds) ');
+          SqlSdx4.SQL.Add('WHERE t.sdx_numobj = :dds ');
           SqlSdx4.ParamByName('dds').Text :=  copy(EdObjeto.Text,3,9);
         end
       else
@@ -1077,8 +1177,10 @@ begin
             SqlSdx4.ParamByName('sigla').Text := 'KD'//'TC'
           else if (FrmRemessaSedex.Tag = 5) then
             SqlSdx4.ParamByName('sigla').Text := 'KE';//'TK';
+
         end;
-      SqlSdx4.SQL.Add('order by sdx_dtcarga desc');
+*}
+
       SqlSdx4.Open;
       atuddsag(0);
       DBGrid001.Refresh;
@@ -1114,7 +1216,7 @@ begin
         EdPeso.Refresh;
     end
   else
-      ShowMessage('---------');
+      StsRemSdx.Panels[1].Text := '---------';
 end;
 
 end.

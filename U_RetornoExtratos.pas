@@ -8,37 +8,37 @@ uses
 
 type
   TFrmRetornoExtratos = class(TForm)
-    ScrollBox1: TScrollBox;
-    BtnGerar: TBitBtn;
-    BtnSair: TBitBtn;
-    PbProgresso: TProgressBar;
+    LabelTotal: TLabel;
+    LabelGravados: TLabel;
+    LabelLidos: TLabel;
+    LabelErros: TLabel;
+    GroupBoxPeridoCarga: TGroupBox;
+    LabelDtIni: TLabel;
+    LabelDtFin: TLabel;
+    DtPickerDtIni: TDateTimePicker;
+    DtPickerDtFin: TDateTimePicker;
     LCDTot: TStaticText;
     LCDLidos: TStaticText;
     LCDGrav: TStaticText;
-    Panel1: TPanel;
-    Panel2: TPanel;
-    Panel3: TPanel;
-    Panel4: TPanel;
     LCDErros: TStaticText;
-    Panel5: TPanel;
-    Panel6: TPanel;
-    PBConsistencia: TProgressBar;
-    Bevel1: TBevel;
-    Panel7: TPanel;
-    mkeddtini: TMaskEdit;
-    Panel8: TPanel;
-    mkeddtfin: TMaskEdit;
-    ChkGerarSeparado: TCheckBox;
     EdNumeroSeparador: TEdit;
+    ChkGerarSeparado: TCheckBox;
     ChkSepCodigoLeitura: TCheckBox;
-    LCDArqs: TStaticText;
-    Panel9: TPanel;
-    procedure FormKeyPress(Sender: TObject; var Key: Char);
+    PbProgresso: TProgressBar;
+    PBConsistencia: TProgressBar;
+    BtnFechar: TBitBtn;
+    BtnGerar: TBitBtn;
+    LabelProcessados: TLabel;
+    Label1: TLabel;
+    LabelLCDArquivo: TLabel;
+    StsRemSdx: TStatusBar;
+    LabelCaminho: TLabel;
+    EdNomeArquivo: TEdit;
+    EdCaminho: TEdit;
+    procedure BtnFecharClick(Sender: TObject);
     procedure Verifica(Str: string);
-    procedure BtnSairClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnGerarClick(Sender: TObject);
-    procedure mkeddtiniExit(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ChkGerarSeparadoClick(Sender: TObject);
     procedure seldrccrt;
@@ -61,13 +61,10 @@ type
   private
     caracterinvalido,Corrompido : boolean;
     sim:boolean;
-    reenviados :array [0..0] of ShortInt;
-    arquivo           : TextFile;
-    arquivo_separado  : TextFile;
-    linha,linaux      : string;
-    separador_correto : bool;
+    arquivo: TextFile;
+    linha, linaux, destdir, fname : string;
     sel : string;
-    ctareg:integer;
+    ctareg, seq : Integer;
     { Private declarations }
   public
     { Public declarations }
@@ -150,110 +147,147 @@ Begin
     end;
 End;
 
-procedure TFrmRetornoExtratos.BtnSairClick(Sender: TObject);
-begin
-  close;
-end;
-
 procedure TFrmRetornoExtratos.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
   action := cafree;
 end;
 
-procedure TFrmRetornoExtratos.FormKeyPress(Sender: TObject; var Key: Char);
+procedure TFrmRetornoExtratos.BtnFecharClick(Sender: TObject);
 begin
-  if key = #13 then
-//    SelectNext(TWinControl,true,true);
+  Close;
 end;
 
 procedure TFrmRetornoExtratos.BtnGerarClick(Sender: TObject);
 var
-  i:integer;
+  i : integer;
+  linhabase : string;
 begin
   LCDTot.Caption   := '0';
   LCDLidos.Caption := '0';
   LCDGrav.Caption  := '0';
   LCDErros.Caption := '0';
-  PbProgresso.Position    := 0;
+  PbProgresso.Position := 0;
   PBConsistencia.Position := 0;
   BtnGerar.Enabled := false;
-  LCDArqs.Caption :=  '';
+  EdNomeArquivo.Text := '';
+  EdCaminho.Text := '';
   case tag of
     1: // Consolidado
       begin
         Dm.SqlAux1.Close;
         Dm.SqlAux1.Sql.Clear;
-//        Dm.SqlAux1.Sql.Add('select distinct on (cga68.cg68_remes) cga68.cg68_remes,cga20.cg20_codbrad ');
-        Dm.SqlAux1.Sql.Add('select distinct(cga75.cg75_remes) ,cga20.cg20_codbrad ,cg75_tipo, cg75_dv, cg75_codag, cg75_conta, cg75_dtbaixa ');
-       //                                         0                     1              2          3        4            5           6
-        Dm.SqlAux1.Sql.Add('from cga75 inner join cga20 on cga20.cg20_codbaixa = cga75.cg75_codbaixa ');
-        Dm.SqlAux1.Sql.Add('where (cg75_dtbaixa between ');
-        Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-        if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
-            Dm.SqlAux1.Sql.Add(' and (cg75_dtret is null)')
-        else
-            begin
-            sim:=true;
-            Dm.SqlAux1.Sql.Add(' and (cg75_dtret is not null )');
-            end;
-//        InputBox('','',Dm.SqlAux1.Sql.Text);
-        Dm.SqlAux1.Open;
-        LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-        case Dm.SqlAux1.RecordCount of
-          0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
+        Dm.SqlAux1.Sql.Add('SELECT DISTINCT a.cg75_remes, ' +
+          'b.cg20_codbrad, a.cg75_tipo, a.cg75_dv, a.cg75_codag, ' +
+          'a.cg75_conta, a.cg75_dtbaixa ');
+        Dm.SqlAux1.Sql.Add('FROM cga75 a ');
+        Dm.SqlAux1.Sql.Add('INNER JOIN cga20 b on a.cg75_codbaixa = b.cg20_codbaixa ');
+        Dm.SqlAux1.Sql.Add('WHERE a.cg75_dtbaixa BETWEEN :dtini AND :dtfin ');
+
+        Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+        Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+        if application.MessageBox('Deseja que sejam reenviados registros?',
+          'ADS',
+          MB_YESNO + MB_ICONQUESTION) = IDNO then
+            Dm.SqlAux1.Sql.Add(' AND a.cg75_dtret IS NULL')
         else
           begin
-            Dm.SqlAux1.First;
-            PbProgresso.Max := Dm.SqlAux1.RecordCount;
-            linha := 'f:\sistemas\retorno\unificado';
-            if not(DirectoryExists(linha)) then
-              criadir(linha);
-            linha :=  linha+'\rt_4237.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
-            Rewrite(arquivo);
-            for i:=1 to Dm.SqlAux1.RecordCount do
-              begin
-                linha := GeraNT(Dm.SqlAux1.Fields[4].AsString,4);
-                linha := linha + copy(Dm.SqlAux1.Fields[3].AsString,1,1);
-                linha := linha + GeraNT(Dm.SqlAux1.Fields[5].AsString,8);
-                linha := linha + FormatDateTime('ddmmyyyy',(Dm.SqlAux1.Fields[6].AsDateTime));
-                linha := linha + GeraNT(Dm.SqlAux1.Fields[2].AsString,2);
-                linha := linha + GeraNT(Dm.SqlAux1.Fields[1].AsString,2);
-                linha := linha + GeraNT('0',5);
-                case length(linha) of
-                  30:
-                     begin
-                       Verifica(linha);
-                       if Corrompido = false then
-                         begin
-                           Writeln(arquivo,linha);
-                           LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                         end;
-                     end;
-                else
-                  begin
-                    LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                  end;
-                end;
-                Dm.SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-            Dm.SqlAux1.Close;
-            Dm.SqlAux1.Sql.Clear;
-            Dm.SqlAux1.Sql.Add('update cga75 set cg75_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-            if sim = false then
-              dm.SqlAux1.Sql.Add(' , cg75_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-            dm.SqlAux1.Sql.Add(' where cg75_dtbaixa between ');
-            Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39));
-            Dm.SqlAux1.ExecSql;
-            Dm.SqlAux1.Close;
-            CloseFile(arquivo);
-            Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-            BtnGerar.Enabled := true;
+            sim := true;
+            Dm.SqlAux1.Sql.Add(' AND a.cg75_dtret IS NOT NULL ');
           end;
+
+        Dm.SqlAux1.Open;
+        LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
+
+        case Dm.SqlAux1.RecordCount of
+          0: application.MessageBox('Não foi encontrado nenhum registro',
+            'ADS', MB_OK + MB_ICONINFORMATION);
+          else
+            begin
+              Dm.SqlAux1.First;
+              PbProgresso.Max := Dm.SqlAux1.RecordCount;
+              try
+                // Diretório onde colocar arquivos gerados
+                destdir := GetCurrentDir + '\retorno\consolidado\' +
+                      UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+                if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+                    raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+                fname := 'RT_4237.0' + formatdatetime('dd', date);
+
+                // Garantindo que não existe arquivo com a nomenclatura passada
+                seq := 0;
+                while FileExists(destdir + fname) do
+                  begin
+                   seq := seq + 1;
+                   fname := 'RT_4237.0' + formatdatetime('dd', date) + '_' +
+                     IntToStr(seq);
+                  end;
+
+                AssignFile(arquivo, destdir + fname);
+                Rewrite(arquivo);
+             
+                While not Dm.SqlAux1.Eof do
+                  begin
+                    linha := LPad(Dm.SqlAux1.FieldByName('cg75_codag').AsString, 4, '0');
+                    linha := linha + copy(Dm.SqlAux1.FieldByName('cg75_dv').AsString, 1, 1);
+                    linha := linha + LPad(Dm.SqlAux1.FieldByName('cg75_conta').AsString, 8, '0');
+                    linha := linha + FormatDateTime('ddmmyyyy',(Dm.SqlAux1.FieldByName('cg75_dtbaixa').AsDateTime));
+                    linha := linha + LPad(Dm.SqlAux1.FieldByName('cg75_tipo').AsString, 2, '0');
+                    linha := linha + LPad(Dm.SqlAux1.FieldByName('cg20_codbrad').AsString, 2, '0');
+                    linha := linha + LPad('0', 5, '0');
+                    case length(linha) of
+                      30:
+                        begin
+                          Verifica(linha);
+                          if Corrompido = false then
+                            begin
+                              Writeln(arquivo, linha);
+                              LCDGrav.Caption := inttostr(1 + strtoint(LCDGrav.Caption));
+                            end;
+                        end;
+                      else
+                        begin
+                          LCDErros.Caption := inttostr(1 + strtoint(LCDErros.Caption));
+                        end;
+                    end;
+                    Dm.SqlAux1.Next;
+                    LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+                    PbProgresso.Position := PbProgresso.Position + 1;
+                  end;
+                Dm.SqlAux1.Close;
+                Dm.SqlAux1.Sql.Clear;
+                Dm.SqlAux1.Sql.Add('UPDATE cga75 SET cg75_dtret = :dtret ');
+                Dm.SqlAux1.ParamByName('dtret').AsDate := Date;
+                if sim = false then
+                  dm.SqlAux1.Sql.Add(', cg75_dtenv = :dtenv ');
+                Dm.SqlAux1.ParamByName('dtenv').AsDate := Date;
+                Dm.SqlAux1.Sql.Add('WHERE cg75_dtbaixa BETWEEN :dtini AND :dtfin ');
+                Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+                Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+                Dm.SqlAux1.ExecSql;
+                Dm.SqlAux1.Close;
+                CloseFile(arquivo);
+                Application.MessageBox('Arquivo de Retorno Gerado com sucesso!', 
+                  'ADS', MB_OK+MB_ICONINFORMATION);
+                BtnGerar.Enabled := true;
+          
+                EdNomeArquivo.Text := fname;
+                EdCaminho.Text := destdir;
+
+              except on E: Exception do
+                Begin
+                  Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                      'de Registros de Retorno Consolidado.' + #13+#10 +
+                      'Por favor informe o ocorrido para a área de T.I..'),
+                    'ADS', MB_OK + MB_ICONERROR);
+                  CloseFile(arquivo);
+                end;
+              end;
+            end;
         end;
       end;
 
@@ -261,290 +295,339 @@ begin
       begin
         Dm.SqlAux1.Close;
         Dm.SqlAux1.Sql.Clear;
-        Dm.SqlAux1.Sql.Add('select cga33.cg33_remes,cga20.cg20_codbrad,cg33_dtext ');
-        Dm.SqlAux1.Sql.Add(' from cga33 inner join cga20 on cga20.cg20_codbaixa = cga33.cg33_codbaixa ');
-        Dm.SqlAux1.Sql.Add(' where (cg33_dtbaixa between ');
-        Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-        if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
-          begin
-            Dm.SqlAux1.Sql.Add(' and (cg33_dtret is null)');
-          end
+        Dm.SqlAux1.Sql.Add('SELECT cga33.cg33_remes, cga20.cg20_codbrad, cg33_dtext ');
+        Dm.SqlAux1.Sql.Add('FROM cga33 ');
+        Dm.SqlAux1.Sql.Add('  INNER JOIN cga20 on cga20.cg20_codbaixa = cga33.cg33_codbaixa ');
+        Dm.SqlAux1.Sql.Add('WHERE cg33_dtbaixa BETWEEN :dtini AND :dtfin ');
+        Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+        Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+        if application.MessageBox('Deseja que sejam reenviados registros?',
+            'ADS', MB_YESNO + MB_ICONQUESTION) = IDNO then
+          Dm.SqlAux1.Sql.Add(' AND cg33_dtret IS NULL ')
         else
-          begin
-            Dm.SqlAux1.Sql.Add(' and (cg33_dtret <>' +chr(39)+'01-01-1950'+chr(39)+')');
-          end;
+          Dm.SqlAux1.Sql.Add(' and cg33_dtret IS NOT NULL');
+
         Dm.SqlAux1.Open;
-        LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
+        LCDTot.Caption := IntToStr(Dm.SqlAux1.RecordCount);
         case Dm.SqlAux1.RecordCount of
-          0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
+          0: application.MessageBox('Não foi encontrado nenhum registro',
+              'Ads', MB_OK + MB_ICONINFORMATION);
         else
           begin
             Dm.SqlAux1.First;
             PbProgresso.Max := Dm.SqlAux1.RecordCount;
-            linha := 'f:\sistemas\retorno\ccp';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha +  '\rt_3237.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
-            Rewrite(arquivo);
-            for i:=1 to Dm.SqlAux1.RecordCount do
-              begin
-                linha := GeraNT(dm.SqlAux1.Fields[0].AsString,14);
-                linha := linha + formatdatetime('ddmmyyyy',dm.SqlAux1.Fields[2].AsDateTime);
-                linha := linha + trim(dm.SqlAux1.Fields[1].AsString)+'       ';
-                case length(linha) of
-                  30:
-                     begin
-                       Verifica(linha);
-                       if Corrompido = false then
-                         begin
-                           Writeln(arquivo,linha);
-                           LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                         end;
-                     end;
-                else
-                  begin
+            try
+              // Diretório onde colocar arquivos gerados
+              destdir := GetCurrentDir + '\retorno\CCP\' +
+                      UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+              if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+                raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+              fname := 'rt_3237.0' + formatdatetime('dd', date);
+
+              // Garantindo que não existe arquivo com a nomenclatura passada
+              seq := 0;
+              while FileExists(destdir + fname) do
+                begin
+                  seq := seq + 1;
+                  fname := 'rt_3237.0' + formatdatetime('dd', date) + '_' +
+                     IntToStr(seq);
+                end;
+
+              AssignFile(arquivo, destdir + fname);
+              Rewrite(arquivo);
+              while not Dm.SqlAux1.Eof  do
+                begin
+                  linha := LPad(dm.SqlAux1.FieldByName('cg33_remes').AsString, 14, '0');
+                  linha := linha + FormatDateTime('ddmmyyyy', dm.SqlAux1.FieldByName('cg33_dtext').AsDateTime);
+                  linha := linha + RPad(dm.SqlAux1.FieldByName('cg20_codbrad').AsString, 8, ' ');
+                  if length(linha) = 30 then
+                    begin
+                      Verifica(linha);
+                      if Corrompido = false then
+                        begin
+                          Writeln(arquivo, linha);
+                          LCDGrav.Caption := inttostr(1 + strtoint(LCDGrav.Caption));
+                        end;
+                    end
+                  else
                     // corrompido
                     LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                  end;
+
+                  Dm.SqlAux1.Next;
+                  LCDLidos.Caption := inttostr(1 + strtoint(LCDLidos.Caption));
+                  PbProgresso.Position := PbProgresso.Position + 1;
                 end;
-                Dm.SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
+
+              Dm.SqlAux1.Close;
+              Dm.SqlAux1.Sql.Clear;
+              Dm.SqlAux1.Sql.Add('UPDATE cga33 SET cg33_dtret = :dtret ');
+              Dm.SqlAux1.ParamByName('dtret').AsDate := Date;
+              Dm.SqlAux1.Sql.Add('WHERE cg33_dtbaixa BETWEEN :dtini AND :dtfin ');
+              Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+              Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+              Dm.SqlAux1.ExecSql;
+
+              Dm.SqlAux1.Close;
+              CloseFile(arquivo);
+              Application.MessageBox('Arquivo de Retorno Gerado com sucesso!',
+                  'ADS', MB_OK+MB_ICONINFORMATION);
+                BtnGerar.Enabled := true;
+
+              EdNomeArquivo.Text := fname;
+              EdCaminho.Text := destdir;
+
+            except on E: Exception do
+              Begin
+                Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                      'de Registros de Retorno.' + #13+#10 +
+                      'Por favor informe o ocorrido para a área de T.I..'),
+                    'ADS', MB_OK + MB_ICONERROR);
+                CloseFile(arquivo);
               end;
-            CloseFile(arquivo);
-            Dm.SqlAux1.Close;
-            Dm.SqlAux1.Sql.Clear;
-            Dm.SqlAux1.Sql.Add('update cga33 set cg33_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39)+' where (cg33_dtbaixa between ');
-            Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39));
-            Dm.SqlAux1.Sql.Add(') and ((cg33_dtret <> '+chr(39)+'01-01-1950'+chr(39)+' or (cg33_dtret is null)))');
-            Dm.SqlAux1.ExecSql;
-            Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-            BtnGerar.Enabled := true;
-            Dm.SqlAux1.Close;
+            end;
           end;
         end;
       end;
+
     3:  ///drc cobrança
       begin
         Dm.SqlAux1.Close;
         Dm.SqlAux1.Sql.Clear;
-        Dm.SqlAux1.Sql.Add('select cga100.cg100_remes,cga20.cg20_codbrad_drc');
-        Dm.SqlAux1.Sql.Add(' from cga100 inner join cga20 on cga20.cg20_codbaixa = cga100.cg100_codbaixa ');
-        Dm.SqlAux1.Sql.Add(' where (cg100_dtbaixa between ');
-        Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-//        if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
-//          begin
-            Dm.SqlAux1.Sql.Add(' and (cg100_dtret is null)');
-//            reenviados[0]:=0;
-//          end
-//        else
-//          begin
-//            Dm.SqlAux1.Sql.Add(' and (cg100_dtret is not null)');
-//            reenviados[0]:=1;
-//          end;
-//        if ChkSepCodigoLeitura.Checked = True then
-        Dm.SqlAux1.Sql.Add(' order by cg100_remes');
+        Dm.SqlAux1.Sql.Add('SELECT cga100.cg100_remes, cga20.cg20_codbrad_drc ');
+        Dm.SqlAux1.Sql.Add('FROM cga100 ');
+        Dm.SqlAux1.Sql.Add('  INNER JOIN cga20 on cga20.cg20_codbaixa = cga100.cg100_codbaixa ');
+        Dm.SqlAux1.Sql.Add('WHERE cg100_dtbaixa BETWEEN :dtini AND :dtfin ');
+        Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+        Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+        Dm.SqlAux1.Sql.Add('  AND cg100_dtret is null');
+        Dm.SqlAux1.Sql.Add('ORDER BY cg100_remes');
         Dm.SqlAux1.Open;
         LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
         case Dm.SqlAux1.RecordCount of
-          0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
+          0: application.MessageBox('Não foi encontrado nenhum registro',
+              'ADS', MB_OK + MB_ICONINFORMATION);
           else
             begin
               PbProgresso.Max := Dm.SqlAux1.RecordCount;
               Dm.SqlAux1.Open;
               Dm.SqlAux1.First;
-              linha := 'F:\sistemas\Retorno\drc';
-              if (not(DirectoryExists(linha))) then
-                MkDir(linha);
-              linha := linha +  '\rt_5237-4120.0'+formatdatetime('dd',date);
-              AssignFile(arquivo,linha);
-              Rewrite(arquivo);
-              LCDArqs.Caption :=  linha;
+              try
+                // Diretório onde colocar arquivos gerados
+                destdir := GetCurrentDir + '\retorno\DRC\' +
+                      UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
 
-              {              if ChkGerarSeparado.Checked = True then
-                begin
-                  linha := 'F:\sistemas\retorno\drc\rt_5237-4120-'+Trim(EdNumeroSeparador.Text)+'.0'+formatdatetime('dd',date);
-                  AssignFile(arquivo_separado,linha);
-                  Rewrite(arquivo_separado);
-                end;}
-              while not(Dm.SqlAux1.Eof)  do
-                begin
-                  linha := Trim(dm.SqlAux1.Fields[0].AsString);
-{                  if ChkGerarSeparado.Checked = True then
-                    begin
-                      if ((StrToInt64(linha)) < StrToInt64(Trim(EdNumeroSeparador.Text))) then
-                          separador_correto := False
-                        else
-                          separador_correto := True;
-                    end;}
-                  case length(trim(linha)) of
-                    11,12,13,18:
+                if (not DirectoryExists(destdir))
+                      AND (not SysUtils.ForceDirectories(destdir)) then
+                  raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+                fname := 'rt_5237-4120.0' + formatdatetime('dd', date);
+
+                // Garantindo que não existe arquivo com a nomenclatura passada
+                seq := 0;
+                while FileExists(destdir + fname) do
+                  begin
+                    seq := seq + 1;
+                    fname := 'rt_5237-4120.0' + formatdatetime('dd', date) + '_' +
+                       IntToStr(seq);
+                  end;
+
+                AssignFile(arquivo, destdir + fname);
+                Rewrite(arquivo);
+                while not Dm.SqlAux1.Eof  do
+                  begin
+                    linha := Trim(dm.SqlAux1.FieldByName('cg100_remes').AsString);
+                    if (Length(linha) in [11..13,18]) then
                       begin
                         Verifica(linha);
                         if Corrompido = false then
                           begin
-                            linha := linha + gerant(dm.SqlAux1.Fields[1].AsString,2);
-                            Writeln(arquivo,linha);
-                     //       if (ChkGerarSeparado.Checked = True) and (separador_correto = True) then
-                      //        Writeln(arquivo,linha);
-                            LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                            linha := linha + LPad(dm.SqlAux1.FieldByName('cg20_codbrad_drc').AsString, 2, '0');
+                            Writeln(arquivo, linha);
+                            LCDGrav.Caption := inttostr(1 + strtoint(LCDGrav.Caption));
                           end;
-                      end;
+                      end
                     else
-                      begin
-                        LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                        // corrompido
-                      end;
+                      LCDErros.Caption := inttostr(1 + strtoint(LCDErros.Caption));
+
+                    Dm.SqlAux1.Next;
+                    LCDLidos.Caption := inttostr(1 + strtoint(LCDLidos.Caption));
+                    PbProgresso.Position := PbProgresso.Position + 1;
                   end;
-                  Dm.SqlAux1.Next;
-                  LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                  PbProgresso.Position := PbProgresso.Position + 1;
+
+                Dm.SqlAux1.Close;
+                CloseFile(arquivo);
+                Application.MessageBox('Arquivo de Retorno Gerado com sucesso!',
+                      'ADS', MB_OK + MB_ICONINFORMATION);
+                BtnGerar.Enabled := true;
+                EdNomeArquivo.Text := fname;
+                EdCaminho.Text := destdir;
+
+              except on E: Exception do
+                Begin
+                  Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                          'de Registros de Retorno.' + #13+#10 +
+                          'Por favor informe o ocorrido para a área de T.I..'),
+                      'ADS', MB_OK + MB_ICONERROR);
+                  CloseFile(arquivo);
+                  Exit;
                 end;
-              {if ChkGerarSeparado.Checked = True then
-                CloseFile(arquivo_separado);}
-              CloseFile(arquivo);
-              Dm.SqlAux1.Close;
-              Dm.SqlAux1.Sql.Clear;
-//              Dm.SqlAux1.Sql.Add('update cga100 set cg100_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-//              if sim = false then
-//                dm.SqlAux1.Sql.Add(' ,cg100_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-//              dm.SqlAux1.Sql.Add(' where cg100_dtbaixa between ');
-//              Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39));
-//              Dm.SqlAux1.ExecSql;
-//              Dm.SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-              BtnGerar.Enabled := true;
+              end; // end try
             end;
-        end;
-      end;
+        end; // case
+      end; // case
+
     4: // Unificado
       begin
-        ctareg  :=  0;
+        ctareg := 0;
         Dm.SqlAux1.Close;
         Dm.SqlAux1.Sql.Clear;
-//        Dm.SqlAux1.Sql.Add('select distinct on (cga68.cg68_remes) cga68.cg68_remes,cga20.cg20_codbrad ');
-        Dm.SqlAux1.Sql.Add('select distinct(cga68.cg68_remes) ,cga20.cg20_codbrad ');
-       //
-        Dm.SqlAux1.Sql.Add('from cga68 inner join cga20 on cga20.cg20_codbaixa = cga68.cg68_codbaixa ');
-        Dm.SqlAux1.Sql.Add('where (cg68_dtbaixa between ');
-        Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-        if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
-            Dm.SqlAux1.Sql.Add(' and (cg68_dtret is null)')
+        Dm.SqlAux1.Sql.Add('SELECT DISTINCT cga68.cg68_remes, cga20.cg20_codbrad ');
+        Dm.SqlAux1.Sql.Add('FROM cga68 ');
+        Dm.SqlAux1.Sql.Add('  INNER JOIN cga20 on cga20.cg20_codbaixa = cga68.cg68_codbaixa ');
+        Dm.SqlAux1.Sql.Add('WHERE cg68_dtbaixa BETWEEN :dtini AND :dtfin ');
+        Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+        Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+        if application.MessageBox('Deseja que sejam reenviados registros?',
+              'Ads',MB_YESNO+MB_ICONQUESTION) = idno then
+            Dm.SqlAux1.Sql.Add('  AND cg68_dtret is null ')
         else
-            begin
-            sim:=true;
-            Dm.SqlAux1.Sql.Add(' and (cg68_dtret is not null )');
-            end;
-//        InputBox('','',Dm.SqlAux1.Sql.Text);
+          begin
+            sim := true;
+            Dm.SqlAux1.Sql.Add('  AND cg68_dtret IS NOT NULL ');
+          end;
+
         Dm.SqlAux1.Open;
         LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-        case Dm.SqlAux1.RecordCount of
-          0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
+        if Dm.SqlAux1.RecordCount > 0 then
           begin
             Dm.SqlAux1.First;
             PbProgresso.Max := Dm.SqlAux1.RecordCount;
-            linha := 'f:\sistemas\retorno\unificado';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha :=  linha+'\rt_4237.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            try AssignFile(arquivo,linha);
-            except on e: exception do
-              begin
-                Application.MessageBox(PChar('Erro ao Criar o Arquivo: '+linha+' '+e.Message+' !'),'ADS - Unificado',64);
-                exit
-              end;
-            end;
-            Rewrite(arquivo);
-            linha := format('%-31.31s%',['@0000058720731000191']);
-            Writeln(arquivo,linha);
-            for i:=1 to Dm.SqlAux1.RecordCount do
-              begin
-                linaux  :=  trim(Dm.SqlAux1.Fields[0].AsString);
-                linha := copy(Dm.SqlAux1.Fields[0].AsString,1,23);
-                linha := linha + GeraNT(Dm.SqlAux1.Fields[1].AsString,2);
-                linha := linha +copy(Dm.SqlAux1.Fields[0].AsString,24,6);
-//                linha := linha +copy(Dm.SqlAux1.Fields[0].AsString,24,4)+'0';
-                case length(linaux) of
-                  30,34,35:
-                     begin
-                       Verifica(linha);
-                       if Corrompido = false then
-                         begin
-                           Writeln(arquivo,linha);
-                           LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                         end;
-                     end;
-                  36: Inc(ctareg,1);//
-                else
-                  begin
-                    LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                  end;
+            try
+              // Diretório onde colocar arquivos gerados
+              destdir := GetCurrentDir + '\retorno\unificado\' +
+                      UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+              if (not DirectoryExists(destdir))
+                      AND (not SysUtils.ForceDirectories(destdir)) then
+                  raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+              fname := 'RT_4237.0' + formatdatetime('dd', date);
+              // Garantindo que não existe arquivo com a nomenclatura passada
+              seq := 0;
+              while FileExists(destdir + fname) do
+                begin
+                  seq := seq + 1;
+                  fname := 'RT_4237.0' + formatdatetime('dd', date) + '_' +
+                       IntToStr(seq);
                 end;
-                Dm.SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-            CloseFile(arquivo);
-            case ctareg of
-              0:;//
-              else
+
+              AssignFile(arquivo, destdir + fname);
+              Rewrite(arquivo);
+              linha := format('%-31.31s%',['@0000058720731000191']);
+              Writeln(arquivo, linha);
+              While not Dm.SqlAux1.Eof  do
+                begin
+                  linaux := trim(Dm.SqlAux1.FieldByName('cg68_remes').AsString);
+                  case length(linaux) of
+                    30,34,35:
+                      begin
+                        linha := copy(linaux, 1, 23);
+                        linha := linha + LPad(Dm.SqlAux1.FieldByName('cg20_codbrad').AsString, 2, '0');
+                        linha := linha + copy(linaux, 24, 6);
+                        Verifica(linha);
+                        if Corrompido = false then
+                          begin
+                            Writeln(arquivo, linha);
+                            LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                          end;
+                      end;
+                    36: Inc(ctareg, 1);//
+                      else
+                        LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                  end; // case
+
+                  Dm.SqlAux1.Next;
+                  LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+                  PbProgresso.Position := PbProgresso.Position + 1;
+                end; // while
+
+              CloseFile(arquivo); // Fechando o arquivo rt_4237.0
+              EdNomeArquivo.Text := fname;
+              EdCaminho.Text := destdir;
+
+              if ctareg > 0 then
                 begin
                   Dm.SqlAux1.First;
-                  linha := 'f:\sistemas\retorno\unificado';
-                  if not(DirectoryExists(linha)) then
-                    MkDir(linha);
-                  linha :=  linha+'\rt_4237.2'+formatdatetime('dd',date);
-                  LCDArqs.Caption :=  linha;
-                  try AssignFile(arquivo,linha);
-                  except on e: exception do
+                  fname := 'RT_4237.2' + formatdatetime('dd', date);
+                  PBConsistencia.Max := Dm.SqlAux1.RecordCount;
+                  // Garantindo que não existe arquivo com a nomenclatura passada
+                  seq := 0;
+                  while FileExists(destdir + fname) do
                     begin
-                      Application.MessageBox(PChar('Erro ao Criar o Arquivo: '+linha+' '+e.Message+' !'),'ADS - Unificado',64);
-                      exit
+                      seq := seq + 1;
+                      fname := 'RT_4237.2' + formatdatetime('dd', date) + '_' +
+                            IntToStr(seq);
                     end;
-                  end;
+
+                  AssignFile(arquivo, destdir + fname);
                   Rewrite(arquivo);
                   linha := format('%-31.31s%',['00000058720731000191']);
-                  Rewrite(arquivo);
-                  for i:=1 to Dm.SqlAux1.RecordCount do
-                    begin
-                      linaux  :=  trim(Dm.SqlAux1.Fields[0].AsString);
-                      linha := copy(Dm.SqlAux1.Fields[0].AsString,1,24);
-                      linha := linha + GeraNT(Dm.SqlAux1.Fields[1].AsString,2);
-                      linha := linha +copy(Dm.SqlAux1.Fields[0].AsString,24,5);
-        //                linha := linha +copy(Dm.SqlAux1.Fields[0].AsString,24,4)+'0';
+                  Writeln(arquivo, linha);
+                  While not Dm.SqlAux1.Eof  Do
+                    Begin
+                      linaux  :=  trim(Dm.SqlAux1.FieldByName('cg68_remes').AsString);
                       case length(linaux) of
                         36:
-                           begin
-                             Verifica(linha);
-                             if Corrompido = false then
-                               begin
-                                 Writeln(arquivo,linha);
-                                 //LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                               end;
-                           end;
-                      end;
+                          begin
+                            linha := copy(linaux, 1, 24);
+                            linha := linha + LPad(Dm.SqlAux1.FieldByName('cg20_codbrad').AsString, 2, '0');
+                            linha := linha + copy(linaux, 24, 5);
+                            Verifica(linha);
+                            if Corrompido = false then
+                              Writeln(arquivo, linha);
+                          end;
+                      end; // \case
+
                       Dm.SqlAux1.Next;
-                    end;
-                  CloseFile(arquivo);
-                end;
-            end;
-            Dm.SqlAux1.Close;
-            Dm.SqlAux1.Sql.Clear;
-            Dm.SqlAux1.Sql.Add('update cga68 set cg68_dtret = (select current_date)');
-            if sim = false then
-              dm.SqlAux1.Sql.Add(', cg68_dtenv = (select current_date)');
-            dm.SqlAux1.Sql.Add(' where cg68_dtbaixa between ');
-            Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39));
-            Dm.SqlAux1.ExecSql;
-            Dm.SqlAux1.Close;
-            Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-            BtnGerar.Enabled := true;
-          end;
-        end;
+                      PBConsistencia.Position := PBConsistencia.Position + 1;
+                    end; // \while
+                  CloseFile(arquivo); // \Fechando arquivo rt_4237.2
+                  EdNomeArquivo.Text := EdNomeArquivo.Text + ' e ' + fname;
+                end // \if ctareg > 0
+              else
+                PBConsistencia.Position := PBConsistencia.Max;
+            except on E: Exception do
+              Begin
+                Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                          'de Registros de Retorno.' + #13+#10 +
+                          'Por favor informe o ocorrido para a área de T.I..'),
+                      'ADS', MB_OK + MB_ICONERROR);
+                CloseFile(arquivo);
+                Exit;
+              end;
+            end; // \try
+          end; //  \if Dm.SqlAux1.RecordCount > 0
+
+        Dm.SqlAux1.Close;
+        Dm.SqlAux1.Sql.Clear;
+
+        Dm.SqlAux1.Sql.Add('UPDATE cga68 SET cg68_dtret = CURRENT_DATE ');
+        if sim = false then
+          dm.SqlAux1.Sql.Add(', cg68_dtenv = CURRENT_DATE ');
+        dm.SqlAux1.Sql.Add('WHERE cg68_dtbaixa BETWEEN :dtini AND :dtfin ');
+        Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+        Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+        Dm.SqlAux1.ExecSql;
+        Dm.SqlAux1.Close;
+
+        Application.MessageBox('Geração de Arquivo Extrato Unificado concluído',
+            'Ads', MB_OK + MB_ICONINFORMATION);
+        BtnGerar.Enabled := true;
       end;
     5:
       begin
@@ -553,73 +636,115 @@ begin
       begin
         Dm.SqlAux1.Close;
         Dm.SqlAux1.Sql.Clear;
-        Dm.SqlAux1.Sql.Add('select distinct (cga67.cg67_remes) ,cga20.cg20_codbrad ');
-        Dm.SqlAux1.Sql.Add(' from cga67 inner join cga20 on cga20.cg20_codbaixa = cga67.cg67_codbaixa ');
-        Dm.SqlAux1.Sql.Add(' where (cg67_dtbaixa between ');
-        Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-        if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
-          Dm.SqlAux1.Sql.Add(' and (cg67_dtret is null)')
+        Dm.SqlAux1.Sql.Add('SELECT DISTINCT cga67.cg67_remes, cga20.cg20_codbrad ');
+        Dm.SqlAux1.Sql.Add('FROM cga67 ');
+        Dm.SqlAux1.Sql.Add('  INNER JOIN cga20 on cga20.cg20_codbaixa = cga67.cg67_codbaixa ');
+        Dm.SqlAux1.Sql.Add('WHERE cg67_dtbaixa BETWEEN :dtini AND :dtfin ');
+        Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+        Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+        if application.MessageBox('Deseja que sejam reenviados registros?',
+              'ADS', MB_YESNO + MB_ICONQUESTION) = idno then
+          Dm.SqlAux1.Sql.Add('  AND cg67_dtret IS NULL ')
         else
           begin
-            sim:=true;
-            Dm.SqlAux1.Sql.Add(' and (cg67_dtret is not null )');
+            sim := true;
+            Dm.SqlAux1.Sql.Add('  AND cg67_dtret IS NOT NULL ');
           end;
         Dm.SqlAux1.Open;
         LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-        case Dm.SqlAux1.RecordCount of
-          0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
+
+        if Dm.SqlAux1.RecordCount > 0 then
           begin
             Dm.SqlAux1.First;
             PbProgresso.Max := Dm.SqlAux1.RecordCount;
-            linha := 'f:\sistemas\retorno\cartao';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha +  '\rt_5237.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
-            Rewrite(arquivo);
-            linha := '1058'+formatdatetime('yyyymmdd',date);
-            Writeln(arquivo,linha);
-            linha := '';
-            for i:=1 to Dm.SqlAux1.RecordCount do
-              begin
-                linha := '2'+Dm.SqlAux1.Fields[0].AsString+GeraNT(Dm.SqlAux1.Fields[1].AsString,2)+formatdatetime('yyyymmdd',date);
-                case length(linha) of
-                  43:
-                     begin
-                       Verifica(linha);
-                       if Corrompido = false then
-                         begin
-                           Writeln(arquivo,linha);
-                           LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                         end;
-                     end;
-                else
-                  begin
-                    LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                  end;
+            try
+              // Diretório onde colocar arquivos gerados
+              destdir := GetCurrentDir + '\retorno\cartao\' +
+                      UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+              if (not DirectoryExists(destdir))
+                      AND (not SysUtils.ForceDirectories(destdir)) then
+                  raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+              fname := 'RT_4237.0' + formatdatetime('dd', date);
+              // Garantindo que não existe arquivo com a nomenclatura passada
+              seq := 0;
+              while FileExists(destdir + fname) do
+                begin
+                  seq := seq + 1;
+                  fname := 'RT_4237.0' + formatdatetime('dd', date) + '_' +
+                       IntToStr(seq);
                 end;
-                Dm.SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
+
+              AssignFile(arquivo, destdir + fname);
+              Rewrite(arquivo);
+
+              linha := '1058' + formatdatetime('yyyymmdd', date);
+              Writeln(arquivo, linha);
+
+              While Not Dm.SqlAux1.Eof Do
+                Begin
+                  linha := '2' + Dm.SqlAux1.FieldByName('cg67_remes').AsString +
+                      LPad(Dm.SqlAux1.FieldByName('cg20_codbrad').AsString, 2, '0') +
+                      formatdatetime('yyyymmdd', date);
+                  if Length(linha) = 43 then
+                    begin
+                      Verifica(linha);
+                      if Corrompido = false then
+                        begin
+                          Writeln(arquivo, linha);
+                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                        end;
+                    end
+                  else
+                    LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+
+                  Dm.SqlAux1.Next;
+                  LCDLidos.Caption := inttostr(1 + strtoint(LCDLidos.Caption));
+                  PbProgresso.Position := PbProgresso.Position + 1;
+                end;
+
+              linha := '9058' + formatdatetime('yyyymmdd', date) +
+                  LPad(IntToStr(Dm.SqlAux1.RecordCount + 2), 9, '0');
+              Writeln(arquivo, linha); // Trailer
+              CloseFile(arquivo); // Fechando arquivo
+              Dm.SqlAux1.Close;
+              Dm.SqlAux1.Sql.Clear;
+
+              Dm.SqlAux1.Sql.Add('UPDATE cga67 SET cg67_dtret = CURRENT_DATE ');
+
+              if sim = false then
+                dm.SqlAux1.Sql.Add(', cg67_dtenv = CURRENT_DATE ');
+
+              dm.SqlAux1.Sql.Add('WHERE cg67_dtbaixa BETWEEN :dtini AND :dtfin ');
+              Dm.SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+              Dm.SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+              Dm.SqlAux1.ExecSql;
+              Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                  'ADS', MB_OK + MB_ICONINFORMATION);
+              EdNomeArquivo.Text := fname;
+              EdCaminho.Text := destdir;
+
+              BtnGerar.Enabled := true;
+
+            except on E: Exception do
+              Begin
+                Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                          'de Registros de Retorno.' + #13+#10 +
+                          'Por favor informe o ocorrido para a área de T.I..'),
+                      'ADS', MB_OK + MB_ICONERROR);
+                CloseFile(arquivo);
               end;
-            linha := '9058'+formatdatetime('yyyymmdd',date)+gerant(IntToStr(Dm.SqlAux1.RecordCount+2),9);
-            Writeln(arquivo,linha);
-            CloseFile(arquivo);
-            Dm.SqlAux1.Close;
-            Dm.SqlAux1.Sql.Clear;
-            Dm.SqlAux1.Sql.Add('update cga67 set cg67_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-            if sim = false then
-              dm.SqlAux1.Sql.Add(' , cg67_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-            dm.SqlAux1.Sql.Add(' where cg67_dtbaixa between ');
-            Dm.SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39));
-            Dm.SqlAux1.ExecSql;
-            Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-            BtnGerar.Enabled := true;
-          end;
-        end;
+            end; // \try
+
+          end
+        else
+          application.MessageBox('Não foi encontrado nenhum registro',
+              'ADS', MB_OK + MB_ICONINFORMATION);
+
       end;
+
     07: seldrccrt;  // drc carta convite
     08: selcrtseg;  // cartao seguranca
     09: selcodetq;  // codigo de etica
@@ -639,13 +764,6 @@ begin
   end; //fim do case
   BtnGerar.Enabled := true;
 end;
-procedure TFrmRetornoExtratos.mkeddtiniExit(Sender: TObject);
-begin
-  try
-    mkeddtfin.Text := formatdatetime('dd/mm/yyyy',(6+StrToDate(mkeddtini.Text)));
-  except
-  end;
-end;
 
 procedure TFrmRetornoExtratos.FormShow(Sender: TObject);
 begin
@@ -656,7 +774,9 @@ begin
         ChkSepCodigoLeitura.Visible    := True;
       end;
   end;
-  mkeddtini.SetFocus;
+  DtPickerDtFin.Date := Date;
+  DtPickerDtIni.Date := Date - 30;
+  DtPickerDtIni.SetFocus;
 end;
 
 procedure TFrmRetornoExtratos.ChkGerarSeparadoClick(Sender: TObject);
@@ -673,396 +793,584 @@ begin
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select distinct(cga120.cg120_remes),cga20.cg20_codbrad_drc');
-      SqlAux1.Sql.Add(' from cga120 inner join cga20 on cga20.cg20_codbaixa = cga120.cg120_codbaixa ');
-      SqlAux1.Sql.Add(' where (cg120_dtbaixa between ');
-      SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-      if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
-        begin
-          SqlAux1.Sql.Add(' and (cg120_dtret is null)');
-        end
+      SqlAux1.Sql.Add('SELECT DISTINCT a.cg120_remes, b.cg20_codbrad_drc ');
+      SqlAux1.Sql.Add('FROM cga120 a ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 b ON a.cg120_codbaixa = b.cg20_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg120_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      if application.MessageBox('Deseja que sejam reenviados registros?',
+          'ADS', MB_YESNO+MB_ICONQUESTION) = IDNO then
+          SqlAux1.Sql.Add(' AND cg120_dtret IS NULL ')
       else
         begin
-          SqlAux1.Sql.Add(' and (cg120_dtret is not null)');
-          sim:=true;
-          //InputBox('','',SqlAux1.SQL.Text);
+          SqlAux1.Sql.Add(' AND cg120_dtret IS NOT NULL');
+          sim := true;
         end;
-      Dm.SqlAux1.Sql.Add(' order by cg120_remes');
+      Dm.SqlAux1.Sql.Add('ORDER BY cg120_remes');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := Dm.SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha +  '\drccarta';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha +  '\rt_5237-4120.0'+formatdatetime('dd',date);
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
-            Rewrite(arquivo);
-            while not SqlAux1.Eof do
+
+      if (SqlAux1.RecordCount > 0) then
+        begin
+          PbProgresso.Max := Dm.SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\DRC\carta\' +
+                      UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+            if (not DirectoryExists(destdir))
+                      AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+            fname := 'rt_5237-4120.0' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                linha := Trim(dm.SqlAux1.Fields[0].AsString);
-                linha := linha + gerant(SqlAux1.Fields[1].AsString,2);
+                seq := seq + 1;
+                    fname := 'rt_5237-4120.0' + formatdatetime('dd', date) +
+                    '_' + IntToStr(seq);
+              end;
+
+            AssignFile(arquivo, destdir + fname);
+            Rewrite(arquivo);
+
+            While not SqlAux1.Eof do
+              begin
+                linha := Trim(dm.SqlAux1.FieldByName('acg120_remes').AsString);
+                linha := linha + LPad(SqlAux1.FieldByName('cg20_codbrad_drc').AsString, 2, '0');
                 case length(linha) of
                   13,17,18,19:
                     begin
+                      Verifica(linha);
+                      if Corrompido = false then
+                        begin
+                          Writeln(arquivo,linha);
+                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                        end
+                      else
+                        begin
+                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                        end // \if
+                    end;
+                end; // \case
+
+                SqlAux1.Next;
+                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+                PbProgresso.Position  :=  PbProgresso.Position + 1;
+
+              end; // While
+
+            SqlAux1.Close;
+            SqlAux1.Sql.Clear;
+            SqlAux1.Sql.Add('UPDATE cga120 SET cg120_dtret = CURRENT_DATE ');
+            if sim = false then
+              SqlAux1.Sql.Add(', cg120_dtenv = CURRENT_DATE');
+
+            SqlAux1.Sql.Add('WHERE cg120_dtbaixa BETWEEN :dtini AND :dtfin ');
+            SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+            SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+            SqlAux1.ExecSql;
+            SqlAux1.Close;
+            EdNomeArquivo.Text := fname;
+            EdCaminho.Text := destdir;
+            CloseFile(arquivo); // fechando arquivo
+            Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                  'ADS', MB_OK + MB_ICONINFORMATION);
+
+          except on E: Exception do
+              Begin
+                Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                          'de Registros de Retorno.' + #13+#10 +
+                          'Por favor informe o ocorrido para a área de T.I..'),
+                      'ADS', MB_OK + MB_ICONERROR);
+                CloseFile(arquivo);
+              end;
+          end; // \try
+        end // \if
+      else
+        application.MessageBox('Não foi encontrado nenhum registro',
+              'ADS', MB_OK + MB_ICONINFORMATION);
+
+  end; // With
+end;
+
+procedure TFrmRetornoExtratos.selfatcardcred;
+var conta: Integer;
+begin
+  sel := 'SELECT a.cgfatcrtcrd_remes, b.cg20_codbrad_drc ' + #13#10 +
+      'FROM cgafatcrtcrd a ' + #13#10 +
+      '  INNER JOIN cga20 b on b.cg20_codbaixa = a.cgfatcrtcrd_codbaixa ' + #13#10 +
+      'WHERE a.cgfatcrtcrd_dtbaixa BETWEEN :dtini AND :dtfin ';
+
+  With Dm do
+    begin
+      SqlAux1.Close;
+      SqlAux1.SQL.Clear;
+      SqlAux1.SQL.Add(sel);
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlAux1.Open;
+    end;
+
+  if Dm.SqlAux1.RecordCount > 0 then
+    begin
+      try
+        PbProgresso.Max := Dm.SqlAux1.RecordCount;
+        LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
+        Dm.SqlAux1.First;
+
+        try
+          // Diretório onde colocar arquivos gerados
+          destdir := GetCurrentDir + '\retorno\fatcardcred\' +
+              UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+          if (not DirectoryExists(destdir))
+              AND (not SysUtils.ForceDirectories(destdir)) then
+            raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+          fname := 'RT_5237-4120.0' + formatdatetime('dd', date);
+          // Garantindo que não existe arquivo com a nomenclatura passada
+          seq := 0;
+          While FileExists(destdir + fname) do
+            begin
+              seq := seq + 1;
+              fname := 'RT_5237-4120.0' + formatdatetime('dd', date) +
+                      '_' + IntToStr(seq);
+            end;
+
+          AssignFile(arquivo, destdir + fname);
+          Rewrite(arquivo);
+        except on E: Exception do
+          Begin
+            Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                          'de Registros de Retorno.' + #13+#10 +
+                          'Por favor informe o ocorrido para a área de T.I..'),
+                      'ADS', MB_OK + MB_ICONERROR);
+            CloseFile(arquivo);
+          end;
+        end; // \try 2
+
+        linha := '1000' + FormatDateTime('yyyymmdd', Date) + LPad(' ', 38, ' ');
+        Writeln(arquivo, linha);
+        conta := 1;
+        while not Dm.SqlAux1.Eof do
+          begin
+            linha := '2';
+            linha := linha + Trim(Dm.SqlAux1.Fields.Fields[0].AsString);
+            linha := linha + Trim(Dm.SqlAux1.Fields.Fields[1].AsString);
+            linha := linha + FormatDateTime('yyyymmdd', Date);
+            linha := linha + LPad(' ', 5, ' ');
+            LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+            LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+            PbProgresso.Position := PbProgresso.Position + 1;
+            Writeln(arquivo, linha);
+            Dm.SqlAux1.Next;
+            conta := conta + 1;
+          end;
+        conta := conta + 1;
+        linha := '9000' + FormatDateTime('yyyymmdd', Date);
+        linha := linha + LPad(IntToStr(conta), 9, '0');
+        linha := linha + LPad(' ', 29, ' ');
+        Writeln(arquivo, linha); // Trailer
+        CloseFile(arquivo);
+        sel := 'UPDATE cgafatcrtcrd set cgfatcrtcrd_dtret = CURRENT_DATE ';
+        sel := sel + 'WHERE cgfatcrtcrd_dtbaixa BETWEEN :dtini AND :dtfin ';
+        sel := sel + '  AND cgfatcrtcrd_dtret IS NULL';
+        with Dm do
+          begin
+            SqlAux1.Close;
+            SqlAux1.SQL.Clear;
+            SqlAux1.SQL.Add(sel);
+            SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+            SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+            SqlAux1.ExecSQL;
+          end;
+        EdNomeArquivo.Text := fname;
+        EdCaminho.Text := destdir;
+        ShowMessage('Geração Concluida !!!');
+
+      except on e: exception do
+        Application.MessageBox(PChar(e.Message), 'ADS', ID_OK);
+      end; // \try 1
+    end // \else
+  else
+    begin
+      Application.MessageBox('Não foi localizado registros com esses parametros!!!','ADS',0);
+      DtPickerDtIni.SetFocus;
+    end; // \if
+end;
+
+procedure TFrmRetornoExtratos.selcrtseg;
+begin
+  With dm do
+    begin
+      SqlAux1.Close;
+      SqlAux1.Sql.Clear;
+      SqlAux1.Sql.Add('SELECT a.cg130_remes, a.cg130_dtbaixa, b.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga130 a ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 b on b.cg20_codbaixa = a.cg130_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg130_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      if application.MessageBox('Deseja que sejam reenviados registros?',
+            'ADS', MB_YESNO + MB_ICONQUESTION) = idno then
+        begin
+          SqlAux1.Sql.Add(' AND cg130_dtret IS NULL ');
+        end
+      else
+        begin
+          SqlAux1.Sql.Add(' AND cg130_dtret IS NOT NULL');
+          sim := true;
+        end;
+      SqlAux1.Sql.Add('ORDER BY cg130_remes');
+      SqlAux1.Open;
+      LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
+      if SqlAux1.RecordCount > 0 then
+        begin
+          PbProgresso.Max := Dm.SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\cartaoseguranca\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+            fname := 'RT_5237-4120.0' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
+              begin
+                seq := seq + 1;
+                fname := 'RT_5237-4120.0' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
+              end;
+
+            AssignFile(arquivo, destdir + fname);
+            Rewrite(arquivo);
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          EdNomeArquivo.Text :=  fname;
+          EdCaminho.Text := destdir;
+          ctareg := 0;
+          While not SqlAux1.Eof do
+            begin
+              linha := trim(SqlAux1.Fields[0].AsString);
+              linha := linha  + FormatDateTime('ddmmyyyy', SqlAux1.FieldByName('cg130_dtbaixa').AsDateTime);
+              linha := linha  + gerant(SqlAux1.Fields[2].AsString,2);
+              case length(linha) of
+                21:
+                  begin
                     Verifica(linha);
                     if Corrompido = true then
                       begin
                         LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
                         PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                        // corrompido
+                        corrompido :=  false;
                       end
                     else
                       begin
+                        ctareg:=ctareg+1;
+                        linha:=gerant(inttostr(ctareg),6)+linha;
                         Writeln(arquivo,linha);
                         LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
                       end;
-                    end;
-                end;
-                //Writeln(arquivo,linha);
-                //LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position  :=  PbProgresso.Position + 1;
+                  end;
+              end; // \case
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1 + strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+          SqlAux1.First;
+          CloseFile(arquivo);
+
+          try
+            fname := 'RT_5237-4120.1' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
+              begin
+                seq := seq + 1;
+                fname := 'RT_5237-4120.1' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
               end;
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga120 set cg120_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-              if sim = false then
-                  SqlAux1.Sql.Add(' ,cg120_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-              SqlAux1.Sql.Add(' where cg120_dtbaixa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39));
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-          end;
-        CloseFile(arquivo);
-      end;
-    end;
-end;
 
-procedure TFrmRetornoExtratos.selfatcardcred;
-var testo : string;
-conta : Integer;
-begin
-  sel := 'SELECT cgafatcrtcrd.cgfatcrtcrd_remes,cga20.cg20_codbrad_drc ';
-  sel := sel + 'from cgafatcrtcrd inner join cga20 on cga20.cg20_codbaixa = cgafatcrtcrd.cgfatcrtcrd_codbaixa ';
-  sel := sel + 'where cgafatcrtcrd.cgfatcrtcrd_dtbaixa between '+Chr(39)+FormatDateTime('mm-dd-yyyy',StrToDate(mkeddtini.Text))+Chr(39)+' and ';
-  sel := sel + Chr(39)+FormatDateTime('mm-dd-yyyy',StrToDate(mkeddtfin.Text))+Chr(39)+'';
-//  sel := sel + ' and cgfatcrtcrd_dtret is null';
-  with Dm.SqlAux1 do
-    begin
-      Close;
-      SQL.Clear;
-      SQL.Add(sel);
-      Open;
-    end;
-  case Dm.SqlAux1.RecordCount of
-  0:
-    begin
-      Application.MessageBox('Não foi localizado registros com esses parametros!!!','ADS',0);
-      mkeddtini.SetFocus;
-      Exit;
-    end
-  else
-    begin
-      try
-      PbProgresso.Max := Dm.SqlAux1.RecordCount;
-      Dm.SqlAux1.First;
-      linha := 'F:\sistemas\retorno\fatcardcred';
-      if (not(DirectoryExists(linha))) then
-        MkDir(linha);
-      linha :=  linha + '\rt_5237-4120.0'+formatdatetime('dd',date);
-      LCDArqs.Caption :=  linha;
-      AssignFile(arquivo,linha);
-      Rewrite(arquivo);
-      linha := '1000'+FormatDateTime('yyyymmdd',Date)+GeraArquivo(testo,38);
-      Writeln(arquivo,linha);
-      conta := 1;
-      while not Dm.SqlAux1.Eof do
-        begin
-          linha := '2';
-          linha := linha + Trim(Dm.SqlAux1.Fields.Fields[0].AsString);
-          linha := linha + Trim(Dm.SqlAux1.Fields.Fields[1].AsString);
-          linha := linha + FormatDateTime('yyyymmdd',Date);
-          linha := linha + GeraArquivo(testo,5);
-          LCDGrav.Caption       := inttostr(1+strtoint(LCDGrav.Caption));
-          LCDLidos.Caption      := inttostr(1+strtoint(LCDLidos.Caption));
-          PbProgresso.Position  := PbProgresso.Position + 1;
-          Writeln(arquivo,linha);
-          Dm.SqlAux1.Next;
-          conta := conta + 1;
-        end;
-      conta := conta + 1;
-      linha := '9000'+FormatDateTime('yyyymmdd',Date);
-      linha := linha + GeraNT(IntToStr(conta),9);
-      linha := linha + GeraArquivo(testo,29);
-      Writeln(arquivo,linha);
-      CloseFile(arquivo);
-      sel := 'UPDATE cgafatcrtcrd set cgfatcrtcrd_dtret = '+Chr(39)+FormatDateTime('mm-dd-yyyy',Date)+Chr(39);
-      sel := sel + ' WHERE cgafatcrtcrd.cgfatcrtcrd_dtbaixa between '+Chr(39)+FormatDateTime('mm-dd-yyyy',StrToDate(mkeddtini.Text))+Chr(39);
-      sel := sel + ' and '+Chr(39)+FormatDateTime('mm-dd-yyyy',StrToDate(mkeddtfin.Text))+Chr(39);
-      sel := sel + ' and cgfatcrtcrd_dtret is null';
-      with Dm.SqlAux1 do
-        begin
-          Close;
-          SQL.Clear;
-          SQL.Add(sel);
-          ExecSQL;
-        end;
-      ShowMessage('Geração Concluida !!!');
-    except on e: exception do
-      Application.MessageBox(PChar(e.Message),'ADS',ID_OK);
-    end;
-    end;
-  end;
-end;
+            AssignFile(arquivo, destdir + fname);
+            Rewrite(arquivo);
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
 
-procedure TFrmRetornoExtratos.selcrtseg;
-begin
-  with dm do
-    begin
-      SqlAux1.Close;
-      SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga130.cg130_remes,to_char(cga130.cg130_dtbaixa,''ddmmyyyy''),cga20.cg20_codbrad');
-      SqlAux1.Sql.Add(' from cga130 inner join cga20 on cga20.cg20_codbaixa = cga130.cg130_codbaixa ');
-      SqlAux1.Sql.Add(' where (cg130_dtbaixa between ');
-      SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-      if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
-        begin
-          SqlAux1.Sql.Add(' and (cg130_dtret is null)');
+          fname :=  EdNomeArquivo.Text + ' e ' + fname;
+          ctareg := 0;
+          PbProgresso.Max := PbProgresso.Max * 2;
+          PBConsistencia.Max := PBConsistencia.Max * 2;
+          While not SqlAux1.Eof do
+            begin
+              linha := trim(SqlAux1.Fields[0].AsString);
+              linha := linha  + FormatDateTime('ddmmyyyy', SqlAux1.FieldByName('cg130_dtbaixa').AsDateTime);
+              linha := linha  + LPad(SqlAux1.Fields[2].AsString, 2, '0');
+              case length(linha) of
+                26:
+                  begin
+                    Verifica(linha);
+                    if Corrompido = true then
+                      begin
+                        LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                        PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                        corrompido :=  false;
+                      end
+                    else
+                      begin
+                        ctareg:=ctareg+1;
+                        linha:= LPad(inttostr(ctareg), 6, '0')+linha;
+                        Writeln(arquivo,linha);
+                        LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      end;
+                  end;
+              end; // \case
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end; // \while
+
+          SqlAux1.Close;
+          SqlAux1.Sql.Clear;
+          SqlAux1.Sql.Add('UPDATE cga130 SET cg130_dtret = CURRENT_DATE ');
+          if sim = false then
+            SqlAux1.Sql.Add(', cg130_dtenv = CURRENT_DATE');
+
+          SqlAux1.Sql.Add('WHERE cg130_dtbaixa BETWEEN :dtini AND :dtfin ');
+          SqlAux1.SQL.Add(' AND cg130_dtret is null ');
+
+          SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+          SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+          SqlAux1.ExecSql;
+
+          SqlAux1.Close;
+          CloseFile(arquivo);
+          EdNomeArquivo.Text :=  fname;
+          EdCaminho.Text := destdir;
+
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+              'Ads', MB_OK + MB_ICONINFORMATION);
         end
       else
-        begin
-          SqlAux1.Sql.Add(' and (cg130_dtret is not null)');
-          sim:=true;
-        end;
-      SqlAux1.Sql.Add(' order by cg130_remes');
-      SqlAux1.Open;
-      LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := Dm.SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\cartaoseguranca';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.0'+formatdatetime('dd',date);
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
-            Rewrite(arquivo);
-            ctareg:=0;
-            while not SqlAux1.Eof do
-              begin
-                linha := trim(SqlAux1.Fields[0].AsString);
-                linha := linha  + SqlAux1.Fields[1].AsString;
-                linha := linha  + gerant(SqlAux1.Fields[2].AsString,2);
-                case length(linha) of
-                  21:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          corrompido :=  false;
-                        end
-                      else
-                        begin
-                          ctareg:=ctareg+1;
-                          linha:=gerant(inttostr(ctareg),6)+linha;
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                        end;
-                      end;
-                end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-            SqlAux1.First;
-            CloseFile(arquivo);
-            linha := 'F:\sistemas\retorno\cartaoseguranca\rt_5237-4120.1'+formatdatetime('dd',date);
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
-            Rewrite(arquivo);
-            ctareg:=0;
-            while not SqlAux1.Eof do
-              begin
-                linha := trim(SqlAux1.Fields[0].AsString);
-                linha := linha  + SqlAux1.Fields[1].AsString;
-                linha := linha  + gerant(SqlAux1.Fields[2].AsString,2);
-                case length(linha) of
-                  26:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          corrompido :=  false;
-                        end
-                      else
-                        begin
-                          ctareg:=ctareg+1;
-                          linha:=gerant(inttostr(ctareg),6)+linha;
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                        end;
-                      end;
-                end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga130 set cg130_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-              if sim = false then
-                  SqlAux1.Sql.Add(' ,cg130_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-              SqlAux1.Sql.Add(' where (cg130_dtbaixa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg130_dtret is null)');
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-          end;
-        CloseFile(arquivo);
-      end;
-    end;
+        application.MessageBox('Não foi encontrado nenhum registro',
+              'Ads', MB_OK + MB_ICONINFORMATION);
+
+    end; // \With
 end;
+
 procedure TFrmRetornoExtratos.selcodetq;
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga140.cg140_remes, to_char(cga140.cg140_dtbxa,'+chr(39)+'ddmmyyyy'+chr(39)+'),cg140_codbxa ');
-      SqlAux1.Sql.Add('from cga140 ');
-      SqlAux1.Sql.Add('where (cg140_dtbxa between ');
-      SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-      if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
+      SqlAux1.Sql.Add('SELECT a.cg140_remes, ' +
+          'to_char(a.cg140_dtbxa,'+chr(39)+'ddmmyyyy'+chr(39)+'), ' +
+          'cg140_codbxa,  a.cg140_dtbxa as dtbxa ');
+      SqlAux1.Sql.Add('FROM cga140 a ');
+      SqlAux1.Sql.Add('WHERE cg140_dtbxa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      if application.MessageBox('Deseja que sejam reenviados registros?',
+            'Ads', MB_YESNO + MB_ICONQUESTION) = idno then
         begin
-          SqlAux1.Sql.Add(' and (cg140_dtret is null)');
+          SqlAux1.Sql.Add(' AND cg140_dtret IS NULL ');
         end
       else
         begin
-          SqlAux1.Sql.Add(' and (cg140_dtret is not null)');
+          SqlAux1.Sql.Add(' AND cg140_dtret IS NOT NULL');
           sim:=true;
         end;
-      SqlAux1.Sql.Add(' order by cg140_remes');
+      SqlAux1.Sql.Add('ORDER BY cg140_remes');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
       case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
+        0: application.MessageBox('Não foi encontrado nenhum registro',
+              'Ads', MB_OK + MB_ICONINFORMATION);
         else
           begin
             PbProgresso.Max := Dm.SqlAux1.RecordCount;
             SqlAux1.First;
-            linha := 'F:\sistemas\retorno\codigoetica';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.0'+formatdatetime('dd',date);
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
+
+            try
+              // Diretório onde colocar arquivos gerados
+              destdir := GetCurrentDir + '\retorno\codigoetica\' +
+                  UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+              if (not DirectoryExists(destdir))
+                    AND (not SysUtils.ForceDirectories(destdir)) then
+                raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+              fname := 'rt_5237-4120.0' + formatdatetime('dd', date);
+              // Garantindo que não existe arquivo com a nomenclatura passada
+              seq := 0;
+              While FileExists(destdir + fname) do
+                begin
+                  seq := seq + 1;
+                  fname := 'rt_5237-4120.0' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
+              end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            while not SqlAux1.Eof do
+            except on E: Exception do
+              Begin
+                Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+                CloseFile(arquivo);
+              end;
+            end; // \try 2
+
+            While not SqlAux1.Eof do
               begin
                 linha := Trim(SqlAux1.Fields[0].AsString);
-                linha := linha + SqlAux1.Fields[1].AsString;
+                linha := linha + FormatDateTime('ddmmyyyy', SqlAux1.FieldByName('dtbxa').AsDateTime);
                 linha := linha + SqlAux1.Fields[2].AsString;
                 case length(linha) of
-                  30:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
-                end;
+                   30:
+                     begin
+                       Verifica(linha);
+                       if Corrompido = true then
+                         begin
+                           LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                           PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                           // corrompido
+                         end
+                       else
+                         begin
+                           Writeln(arquivo,linha);
+                           LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                           LCDGrav.Refresh;
+                         end;
+                     end;
+                end; // \case
                 SqlAux1.Next;
                 LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
                 PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga140 set cg140_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-              if sim = false then
-                  SqlAux1.Sql.Add(' ,cg140_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-              SqlAux1.Sql.Add(' where (cg140_dtbxa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg140_dtret is null)');
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
+              end; // \While
+
+            SqlAux1.Close;
+            SqlAux1.Sql.Clear;
+            SqlAux1.Sql.Add('UPDATE cga140 SET cg140_dtret = CURRENT_DATE ');
+            if sim = false then
+              SqlAux1.Sql.Add(', cg140_dtenv = CURRENT_DATE');
+
+            SqlAux1.Sql.Add('WHERE cg140_dtbxa BETWEEN :dtini AND :dtfin ');
+            SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+            SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+            SqlAux1.SQL.Add('AND cg140_dtret is null');
+            SqlAux1.ExecSql;
+            SqlAux1.Close;
+            Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                    'Ads', MB_OK + MB_ICONINFORMATION);
+            CloseFile(arquivo);
           end;
-        CloseFile(arquivo);
-      end;
+        end; // \case
     end;
 end;
+
 procedure TFrmRetornoExtratos.seltokens;
 begin
-  with dm do
+  With Dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cg76_remes, to_char(cg76_dtsai,'+chr(39)+'dd/mm/yyyy'+chr(39)+'),cg76_ag');
-      SqlAux1.Sql.Add(',cg76_tipocli,cg76_dtb from cga76 ');
-      SqlAux1.Sql.Add('where (cg76_dtsai between ');
-      SqlAux1.Sql.Add(''+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-      if application.MessageBox('Deseja que sejam reenviados registros?','Ads',MB_YESNO+MB_ICONQUESTION) = idno then
+      SqlAux1.Sql.Add('SELECT cg76_remes, ' +
+          'to_char(cg76_dtsai,' + chr(39) + 'dd/mm/yyyy' + chr(39) + '), ' +
+          'cg76_ag, cg76_tipocli, cg76_dtb, cg76_dtsai as dtsai');
+      SqlAux1.Sql.Add('FROM cga76 ');
+      SqlAux1.Sql.Add('WHERE cg76_dtsai BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      if application.MessageBox('Deseja que sejam reenviados registros?',
+          'Ads', MB_YESNO + MB_ICONQUESTION) = idno then
         begin
-          SqlAux1.Sql.Add(' and (cg76_dtret is null)');
+          SqlAux1.Sql.Add(' AND cg76_dtret IS NULL ');
         end
       else
         begin
-          SqlAux1.Sql.Add(' and (cg76_dtret is not null)');
-          sim:=true;
+          SqlAux1.Sql.Add(' AND cg76_dtret IS NOT NULL ');
+          sim := true;
         end;
-      SqlAux1.Sql.Add(' order by cg76_remes');
+
+      SqlAux1.Sql.Add('ORDER by cg76_remes');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
       case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
+        0: application.MessageBox('Não foi encontrado nenhum registro',
+              'Ads', MB_OK + MB_ICONINFORMATION);
         else
           begin
             PbProgresso.Max := Dm.SqlAux1.RecordCount;
             SqlAux1.First;
-            linha := 'F:\sistemas\retorno\token';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\rt_9237-4120.0'+formatdatetime('dd',date);
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
+            try
+              // Diretório onde colocar arquivos gerados
+              destdir := GetCurrentDir + '\retorno\token\' +
+                  UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+              if (not DirectoryExists(destdir))
+                    AND (not SysUtils.ForceDirectories(destdir)) then
+                raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+              fname := 'RT_9237-4120.0' + formatdatetime('dd', date);
+              // Garantindo que não existe arquivo com a nomenclatura passada
+              seq := 0;
+              While FileExists(destdir + fname) do
+                begin
+                  seq := seq + 1;
+                  fname := 'RT_9237-4120.0' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
+              end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            while not SqlAux1.Eof do
+            except on E: Exception do
+              Begin
+                Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+                CloseFile(arquivo);
+                exit;
+              end;
+            end; // \try 2
+
+            While Not SqlAux1.Eof Do
               begin
                 linha := GeraArquivo(trim(SqlAux1.Fields[0].AsString),31);
                 linha := linha + GeraArquivo(SqlAux1.Fields[1].AsString,11);
@@ -1083,902 +1391,1170 @@ begin
               end;
               SqlAux1.Close;
               SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga76 set cg76_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
+              SqlAux1.Sql.Add('UPDATE cga76 SET cg76_dtret = CURRENT_DATE ');
+
               if sim = false then
-                  SqlAux1.Sql.Add(' ,cg76_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-              SqlAux1.Sql.Add(' where (cg76_dtsai between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg76_dtret is null)');
+                  SqlAux1.Sql.Add(', cg76_dtenv = CURRENT_DATE ');
+
+              SqlAux1.Sql.Add('WHERE cg76_dtsai BETWEEN :dtini AND :dtfin ');
+              SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+              SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+              SqlAux1.SQL.Add(' AND cg76_dtret IS NULL ');
               SqlAux1.ExecSql;
               SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
+              CloseFile(arquivo);
+              EdNomeArquivo.Text := fname;
+              EdCaminho.Text := destdir;
+              Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                    'Ads', MB_OK + MB_ICONINFORMATION);
+
           end;
-        CloseFile(arquivo);
-      end;
-    end;
+      end;  // \case
+    end; // \With
 end;
+
+
 procedure TFrmRetornoExtratos.selcadetq;
 begin
-  with dm do
+  With Dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga140.cg140_remes, to_char(cga140.cg140_dtcad,'+chr(39)+'ddmmyyyy'+chr(39)+'),cg140_codbxa ');
-      SqlAux1.Sql.Add('from cga140 ');
-      SqlAux1.Sql.Add('where (cg140_dtcad between ');
-      SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+')');
-      sim:=true;
-      SqlAux1.Sql.Add(' order by cg140_remes');
+      SqlAux1.Sql.Add('SELECT a.cg140_remes, ' +
+        'to_char(a.cg140_dtcad, ' + chr(39) + 'ddmmyyyy' + chr(39) + '), ' +
+        'a.cg140_codbxa,  a.dtcad ');
+      SqlAux1.Sql.Add('FROM cga140 a ');
+      SqlAux1.Sql.Add('WHERE cg140_dtcad BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      sim := true;
+      SqlAux1.Sql.Add('ORDER BY cg140_remes');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := Dm.SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\codigoetica';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.0'+formatdatetime('dd',date);
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            AssignFile(arquivo,linha);
-            Rewrite(arquivo);
-            while not SqlAux1.Eof do
+      If (SqlAux1.RecordCount > 0 ) then
+        begin
+          PbProgresso.Max := Dm.SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\codigoetica\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+
+            fname := 'RT_5237-4120.0' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                linha := Trim(SqlAux1.Fields[0].AsString);
-                linha := linha + SqlAux1.Fields[1].AsString;
-                //linha := linha + SqlAux1.Fields[2].AsString;
-                case length(linha) of
-                  28:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
-                end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
+                seq := seq + 1;
+                fname := 'RT_5237-4120.0' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
               end;
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga140 set cg140_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-              if sim = false then
-                  SqlAux1.Sql.Add(' ,cg140_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-              SqlAux1.Sql.Add(' where (cg140_dtbxa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg140_dtret is null)');
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-          end;
-        CloseFile(arquivo);
-      end;
-    end;
+
+            AssignFile(arquivo, destdir + fname);
+            Rewrite(arquivo);
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+            end;
+          end; // \try 2
+
+          While Not SqlAux1.Eof do
+            Begin
+              linha := Trim(SqlAux1.Fields[0].AsString);
+              linha := linha + FormatDateTime('ddmmyyyy', SqlAux1.FieldByName('dtcad').AsDateTime);
+              If length(linha) = 28 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
+                    begin
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                          // corrompido
+                    end
+                  else
+                    begin
+                      Writeln(arquivo, linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
+
+                end;
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1 + strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          SqlAux1.Close;
+          SqlAux1.Sql.Clear;
+          SqlAux1.Sql.Add('UPDATE cga140 SET cg140_dtret = CURRENT_DATE ');
+          if sim = false then
+            SqlAux1.Sql.Add(', cg140_dtenv = CURRENT_DATE');
+
+          SqlAux1.Sql.Add('WHERE cg140_dtbxa BETWEEN :dtini AND :dtfin ');
+          SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+          SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+          SqlAux1.SQL.Add(' AND cg140_dtret IS NULL');
+          SqlAux1.ExecSql;
+          SqlAux1.Close;
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                    'Ads', MB_OK + MB_ICONINFORMATION);
+
+          CloseFile(arquivo);
+        end
+      else
+        application.MessageBox('Não foi encontrado nenhum registro',
+              'ADS', MB_OK + MB_ICONINFORMATION);
+    end; // \With
 end;
 
 procedure TFrmRetornoExtratos.seldrccllp;
 begin
-  with dm do
-    begin
+  With Dm Do
+    Begin
       SqlAux1.Close;
-      SqlAux1.Sql.Clear;//alterado até regerar
-//      SqlAux1.Sql.Add('select distinct(cga78.cg78_remes),cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('select cga78.cg78_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add(',to_char(cga78.cg78_dtbaixa,''ddmmyyyy'') ');
-      SqlAux1.Sql.Add('from cga78 inner join cga20 on cga20.cg20_codbaixa = cga78.cg78_codbaixa ');
-      SqlAux1.Sql.Add('where (cg78_dtbaixa between :dtini and :dtfin) ');
-//      sim:=true;
-      SqlAux1.Sql.Add('order by cg78_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Clear; // alterado até regerar
+
+      SqlAux1.Sql.Add('SELECT a.cg78_remes, b.cg20_codbrad ');
+      SqlAux1.Sql.Add(', to_char(a.cg78_dtbaixa,''ddmmyyyy''), ');
+      SqlAux1.Sql.Add('a.cg78_dtbaixa as dtbaixa ');
+      SqlAux1.Sql.Add('FROM cga78 ');
+      SqlAux1.Sql.Add('INNER JOIN cga20 b on b.cg20_codbaixa = a.cg78_codbaixa ');
+      SqlAux1.Sql.Add('WHERE a.cg78_dtbaixa BETWEEN :dtini and :dtfin ');
+
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      SqlAux1.Sql.Add('ORDER BY by a.cg78_remes, b.cg20_codbrad');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\drc\avisocob';
-            if (Not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha:=linha+'\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      if SqlAux1.RecordCount > 0 then
+        Begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\DRC\avisocob\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RT_5237-4120.0' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RT_5237-4120.0' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
               end;
-            end;
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            linha:='@ADDRESS LOGISTICA    '+  format('%9.9s%',[' ']);
-            Writeln(arquivo,linha);
-            while not SqlAux1.Eof do
-              begin
-                //alterado conforme solicitacao do cliente em 28/04/2011 - ligação de Wagner
-                linha := trim(copy(SqlAux1.Fields[0].AsString,1,15))+SqlAux1.Fields[2].AsString+trim(copy(SqlAux1.Fields[0].AsString,24,6));
-                linha := linha + format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                //linha := linha + SqlAux1.Fields[2].AsString;
-                case length(linha) of
-                  31:
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+            end;
+          end; // \try 2
+
+          linha := RPad('@ADDRESS S.A.', 31, ' ');
+          Writeln(arquivo, linha);
+          While Not SqlAux1.Eof Do
+            Begin
+              linha := copy(Trim(SqlAux1.Fields[0].AsString), 1, 15) +
+                  SqlAux1.Fields[2].AsString +
+                  copy(Trim(SqlAux1.Fields[0].AsString), 24, 6);
+              linha := linha + format('%2.2d', [SqlAux1.Fields[1].AsInteger]);
+              If length(linha) = 31 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
                     begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
                           // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
                 end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              linha:= '*'+format('%9.9d',[strtoint(LCDGrav.caption)])+format('%21.21s%',[' ']);
-              Writeln(arquivo,linha);
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga78 set cg78_dtret ='+chr(39)+formatdatetime('mm-dd-yyy',date)+chr(39));
-              if sim = false then
-                  SqlAux1.Sql.Add(' ,cg78_dtenv ='+chr(39) +formatdatetime('mm-dd-yyyy',date)+chr(39));
-              SqlAux1.Sql.Add(' where (cg78_dtbaixa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg78_dtret is null)');
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-          end;
-        closefile(arquivo);
-      end;
-    end;
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          linha:= RPad('*' + format('%9.9d', [strtoint(LCDGrav.caption)]), 31, ' ');
+          Writeln(arquivo, linha);
+          SqlAux1.Close;
+          SqlAux1.Sql.Clear;
+          SqlAux1.Sql.Add('UPDATE cga78 SET cg78_dtret = CURRENT_DATE ');
+          if sim = false then
+            SqlAux1.Sql.Add(', cg78_dtenv = CURRENT_DATE ');
+
+          SqlAux1.Sql.Add('WHERE cg78_dtbaixa BETWEEN :dtini AND :dtfin ');
+          SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+          SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+          SqlAux1.SQL.ADD(' AND cg78_dtret IS NULL');
+          SqlAux1.ExecSql;
+          SqlAux1.Close;
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                  'Ads', MB_OK + MB_ICONINFORMATION);
+
+          closefile(arquivo);
+        end
+      else
+        application.MessageBox('Não foi encontrado nenhum registro',
+                'Ads', MB_OK + MB_ICONINFORMATION);
+
+    end; // \With
 end;
+
+
 procedure TFrmRetornoExtratos.selcrtsenha;
 begin
-  with dm do
+  With Dm Do
     begin
       SqlAux1.Close;
-      SqlAux1.Sql.Clear;//alterado até regerar
-//      SqlAux1.Sql.Add('select distinct(cga035.cg035_remes),cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('select cga035.cg035_remes,cga20.cg20_codbrad ');
-      //to_char(cga78.cg78_dtbaixa,'+chr(39)+'ddmmyyyy'+chr(39)+'),
-      SqlAux1.Sql.Add('from cga035 inner join cga20 on cga20.cg20_codbaixa = cga035.cg035_codbaixa ');
-      SqlAux1.Sql.Add('where (cg035_dtbaixa between :dtini and :dtfin) ');
-//      sim:=true;
-      SqlAux1.Sql.Add('order by cg035_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Clear;// alterado até regerar
+      SqlAux1.Sql.Add('SELECT cga035.cg035_remes, cga20.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga035 ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 on cga20.cg20_codbaixa = cga035.cg035_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg035_dtbaixa BETWEEN :dtini and :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      SqlAux1.Sql.Add('ORDER BY cg035_remes, cga20.cg20_codbrad');
+
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\consorcio';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\cartasenha';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.0'+formatdatetime('dd',date);
-            Application.MessageBox(PChar('Arquivo : '+linha),'ADS',0);
-            LCDArqs.Caption :=  linha;
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      If SqlAux1.RecordCount > 0 then
+        begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\consorcio\cartasenha\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RT_5237-4120.0' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RT_5237-4120.0' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
               end;
-            end;
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            linha:='@ADDRESS LOGISTICA    '+  format('%9.9s%',[' ']);
-            Writeln(arquivo,linha);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString);
-                linha := linha + format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                //linha := linha + SqlAux1.Fields[2].AsString;
-                case length(linha) of
-                  22:
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          linha := RPad('@ADDRESS S.A.', 31, ' ');
+          Writeln(arquivo, linha);
+          ctareg := 1;
+          While Not SqlAux1.Eof Do
+            Begin
+              linha := RPad(
+                            Trim(SqlAux1.Fields[0].AsString) +
+                              format('%2.2d', [SqlAux1.Fields[1].AsInteger]),
+                            22, ' ');
+              If length(linha) = 22 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
                     begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
                           // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
                 end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              linha:= '*'+format('%9.9d',[strtoint(LCDGrav.caption)])+format('%21.21s%',[' ']);
-              Writeln(arquivo,linha);
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga035 set cg035_dtret =(select current_date) where (cg035_dtbaixa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg035_dtret is null)');
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1 + strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          linha:= RPad('*' + format('%9.9d', [strtoint(LCDGrav.caption)]),
+                       31, ' ');
+          Writeln(arquivo, linha);
+          SqlAux1.Close;
+          SqlAux1.Sql.Clear;
+          SqlAux1.Sql.Add('UPDATE cga035 SET cg035_dtret = CURRENT_DATE ');
+          SqlAux1.SQL.Add('WHERE cg035_dtbaixa BETWEEN :dtini AND :dtfin ');
+          SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+          SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+          SqlAux1.SQL.Add(' AND cg035_dtret IS NULL ');
+          SqlAux1.ExecSql;
+          SqlAux1.Close;
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+          Closefile(arquivo);
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                    'Ads', MB_OK + MB_ICONINFORMATION);
+        end
+      else
+        application.MessageBox('Não foi encontrado nenhum registro',
+                  'Ads', MB_OK + MB_ICONINFORMATION);
+    end; // \With
 end;
+
+
 procedure TFrmRetornoExtratos.selconsorcio;
 begin
   with dm do
     begin
       SqlAux1.Close;
-      SqlAux1.Sql.Clear;//alterado até regerar
-//      SqlAux1.Sql.Add('select distinct(cga036.cg036_remes),cga20.cg20_codbrad ');
-      //to_char(cga78.cg78_dtbaixa,'+chr(39)+'ddmmyyyy'+chr(39)+'),
-      SqlAux1.Sql.Add('select cga036.cg036_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga036 inner join cga20 on cga20.cg20_codbaixa = cga036.cg036_codbaixa ');
-      SqlAux1.Sql.Add('where (cg036_dtbaixa between :dtini and :dtfin) ');
-//      sim:=true;
-      SqlAux1.Sql.Add('order by cg036_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Clear;// alterado até regerar
+
+      SqlAux1.Sql.Add('SELECT a.cg036_remes, b.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga036 a INNER JOIN cga20 b on b.cg20_codbaixa = a.cg036_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg036_dtbaixa BETWEEN :dtini and :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlAux1.Sql.Add('ORDER BY cg036_remes, b.cg20_codbrad');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\consorcio';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\extrato';
-            if (not(DirectoryExists(linha))) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.0'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            Application.MessageBox(PChar('Arquivo : '+linha),'ADS',0);
-            //essa linha abaixo é apenas para testes
-            //linha := 'c:\temp\rt_5237-4120.0'+formatdatetime('dd',date);
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+
+      If (SqlAux1.RecordCount > 0 ) then
+        Begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\consorcio\extrato\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RT_5237-4120.0' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RT_5237-4120.0' + formatdatetime('dd', date) +
+                          '_' + IntToStr(seq);
               end;
-            end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            linha:='@ADDRESS LOGISTICA    '+  format('%9.9s%',[' ']);
-            Writeln(arquivo,linha);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString);
-                linha := linha + format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                //linha := linha + SqlAux1.Fields[2].AsString;
-                case length(linha) of
-                  22:
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          linha := RPad('@ADDRESS S.A.', 31, ' ');
+          Writeln(arquivo, linha);
+          ctareg := 1;
+
+          While Not SqlAux1.Eof Do
+            Begin
+              linha := Trim(SqlAux1.Fields[0].AsString);
+              linha := linha + format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
+              If length(linha) = 22 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
                     begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
                           // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
                 end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              linha:= '*'+format('%9.9d',[strtoint(LCDGrav.caption)])+format('%21.21s%',[' ']);
-              Writeln(arquivo,linha);
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga036 set cg036_dtret =(select current_date) where (cg036_dtbaixa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg036_dtret is null)');
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',MB_OK+MB_ICONINFORMATION);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          linha := RPAd('*' + format('%9.9d', [strtoint(LCDGrav.caption)]), 31, ' ') ;
+          Writeln(arquivo,linha);
+          SqlAux1.Close;
+          SqlAux1.Sql.Clear;
+          SqlAux1.Sql.Add('UPDATE cga036 SET cg036_dtret = CURRENT_DATE ');
+          SqlAux1.SQL.Add('WHERE cg036_dtbaixa BETWEEN :dtini AND :dtfin ');
+          SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+          SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+          SqlAux1.SQL.Add('AND cg036_dtret IS NULL ');
+          SqlAux1.ExecSql;
+          SqlAux1.Close;
+          Closefile(arquivo);
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                'Ads', MB_OK + MB_ICONINFORMATION);
+        end
+      else
+        application.MessageBox('Não foi encontrado nenhum registro',
+                'Ads', MB_OK + MB_ICONINFORMATION);
+
+    end; // \With
 end;
+
+
 procedure TFrmRetornoExtratos.selfinasafpe; // Baixa Extrato Finasa FPE
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga038.cg038_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga038 inner join cga20 on cga20.cg20_codbaixa = cga038.cg038_codbaixa ');
-      SqlAux1.Sql.Add('where (cg038_dtbaixa between :dtini and :dtfin) ');
-      SqlAux1.Sql.Add('order by cg038_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Add('SELECT a.cg038_remes, b.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga038 a ');
+      SqlAux1.Sql.Add('  INNER JOIN cga20 b on b.cg20_codbaixa = a.cg038_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg038_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlAux1.Sql.Add('ORDER BY cg038_remes, b.cg20_codbrad');
+
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-//            linha := 'F:\RTFINFPE'+formatdatetime('ddmm',date)+'.0'+formatdatetime('yy',date);
-            linha := 'F:\sistemas\retorno\finasa\fpe';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\RTFINFPE'+formatdatetime('ddmm',date)+'.0'+formatdatetime('yy',date);
-            LCDArqs.Caption :=  linha;
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      If SqlAux1.RecordCount < 1 then
+          application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION)
+      else
+        begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\FINASA\FPE\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RTFINFPE' + formatdatetime('ddmm.0yy', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RTFINFPE' +
+                      formatdatetime('ddmm.0_' + IntToStr(seq) + 'yy', date);
               end;
-            end;
-            Rewrite(arquivo);
-            linha:='@ADDRESS LOGISTICA    '+  format('%14.14s%',[' ']);
-            Writeln(arquivo,linha);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString);
-                linha := linha + format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                case length(linha) of
-                  36:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
-                end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              linha:= '*'+format('%9.9d',[strtoint(LCDGrav.caption)])+format('%26.26s%',[' ']);
-              Writeln(arquivo,linha);
-              SqlAux1.Close;
-              SqlAux1.Sql.Clear;
-              SqlAux1.Sql.Add('update cga038 set cg038_dtret =(select current_date) where (cg038_dtbaixa between ');
-              SqlAux1.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg038_dtret is null)');
-              SqlAux1.ExecSql;
-              SqlAux1.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
-              closefile(arquivo);
-          end;
-      end;
 
-    end;
+            AssignFile(arquivo, destdir + fname);
+            Rewrite(arquivo);
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          linha := RPad('@ADDRESS S.A.', 36, ' ');
+          Writeln(arquivo, linha);
+          ctareg := 1;
+
+          While Not SqlAux1.Eof Do
+            begin
+              linha := Trim(SqlAux1.Fields[0].AsString);
+              linha := linha + format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
+              If length(linha) = 36 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
+                    begin
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                      // corrompido
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
+                end;
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1 + strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          linha:= RPad('*' + format('%9.9d', [strtoint(LCDGrav.caption)]), 36, ' ');
+          Writeln(arquivo, linha);
+          SqlAux1.Close;
+          SqlAux1.Sql.Clear;
+          SqlAux1.Sql.Add('UPDATE cga038 SET cg038_dtret = CURRENT_DATE ');
+          SqlAux1.SQL.Add('WHERE cg038_dtbaixa BETWEEN :dtini AND :dtfin ');
+          SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+          SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+          SqlAux1.SQL.Add(' AND cg038_dtret is null ');
+          SqlAux1.ExecSql;
+          SqlAux1.Close;
+          Closefile(arquivo);
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                  'Ads', IDOK);
+
+        end;
+
+    end; // \With
 end;
+
 procedure TFrmRetornoExtratos.selfinasacli; // Baixa Boleto Finasa CLI
 begin
-  with dm do
-    begin
+  With Dm do
+    Begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga039.cg039_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga039 inner join cga20 on cga20.cg20_codbaixa = cga039.cg039_codbaixa ');
-      SqlAux1.Sql.Add('where (cg039_dtbaixa between :dtini and :dtfin) ');
-      SqlAux1.Sql.Add('order by cg039_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Add('SELECT cga039.cg039_remes, cga20.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga039 ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 on cga20.cg20_codbaixa = cga039.cg039_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg039_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlAux1.Sql.Add('ORDER BY cg039_remes,cga20.cg20_codbrad');
+
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\finasa\boleto';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\RTFINCLI'+formatdatetime('ddmm',date)+'.'+formatdatetime('yy',date)+'0';
-            LCDArqs.Caption :=  linha;
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      If SqlAux1.RecordCount < 1 then
+          application.MessageBox('Não foi encontrado nenhum registro',
+                  'Ads', MB_OK + MB_ICONINFORMATION)
+      else
+        begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\FINASA\boleto\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RTFINCLI' + formatdatetime('ddmm.yy0', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RTFINCLI' +
+                      formatdatetime('ddmm_' + IntToStr(seq) + '.yy0', date);
               end;
-            end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            linha:='@'+format('%-35.35s%',['ADDRESS LOGISTICA']);
-            Writeln(arquivo,linha);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString)+format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                case length(linha) of
-                  13:
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          linha := '@' + format('%-35.35s%',['ADDRESS S.A.']);
+          Writeln(arquivo, linha);
+          ctareg := 1;
+          While Not SqlAux1.Eof Do
+            begin
+              linha := Trim(SqlAux1.Fields[0].AsString)+format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
+              If length(linha) = 13 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
                     begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
                           // corrompido
-                        end
-                      else
-                        begin
-                          linha := linha + format('%-23.23s%',[' ']);
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
+                    end
+                  else
+                    begin
+                      linha := linha + format('%-23.23s%',[' ']);
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
+
                 end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              linha:= '*'+format('%9.9d',[strtoint(LCDGrav.caption)])+format('%-26.26s%',[' ']);
-              Writeln(arquivo,linha);
-              SqlAux2.Close;
-              SqlAux2.Sql.Clear;
-              SqlAux2.Sql.Add('update cga039 set cg039_dtret = (select current_date) where (cg039_dtbaixa between ');
-              SqlAux2.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') and (cg039_dtret is null)');
-              SqlAux2.ExecSql;
-              SqlAux2.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+            linha:= '*'+format('%9.9d',[strtoint(LCDGrav.caption)])+format('%-26.26s%',[' ']);
+            Writeln(arquivo,linha);
+            SqlAux2.Close;
+            SqlAux2.Sql.Clear;
+            SqlAux2.Sql.Add('UPDATE cga039 SET cg039_dtret = CURRENT_DATE ');
+            SqlAux2.SQL.Add('cg039_dtbaixa BETWEEN :dtini AND :dtfin ');
+            SqlAux2.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+            SqlAux2.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+            SqlAux2.SQL.Add('AND cg039_dtret is null');
+            SqlAux2.ExecSql;
+            SqlAux2.Close;
+            Closefile(arquivo);
+            EdNomeArquivo.Text := fname;
+            EdCaminho.Text := destdir;
+            Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
+        end;
+    end; // \With
 end;
+
 procedure TFrmRetornoExtratos.selfinasacrt; // Baixa Boleto Finasa CLI
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga040.cg040_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga040 inner join cga20 on cga20.cg20_codbaixa = cga040.cg040_codbaixa ');
-      SqlAux1.Sql.Add('where (cg040_dtbaixa between :dtini and :dtfin) ');
-      SqlAux1.Sql.Add('order by cg040_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Add('SELECT cga040.cg040_remes,cga20.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga040 ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 on cga20.cg20_codbaixa = cga040.cg040_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg040_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlAux1.Sql.Add('ORDER BY cg040_remes, cga20.cg20_codbrad');
+
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\finasa\carta';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\RTFINCRT'+formatdatetime('ddmmyyyy',date)+'.txt';
-            LCDArqs.Caption :=  linha;
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      If SqlAux1.RecordCount < 1 then
+        application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION)
+      else
+        Begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\FINASA\carta\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RTFINCRT' + formatdatetime('ddmmyyyy', date) + '.txt';
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RTFINCLI' +
+                      formatdatetime('ddmmyyyy_' + IntToStr(seq) + '.txt', date);
               end;
-            end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            linha:='@'+format('%-35.35s%',['ADDRESS LOGISTICA']);
-            Writeln(arquivo,linha);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString)+format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                case length(linha) of
-                  09:
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          linha := '@' + format('%-35.35s%',['ADDRESS S.A.']);
+          Writeln(arquivo,linha);
+          ctareg := 1;
+          While Not SqlAux1.Eof Do
+            Begin
+              linha := Trim(SqlAux1.Fields[0].AsString) +
+                    format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
+              if length(linha) = 9 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
                     begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
                           // corrompido
-                        end
-                      else
-                        begin
-                          linha := format('%-36.36s%',[linha]);
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                      end;
+                    end
+                  else
+                    begin
+                      linha := format('%-36.36s%',[linha]);
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
                 end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              linha:= '*'+format('%9.9d',[strtoint(LCDGrav.caption)])+format('%-26.26s%',[' ']);
-              Writeln(arquivo,linha);
-              SqlAux2.Close;
-              SqlAux2.Sql.Clear;
-              SqlAux2.Sql.Add('update cga040 set cg040_dtret = (select current_date) where (cg040_dtbaixa between ');
-              SqlAux2.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') ');
-              SqlAux2.Sql.Add('and (cg040_dtret is null)');
-              SqlAux2.ExecSql;
-              SqlAux2.Close;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+            linha := '*' + format('%9.9d',[strtoint(LCDGrav.caption)]) +
+                    format('%-26.26s%',[' ']);
+            Writeln(arquivo, linha);
+            SqlAux2.Close;
+            SqlAux2.Sql.Clear;
+            SqlAux2.Sql.Add('UPDATE cga040 SET cg040_dtret = CURRENT_DATE ');
+            SqlAux2.SQL.Add('cg040_dtbaixa BETWEEN :dtini AND :dtfin ');
+            SqlAux2.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+            SqlAux2.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+            SqlAux2.Sql.Add('  AND cg040_dtret IS NULL ');
+            SqlAux2.ExecSql;
+            SqlAux2.Close;
+            Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                      'Ads', IDOK);
+            Closefile(arquivo);
+            EdNomeArquivo.Text := fname;
+            EdCaminho.Text := destdir;
+        end; // \If
+    end; // \With
 end;
+
 procedure TFrmRetornoExtratos.seldrcprvlbl; // drc private label
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga041.cg041_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga041 inner join cga20 on cga20.cg20_codbaixa = cga041.cg041_codbaixa ');
-      SqlAux1.Sql.Add('where (cg041_dtbaixa between :dtini and :dtfin) ');
-      SqlAux1.Sql.Add('order by cg041_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Add('SELECT a.cg041_remes, b.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga041 a ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 b on b.cg20_codbaixa = a.cg041_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg041_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      SqlAux1.Sql.Add('ORDER BY cg041_remes, b.cg20_codbrad');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\drc\private';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      If SqlAux1.RecordCount < 1 then
+          application.MessageBox('Não foi encontrado nenhum registro',
+                'Ads', MB_OK + MB_ICONINFORMATION)
+      else
+        begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\DRC\private\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RT_5237-4120.' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RT_5237-4120' +
+                      formatdatetime('_' + IntToStr(seq) + '.dd', date);
               end;
-            end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString)+format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                case length(linha) of
-                  13:
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          ctareg := 1;
+          while not SqlAux1.Eof do
+            begin
+              linha := Trim(SqlAux1.Fields[0].AsString) +
+                  format('%2.2d', [SqlAux1.Fields[1].AsInteger ]);
+              if length(linha) = 13 then
+                begin
+                  Verifica(linha);
+                  if Corrompido = true then
                     begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
                           // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
                     end;
                 end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              if Corrompido = false then
-                begin
-                  SqlAux2.Close;
-                  SqlAux2.Sql.Clear;
-                  SqlAux2.Sql.Add('update cga041 set cg041_dtret = (select current_date) where (cg041_dtbaixa between ');
-                  SqlAux2.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') ');
-                  SqlAux2.Sql.Add('and (cg041_dtret is null)');
-                  SqlAux2.ExecSql;
-                  SqlAux2.Close;
-                end;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          if Corrompido = false then
+            begin
+              SqlAux2.Close;
+              SqlAux2.Sql.Clear;
+              SqlAux2.Sql.Add('UPDATE cga041 SET cg041_dtret = current_date ');
+              SqlAux2.SQL.Add('WHERE cg041_dtbaixa BETWEEN :dtini AND :dtfin ');
+              SqlAux2.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+              SqlAux2.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+              SqlAux2.Sql.Add(' AND cg041_dtret IS NULL');
+              SqlAux2.ExecSql;
+              SqlAux2.Close;
+            end;
+
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada', 'Ads', IDOK);
+          Closefile(arquivo);
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+        end;
+    end; // \With
 end;
+
 procedure TFrmRetornoExtratos.seldrccrtfat; // drc private label
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga042.cg042_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga042 inner join cga20 on cga20.cg20_codbaixa = cga042.cg042_codbaixa ');
-      SqlAux1.Sql.Add('where (cg042_dtbaixa between :dtini and :dtfin) ');
-      SqlAux1.Sql.Add('order by cg042_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Add('SELECT a.cg042_remes, b.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga042 a ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 b on b.cg20_codbaixa = a.cg042_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg042_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlAux1.Sql.Add('ORDER BY cg042_remes, b.cg20_codbrad');
+
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\drc\';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\cartaofat';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      If SqlAux1.RecordCount < 1 then
+        application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION)
+      else
+        begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\DRC\cartaofat\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RT_5237-4120.' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RT_5237-4120' +
+                      formatdatetime('_' + IntToStr(seq) + '.dd', date);
               end;
-            end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString)+format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                case length(linha) of
-                  13:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                    end;
-                end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              if Corrompido = false then
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          ctareg := 1;
+          While not SqlAux1.Eof do
+            begin
+              linha := Trim(SqlAux1.Fields[0].AsString) +
+                    format('%2.2d', [SqlAux1.Fields[1].AsInteger ]);
+              If length(linha) = 13 then
                 begin
-                  SqlAux2.Close;
-                  SqlAux2.Sql.Clear;
-                  SqlAux2.Sql.Add('update cga042 set cg042_dtret = (select current_date) where (cg042_dtbaixa between ');
-                  SqlAux2.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') ');
-                  SqlAux2.Sql.Add('and (cg042_dtret is null)');
-                  SqlAux2.ExecSql;
-                  SqlAux2.Close;
+                  Verifica(linha);
+                  if Corrompido = true then
+                    begin
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                          // corrompido
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
+
                 end;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          if Corrompido = false then
+            begin
+              SqlAux2.Close;
+              SqlAux2.Sql.Clear;
+              SqlAux2.Sql.Add('UPDATE cga042 SET cg042_dtret = CURRENT_DATE ');
+              SqlAux2.SQL.Add('WHERE cg042_dtbaixa BETWEEN :dtini AND :dtfin ');
+              SqlAux2.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+              SqlAux2.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+              SqlAux2.Sql.Add(' AND cg042_dtret IS NULL');
+              SqlAux2.ExecSql;
+              SqlAux2.Close;
+            end;
+
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada',
+                    'Ads', IDOK);
+          Closefile(arquivo);
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+        end;
+    end; // \With
 end;
+
 procedure TFrmRetornoExtratos.seldrczogmcsi; // Drc Zogbi MCSI
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga043.cg043_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga043 inner join cga20 on cga20.cg20_codbaixa = cga043.cg043_codbaixa ');
-      SqlAux1.Sql.Add('where (cg043_dtbaixa between :dtini and :dtfin) ');
-      SqlAux1.Sql.Add('order by cg043_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Add('SELECT a.cg043_remes, b.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga043 a ');
+      SqlAux1.Sql.Add(' INNER JOIN cga20 b on b.cg20_codbaixa = a.cg043_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg043_dtbaixa BETWEEN :dtini and :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      SqlAux1.Sql.Add('ORDER BY cg043_remes, b.cg20_codbrad');
+
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\drc\';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\zogbmcsi';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+
+      If SqlAux1.RecordCount < 1 then
+        application.MessageBox('Não foi encontrado nenhum registro', 'Ads', MB_OK + MB_ICONINFORMATION)
+      else
+        begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\DRC\zogbmcsi\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RT_5237-4120.' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RT_5237-4120' +
+                      formatdatetime('_' + IntToStr(seq) + '.dd', date);
               end;
-            end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString)+format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                case length(linha) of
-                  13:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                    end;
-                end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              if Corrompido = false then
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+
+          ctareg := 1;
+          while not SqlAux1.Eof do
+            begin
+              linha := Trim(SqlAux1.Fields[0].AsString) +
+                    format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
+              If length(linha) = 13 then
                 begin
-                  SqlAux2.Close;
-                  SqlAux2.Sql.Clear;
-                  SqlAux2.Sql.Add('update cga043 set cg043_dtret = (select current_date) where (cg043_dtbaixa between ');
-                  SqlAux2.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') ');
-                  SqlAux2.Sql.Add('and (cg043_dtret is null)');
-                  SqlAux2.ExecSql;
-                  SqlAux2.Close;
+                  Verifica(linha);
+                  if Corrompido = true then
+                    begin
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                          // corrompido
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
+
                 end;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          if Corrompido = false then
+            begin
+              SqlAux2.Close;
+              SqlAux2.Sql.Clear;
+              SqlAux2.Sql.Add('UPDATE cga043 SET cg043_dtret = CURRENT_DATE ');
+              SqlAux2.SQL.Add('WHERE cg043_dtbaixa BETWEEN :dtini AND :dtfin ');
+              SqlAux2.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+              SqlAux2.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+              SqlAux2.Sql.Add(' AND cg043_dtret is null');
+              SqlAux2.ExecSql;
+              SqlAux2.Close;
+            end;
+
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
+          Closefile(arquivo);
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+        end;
+    end; // \With
 end;
+
 procedure TFrmRetornoExtratos.seldrcbolamex; // Drc Boleto Amex
 begin
   with dm do
     begin
       SqlAux1.Close;
       SqlAux1.Sql.Clear;
-      SqlAux1.Sql.Add('select cga044.cg044_remes,cga20.cg20_codbrad ');
-      SqlAux1.Sql.Add('from cga044 inner join cga20 on cga20.cg20_codbaixa = cga044.cg044_codbaixa ');
-      SqlAux1.Sql.Add('where (cg044_dtbaixa between :dtini and :dtfin) ');
-      SqlAux1.Sql.Add('order by cg044_remes,cga20.cg20_codbrad');
-      SqlAux1.Params[0].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text));
-      SqlAux1.Params[1].AsString  :=  FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text));
+      SqlAux1.Sql.Add('SELECT a.cg044_remes, b.cg20_codbrad ');
+      SqlAux1.Sql.Add('FROM cga044 a ');
+      SqlAux1.Sql.Add('INNER JOIN cga20 b on b.cg20_codbaixa = a.cg044_codbaixa ');
+      SqlAux1.Sql.Add('WHERE cg044_dtbaixa BETWEEN :dtini AND :dtfin ');
+      SqlAux1.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlAux1.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+
+      SqlAux1.Sql.Add('ORDER BY cg044_remes, b.cg20_codbrad');
       SqlAux1.Open;
       LCDTot.Caption := inttostr(Dm.SqlAux1.RecordCount);
-      case SqlAux1.RecordCount of
-        0: application.MessageBox('Não foi encontrado nenhum registro','Ads',MB_OK+MB_ICONINFORMATION);
-        else
-          begin
-            PbProgresso.Max := SqlAux1.RecordCount;
-            SqlAux1.First;
-            linha := 'F:\sistemas\retorno\drc\';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\bolamex';
-            if not(DirectoryExists(linha)) then
-              MkDir(linha);
-            linha := linha+'\rt_5237-4120.'+formatdatetime('dd',date);
-            LCDArqs.Caption :=  linha;
-            try
-            AssignFile(arquivo,linha);
-            except on e: exception do
+      If SqlAux1.RecordCount < 1 then
+        application.MessageBox('Não foi encontrado nenhum registro',
+              'Ads', MB_OK + MB_ICONINFORMATION)
+      else
+        begin
+          PbProgresso.Max := SqlAux1.RecordCount;
+          SqlAux1.First;
+          try
+            // Diretório onde colocar arquivos gerados
+            destdir := GetCurrentDir + '\retorno\DRC\bolamex\' +
+                UpperCase(FormatDateTime('yyyy\mmmm', Date)) + '\';
+            if (not DirectoryExists(destdir))
+                  AND (not SysUtils.ForceDirectories(destdir)) then
+              raise Exception.CreateFmt('Não foi possível criar o diretório %s', [destdir]);
+            fname := 'RT_5237-4120.' + formatdatetime('dd', date);
+            // Garantindo que não existe arquivo com a nomenclatura passada
+            seq := 0;
+            While FileExists(destdir + fname) do
               begin
-                Application.MessageBox(PChar('Arquivo : '+linha+' não foi possível abrir'),'ADS',0);
-                exit;
+                seq := seq + 1;
+                fname := 'RT_5237-4120' +
+                      formatdatetime('_' + IntToStr(seq) + '.dd', date);
               end;
-            end;
+
+            AssignFile(arquivo, destdir + fname);
             Rewrite(arquivo);
-            ctareg:=1;
-            while not SqlAux1.Eof do
-              begin
-                linha := Trim(SqlAux1.Fields[0].AsString)+format('%2.2d',[SqlAux1.Fields[1].AsInteger ]);
-                case length(linha) of
-                  13:
-                    begin
-                      Verifica(linha);
-                      if Corrompido = true then
-                        begin
-                          LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
-                          PBConsistencia.Position  :=  PBConsistencia.Position + 1;
-                          // corrompido
-                        end
-                      else
-                        begin
-                          Writeln(arquivo,linha);
-                          LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
-                          LCDGrav.Refresh;
-                        end;
-                    end;
-                end;
-                SqlAux1.Next;
-                LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
-                PbProgresso.Position := PbProgresso.Position + 1;
-              end;
-              if Corrompido = false then
+          except on E: Exception do
+            Begin
+              Application.MessageBox(Pchar('Não foi possível criar o arquivo ' +
+                              'de Registros de Retorno.' + #13+#10 +
+                              'Por favor informe o ocorrido para a área de T.I..'),
+                          'ADS', MB_OK + MB_ICONERROR);
+              CloseFile(arquivo);
+              exit;
+            end;
+          end; // \try 2
+
+          ctareg := 1;
+          while not SqlAux1.Eof do
+            begin
+              linha := Trim(SqlAux1.Fields[0].AsString) +
+                    format('%2.2d', [SqlAux1.Fields[1].AsInteger]);
+              if length(linha) = 13 then
                 begin
-                  SqlAux2.Close;
-                  SqlAux2.Sql.Clear;
-                  SqlAux2.Sql.Add('update cga044 set cg044_dtret = (select current_date) where (cg044_dtbaixa between ');
-                  SqlAux2.Sql.Add(' '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtini.text))+chr(39)+' and '+chr(39)+FormatDateTime('mm-dd-yyyy',strtodate(mkeddtfin.text))+chr(39)+') ');
-                  SqlAux2.Sql.Add('and (cg044_dtret is null)');
-                  SqlAux2.ExecSql;
-                  SqlAux2.Close;
+                  Verifica(linha);
+                  if Corrompido = true then
+                    begin
+                      LCDErros.Caption := inttostr(1+strtoint(LCDErros.Caption));
+                      PBConsistencia.Position  :=  PBConsistencia.Position + 1;
+                          // corrompido
+                    end
+                  else
+                    begin
+                      Writeln(arquivo,linha);
+                      LCDGrav.Caption := inttostr(1+strtoint(LCDGrav.Caption));
+                      LCDGrav.Refresh;
+                    end;
+
                 end;
-              Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
-              closefile(arquivo);
-          end;
-      end;
-    end;
+
+              SqlAux1.Next;
+              LCDLidos.Caption := inttostr(1+strtoint(LCDLidos.Caption));
+              PbProgresso.Position := PbProgresso.Position + 1;
+            end;
+
+          if Corrompido = false then
+            begin
+              SqlAux2.Close;
+              SqlAux2.Sql.Clear;
+              SqlAux2.Sql.Add('UPDATE cga044 SET cg044_dtret = CURRENT_DATE ');
+              SqlAux2.SQL.Add('WHERE cg044_dtbaixa BETWEEN :dtini AND :dtfin ');
+              SqlAux2.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+              SqlAux2.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+              SqlAux2.Sql.Add(' AND cg044_dtret IS NULL');
+              SqlAux2.ExecSql;
+              SqlAux2.Close;
+            end;
+
+          Application.MessageBox('Geração de Arquivo Retorno Finalizada','Ads',IDOK);
+          Closefile(arquivo);
+          EdNomeArquivo.Text := fname;
+          EdCaminho.Text := destdir;
+        end;
+    end; // \With
 end;
 end.

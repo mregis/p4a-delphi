@@ -35,10 +35,7 @@ type
   private
     chave : integer;
     acesso_ok : boolean;
-    senhadig : string;
     conta : integer;
-    literal:integer;
-    aux,senha : string;
     { Private declarations }
   public
     { Public declarations }
@@ -85,15 +82,21 @@ end;
 procedure TFrmAcesso.BtnEntClick(Sender: TObject);
 var
   chave : integer;
-  chr : char;
 begin
-  chr:=#39;
   chave := 128;
   acesso_ok := false;
-  if conta <> 2 then
+  With Dm do
     begin
-      With Dm do
+      sqlcga_acesso.Close;
+      sqlcga_acesso.SQL.Clear;
+      sqlcga_acesso.Sql.Add('SELECT * FROM cga_acesso ');
+      sqlcga_acesso.Sql.Add('WHERE nome ILIKE :nome AND senha = :senha');
+      sqlcga_acesso.Params[0].Value := trim(EdUsu.Text);
+      sqlcga_acesso.Params[1].Value := Codificar(EdSenha.Text, chave);
+      sqlcga_acesso.Open;
+      if sqlcga_acesso.RecordCount = 1 then
         begin
+<<<<<<< HEAD
           Dm.sqlcga_acesso.Close;
           Dm.sqlcga_acesso.SQL.Clear;
           Dm.sqlcga_acesso.Sql.Add('select * from cga_acesso where (nome ILIKE :nome) and (senha = :senha)');
@@ -117,17 +120,29 @@ begin
               EdUsu.Clear;
               EdUsu.SetFocus;
             end;
+=======
+          application.CreateForm(TFrmPrincipal, FrmPrincipal);
+          FrmPrincipal.usuario := 'Usuário: ' + sqlcga_acessonome.Value + ' - ';
+          FrmPrincipal.codusu := sqlcga_acessocodigo.Value;
+          acesso_ok := true;
+          FrmPrincipal.ambiente := sqlcga_acessonivel.AsInteger;
+          FrmPrincipal.Show;
+          FrmAcesso.Close;
+        end
+      else
+        begin
+          Application.MessageBox(PChar('Dados incorretos!'),
+              'Acesso no Sistema ADS', MB_OK + MB_ICONWARNING);
+          EdSenha.Clear;
+          EdUsu.Clear;
+          EdUsu.SetFocus;
+>>>>>>> milestone-v2.0.14
         end;
-      end
-    else
-      begin
-        Application.Terminate;
-      end;
+    end;
 end;
 
 procedure TFrmAcesso.FormCreate(Sender: TObject);
 begin
-  FrmPrincipal.FrmNome := FrmAcesso;
   chave:=128;
   conta:=0;
 end;

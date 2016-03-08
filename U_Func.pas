@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Types, Classes,DB ,Variants,  Graphics, Controls, Forms,Dialogs,FrmExtContaCorrentePopanca,OleServer,
-  OleConst,ShlObj,ComObj, ActiveX, OfficeXP,ExcelXP, SysConst;
+  OleConst, ShlObj, ComObj, ActiveX, OfficeXP, ExcelXP, SysConst;
 
   type
   // TDataSetToExcel
@@ -21,7 +21,7 @@ uses
     FDataSet: TDataSet;
     fcab    : string;
   public
-    constructor Create(ADataSet: TDataSet; const AFileName,cab: string);
+    constructor Create(ADataSet: TDataSet; const AFileName, cab: string);
     function WriteFile: boolean;
   end;
 
@@ -32,7 +32,7 @@ Function Verifica(Str: string):string;
 Function Codificar(Armazena: string; Chave:Integer):string;
 Function Decodificar(Armazena: string; Chave:Integer):string;
 Function GeraCodigo(numero:string;tipo:integer):string;
-function acerta(entrada:string):string;
+Function acerta(entrada:string):string;
 Function VerificaDigito11(Valor: String; Base: Integer = 11; Resto: boolean = false) :String;
 Function VerificaValidade_Codigo(verifica: String) :String;
 Function vernum(Str: string):boolean;
@@ -42,15 +42,22 @@ Function GeraArquivo(Texto:Variant;Tamanho:Integer):String;
 Function Remove(Str:String):String;
 Function RemCaract(Str:String):String;
 Function criadir(texto:String):String;
-function tamlookcbo(tipo:integer):integer;
-function VerificaDigito7(Valor: String; Base: Integer = 7; Resto: boolean = false) :String;
-function VerDvCpf(Valor: String; Base: Integer = 11) :boolean;
+Function tamlookcbo(tipo:integer):integer;
+Function VerificaDigito7(Valor: String; Base: Integer = 7; Resto: boolean = false) :String;
+Function VerDvCpf(Valor: String; Base: Integer = 11) :boolean;
 Function SelecionaFormat(Valor : String):String;
-function RestauraInteger(Valor: string): string;
+Function RestauraInteger(Valor: string): string;
 Function ValorMonetario(Armazena: string; key:char):string;
-function strtran(Str: String; Antigo: String; Novo: variant): string;
+Function strtran(Str: String; Antigo: String; Novo: variant): string;
 Function VirgPonto2(Valor: string): string;
+Function Moeda2Float(Valor: string): Double;
 Function procarqconf(conf:string):String;
+Function IntToDateTime(DateInteger : integer) : TDateTime;
+Function LPad(const s: String; Pad: Integer; const c : String) : String;
+Function RPad(const s: String; Pad: Integer; const c : String) : String;
+Function StripNonAscii(const s: String): String;
+Function ReplaceNonAscii(const s: String): String;
+
 implementation
 
 uses DmDados;
@@ -88,10 +95,9 @@ var
   campo3 : array[1..3,1..43] of integer;
   campo4 : array[1..3,1..10] of integer;
   i,peso : integer;
-  aux1,aux2,numerox: string;
+  numerox: String;
   multiplica : integer;
   resultadox : integer;
-  divide : double;
 begin
   case tipo of
     0:
@@ -148,7 +154,6 @@ begin
          begin
            multiplica := multiplica + campo1[3,i];
          end;
-        divide := StrToFloat(inttostr(multiplica));
         resultadox := multiplica mod 10;
         resultadox := 10 - resultadox;
         if resultadox = 10 then
@@ -179,7 +184,7 @@ begin
           begin
             multiplica := multiplica + campo2[3,i];
           end;
-        divide := StrToFloat(inttostr(multiplica));
+
         resultadox := multiplica mod 10;
         resultadox := 10 - resultadox;
         if resultadox = 10 then
@@ -210,7 +215,7 @@ begin
           begin
             multiplica := multiplica + campo4[3,i];
           end;
-        divide := StrToFloat(inttostr(multiplica));
+
         //resultadox := multiplica mod 10;
 //        resultadox := 10 - resultadox;
         resultadox := 10 - (multiplica mod 10);
@@ -225,7 +230,7 @@ begin
           begin
             campo3[1,i] := strtoint(copy(numero,i,1));
             campo3[2,i] := peso;
-            multiplica := multiplica + campo3[1,i] * campo3[2,i];
+
             if peso = 2 then
               peso := 9
             else
@@ -237,7 +242,7 @@ begin
            campo3[3,i] := campo3[1,i] * campo3[2,i];
            multiplica := multiplica + campo3[3,i];
          end;
-        divide := StrToFloat(inttostr(multiplica));
+
         resultadox := multiplica mod 11;
         resultadox := 11 - resultadox;
         if (resultadox <= 1) or (resultadox > 9)then
@@ -251,7 +256,6 @@ function  acerta(entrada:string):string;
 var
   retorno : string;
   i : integer;
-  x : string;
 begin
   i := 1;
   while i <= length(entrada) do
@@ -597,6 +601,27 @@ if Valor <> ' ' then
    Result := Valor;
 end;
 
+Function Moeda2Float(Valor: string): Double;
+Var
+  i: Integer;
+  s: String;
+begin
+  s := '';
+  if Trim(Valor) <> '' then
+    begin
+      for i := 0 to Length(Valor) do
+        begin
+          if AnsiPos(Valor[i], '0123456789,') > 0 then
+            s := s + Valor[i];
+        end;
+      Valor := StringReplace(s, ',', DecimalSeparator, [rfReplaceAll, rfIgnoreCase]);
+    end
+  else
+    Valor := '0';
+
+  Result := StrToFloat(Valor);
+end;
+
 function VirgPonto(Valor: string): string;
 Var
   i: Integer;
@@ -840,22 +865,23 @@ Begin
           showmessage('O código digitado está incorreto!!!');
         end;
   end;
+
 Function vernum(Str: string):boolean;
 Const Num = '0123456789';
 Var
-  X,digito,resto: Integer;
+  X: Integer;
   Aux : String;
   flag:boolean;
 Begin
- Aux := '';
- flag:=true;
+  Aux := '';
+  flag := true;
   For x:= 1 To Length(Str) do
-     Begin
-       If Pos(Str[X],Num) = 0 Then
-           flag := false
-    end;
-    Result := flag;
+    If Pos(Str[X],Num) = 0 Then
+           flag := false;
+
+  Result := flag;
 End;
+
 Function verzero(Str: string):boolean;
 Const Num = '000';
 Var
@@ -1064,20 +1090,20 @@ begin
 
     // Column widths
     for i := 0 to FDataSet.FieldCount - 1 do
-    begin
-      wWidth := (FDataSet.Fields[i].DisplayWidth + 1) * 256;
-      if FDataSet.FieldDefs[i].DataType = ftDateTime then
-        inc(wWidth, 2000);
-      if FDataSet.FieldDefs[i].DataType = ftDate then
-        inc(wWidth, 1050);
-      if FDataSet.FieldDefs[i].DataType = ftTime then
-        inc(wWidth, 100);
-      WriteToken(XL_COLWIDTH, 4);
-      iColNum := i;
-      BlockWrite(FDataFile, iColNum, 1);
-      BlockWrite(FDataFile, iColNum, 1);
-      BlockWrite(FDataFile, wWidth, 2);
-    end;
+      begin
+        wWidth := (FDataSet.Fields[i].DisplayWidth + 1) * 256;
+        if FDataSet.FieldDefs[i].DataType = ftDateTime then
+          inc(wWidth, 2000);
+        if FDataSet.FieldDefs[i].DataType = ftDate then
+          inc(wWidth, 1050);
+        if FDataSet.FieldDefs[i].DataType = ftTime then
+          inc(wWidth, 100);
+        WriteToken(XL_COLWIDTH, 4);
+        iColNum := i;
+        BlockWrite(FDataFile, iColNum, 1);
+        BlockWrite(FDataFile, iColNum, 1);
+        BlockWrite(FDataFile, wWidth, 2);
+      end;
 
     // Column Formats
     WriteFormat('Text');
@@ -1098,7 +1124,7 @@ begin
     Blockwrite(FDataFile, aDIMBuffer, SizeOf(aDIMBuffer));
 
     // Column Headers
-    if (trim(fcab) <> '') then
+    if (trim(Fcab) <> '') then
       begin
         sStrData := Fcab;
         iDataLen := length(sStrData);
@@ -1173,7 +1199,7 @@ begin
             ftWord,
             ftLargeInt:
             begin
-              if (trim(fcab) = '') then
+              if (trim(Fcab) = '') then
                 begin
                   if i = 6 then
                     begin
@@ -1214,7 +1240,7 @@ begin
             ftCurrency,
             ftBcd:
             begin
-              if (trim(fcab) <> '') then
+              if (trim(Fcab) <> '') then
                 begin
                   if i = 3 then
                     begin
@@ -1349,6 +1375,10 @@ begin
     end;
     Result := Buffer;
 end;
+
+{
+  @ Deprecated
+}
 function procarqconf(conf:string):String;
 var
  configura : TStringList;
@@ -1362,9 +1392,6 @@ begin
       try configura.LoadFromFile(Dm.currdir+'\ads.conf');
       except on e:exception do
         begin
-//          Application.CreateForm(TFrmCadHost,FrmCadHost);
-//          FrmCadHost.ShowModal;
-//          configura.LoadFromFile(DmDadosZ.currdir+'\spt.conf');
           exit;
         end;
       end;
@@ -1390,6 +1417,100 @@ begin
         end;
      end;
    result := configura.Strings[indice];
+end;
+
+
+{*
+  Converte Um número representando o número de dias desde 01-01-1900
+  em um objeto do tipo TDateTime
+*}
+Function IntToDateTime(DateInteger : integer) : TDateTime;
+var
+  nDay, nMonth, nYear : integer;
+  i, j, l, n : integer;
+begin
+{
+    // Excel/Lotus 123 has a bug with 29-02-1900. 1900 is not a
+    // leap year, but Excel/Lotus 123 thinks it is...
+    if (DateInteger = 60) then
+    begin
+        nDay   := 29;
+        nMonth := 2;
+        nYear  := 1900;
+    end;
+}
+    if (DateInteger < 60) then
+    begin
+        // Because of the 29-02-1900 bug, any serial date
+        // under 60 is one off... Compensate.
+        DateInteger := dateInteger + 1;
+    end;
+
+    // Modified Julian to DMY calculation with an addition of 2415019
+    l := DateInteger + 68569 + 2415019;
+    n := ( 4 * l ) div 146097;
+    l := l - (( 146097 * n + 3 ) div 4);
+    i := (( 4000 * ( l + 1 ) ) div 1461001);
+    l := l - (( 1461 * i ) div 4) + 31;
+    j := (( 80 * l ) div 2447);
+    nDay := l - (( 2447 * j ) div 80);
+    l := (j div 11);
+    nMonth := j + 2 - ( 12 * l );
+    nYear := 100 * ( n - 49 ) + i + l;
+    Result := EncodeDate(nYear,nMonth,nDay);
+end;
+
+
+Function LPad(const s: String; Pad: Integer; const c : String) : String;
+var r : string;
+begin
+  r := s;
+  if ((c <> null) AND (Length(c) > 1)) then
+  else
+      while Length(r) < Pad do
+        r := c + r;
+  Result := r;
+end;
+
+
+Function RPad(const s: String; Pad: Integer; const c : String) : String;
+var r : string;
+begin
+  r := s;
+  if ((c <> null) AND (Length(c) > 1)) then
+  else
+      while Length(r) < Pad do
+        r := r + c;
+  Result := r;
+end;
+
+
+Function StripNonAscii(const s: String) : String;
+begin
+
+end;
+
+{
+  Substitui caracteres especiais por equivalentes ASCII
+}
+Function ReplaceNonAscii(const s: String) : String;
+var i, pos: Integer;
+const undesiredchars : String = '/ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÜÚÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùüúþÿ';
+const replaces : String = '  AAAAAAACEEEEIIIIDNOOOOOxOUUUbBaaaaaaaceeeeiiiionooooo ouuuby';
+Begin
+  SetLength(Result, Length(s));
+  for i := 1 to Length(s) do
+    begin
+      pos := ord(s[i]);
+      if (s[i] in [#32, #48..#57, #65..#90, #97..#122]) then
+        Result[i] := s[i]
+      else
+        begin
+          pos := AnsiPos(s[i], undesiredchars);
+          Result[i] := replaces[pos + 1];
+        end;
+    end;
+
 end;
 
 end.

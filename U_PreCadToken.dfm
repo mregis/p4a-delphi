@@ -3,7 +3,7 @@ object FrmPreCadToken: TFrmPreCadToken
   Top = 177
   BorderStyle = bsDialog
   Caption = 'FrmPreCadToken'
-  ClientHeight = 453
+  ClientHeight = 495
   ClientWidth = 688
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -21,64 +21,326 @@ object FrmPreCadToken: TFrmPreCadToken
     Left = 0
     Top = 0
     Width = 688
-    Height = 453
+    Height = 495
     HorzScrollBar.Range = 634
     VertScrollBar.Range = 156
     Align = alClient
     AutoScroll = False
-    Color = 16704412
+    Color = clSkyBlue
     ParentColor = False
     TabOrder = 0
-    object Bevel1: TBevel
-      Left = 147
-      Top = 376
-      Width = 324
-      Height = 36
-    end
     object Lbl001: TLabel
-      Left = 32
-      Top = 144
-      Width = 32
-      Height = 13
+      Left = 72
+      Top = 122
+      Width = 48
+      Height = 18
       Caption = 'Lbl001'
       Color = 16704412
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
       ParentColor = False
+      ParentFont = False
       Visible = False
     end
+    object Bevel1: TBevel
+      Left = 168
+      Top = 424
+      Width = 348
+      Height = 42
+    end
+    object LabelLote: TLabel
+      Left = 34
+      Top = 52
+      Width = 32
+      Height = 17
+      Caption = 'Lote:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+    end
+    object LabelErros: TLabel
+      Left = 497
+      Top = 51
+      Width = 40
+      Height = 17
+      Alignment = taRightJustify
+      Caption = 'Erros:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+    end
+    object LabelGravados: TLabel
+      Left = 470
+      Top = 15
+      Width = 67
+      Height = 17
+      Alignment = taRightJustify
+      Caption = 'Gravados:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+    end
+    object LabelLidos: TLabel
+      Left = 326
+      Top = 51
+      Width = 39
+      Height = 17
+      Alignment = taRightJustify
+      Caption = 'Lidos:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label38: TLabel
+      Left = 17
+      Top = 86
+      Width = 49
+      Height = 16
+      Alignment = taRightJustify
+      Caption = 'Produto:'
+      FocusControl = CboProdutoServSedex
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
     object EdErro: TEdit
-      Left = 467
-      Top = 74
-      Width = 123
-      Height = 21
+      Left = 541
+      Top = 44
+      Width = 117
+      Height = 27
+      BevelInner = bvNone
+      BevelOuter = bvNone
       Enabled = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Height = -16
+      Font.Name = 'Arial'
       Font.Style = [fsBold]
       MaxLength = 4
       ParentFont = False
       ReadOnly = True
-      TabOrder = 0
+      TabOrder = 4
+      Text = '0'
     end
-    object Panel1: TPanel
-      Left = 366
-      Top = 35
-      Width = 96
+    object StBr: TStatusBar
+      Left = 0
+      Top = 474
+      Width = 684
+      Height = 17
+      Panels = <
+        item
+          Alignment = taCenter
+          Width = 50
+        end>
+    end
+    object Ednumlote: TEdit
+      Left = 68
+      Top = 47
+      Width = 117
       Height = 26
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
-      BevelWidth = 3
-      Caption = 'Lidos'
-      TabOrder = 1
+      Align = alCustom
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      CharCase = ecUpperCase
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
+      MaxLength = 6
+      ParentFont = False
+      TabOrder = 2
+    end
+    object StrGridDados: TStringGrid
+      Left = 0
+      Top = 153
+      Width = 684
+      Height = 263
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      Color = clWhite
+      ColCount = 10
+      Ctl3D = False
+      DefaultRowHeight = 18
+      FixedCols = 0
+      RowCount = 20
+      Options = [goFixedVertLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
+      ParentCtl3D = False
+      TabOrder = 6
+      ColWidths = (
+        34
+        56
+        144
+        42
+        64
+        64
+        45
+        74
+        70
+        64)
+    end
+    object EdLocal: TEdit
+      Left = 85
+      Top = 8
+      Width = 370
+      Height = 26
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
+      MaxLength = 255
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 7
+    end
+    object BtnAbrir: TBitBtn
+      Left = 7
+      Top = 8
+      Width = 74
+      Height = 32
+      Caption = '&Abrir'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnClick = BtnAbrirClick
+      Glyph.Data = {
+        36030000424D3603000000000000360000002800000010000000100000000100
+        18000000000000030000120B0000120B00000000000000000000FF00FF0274AC
+        0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274
+        ACFF00FFFF00FFFF00FF0274AC138AC456B6E16ACBF84BBFF74ABFF74ABFF74A
+        BFF74ABFF64ABFF74ABFF64BC0F72398CC0C81BAFF00FFFF00FF0274AC33AAE0
+        2392C489D9FA54C7F854C7F753C7F854C7F754C7F854C7F854C7F853C7F7279D
+        CEBAEBEF0274ACFF00FF0274AC57CAF80274AC99E2FB5ED1FA5ED1FA5ED1FA5E
+        D1FA5ED1FA5FD1FA5ED1F85ED1F82CA1CEBAEBEF0274ACFF00FF0274AC5ED3FA
+        0B81B782D5EF79E0FB6ADCFA69DCFB69DCFB6ADCFB69DCFB69DCFA6ADDFB2FA6
+        CFBAEBEF097EB4FF00FF0274AC68DAFB2BA4D14AB1D796EBFB74E5FB74E5FB74
+        E5FC74E5FC74E5FB74E5FC74E5FB33A9CFBAEBEFBAEBEF0274AC0274AC70E3FB
+        5CD1EF1184B7FEFFFFB8F4FCBAF4FCBAF4FCBAF4FEB8F4FEBAF4FCB8F4FE83C9
+        DEE3FEFEC5EFF60274AC0274AC7AEBFE7AEBFC0A7FB50274AC0274AC0274AC02
+        74AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC83F2FE
+        82F3FE82F3FE83F2FC83F3FE82F3FE83F2FE82F3FC83F2FE82F3FE82F3FE036F
+        A7FF00FFFF00FFFF00FF0274ACFEFEFE89FAFF89FAFE89FAFE8AF8FE8AFAFE89
+        F8FE8AFAFE8AFAFF89FAFF8AFAFF036FA7FF00FFFF00FFFF00FFFF00FF0274AC
+        FEFEFE8FFEFF8FFEFF8FFEFF0274AC0274AC0274AC0274AC0274AC0274ACFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FF0274AC0274AC0274AC0274ACFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
+    end
+    object EdQtdreg: TEdit
+      Left = 367
+      Top = 46
+      Width = 88
+      Height = 27
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      MaxLength = 4
+      ParentFont = False
+      TabOrder = 8
+      Text = '0'
+    end
+    object EdGrava: TEdit
+      Left = 541
+      Top = 11
+      Width = 117
+      Height = 27
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      MaxLength = 4
+      ParentFont = False
+      TabOrder = 9
+      Text = '0'
+    end
+    object Panel5: TPanel
+      Left = 3
+      Top = 131
+      Width = 63
+      Height = 20
+      BevelInner = bvLowered
+      BevelOuter = bvNone
+      Caption = 'Leitura'
+      Color = clBlue
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindow
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Pitch = fpFixed
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 10
+    end
+    object NovoLoteChkBox: TCheckBox
+      Left = 211
+      Top = 53
+      Width = 97
+      Height = 17
+      Caption = 'Novo Lote'
+      Checked = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      State = cbChecked
+      TabOrder = 3
+      OnClick = NovoLoteChkBoxClick
     end
     object BtnFechar: TBitBtn
-      Left = 365
-      Top = 381
+      Left = 408
+      Top = 430
       Width = 100
-      Height = 25
+      Height = 32
       Caption = '&Fechar'
-      TabOrder = 2
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 11
       OnClick = BtnFecharClick
       Glyph.Data = {
         B60D0000424DB60D000000000000360000002800000030000000180000000100
@@ -193,139 +455,20 @@ object FrmPreCadToken: TFrmPreCadToken
         CCFFFFCCFFFFCCFFFFCCFFFFCCFFFFCCFFFFCCFFFFCCFFFFCCFF}
       NumGlyphs = 2
     end
-    object StBr: TStatusBar
-      Left = 0
-      Top = 420
-      Width = 684
-      Height = 29
-      Panels = <
-        item
-          Alignment = taCenter
-          Width = 50
-        end>
-    end
-    object Ednumlote: TEdit
-      Left = 124
-      Top = 74
-      Width = 123
-      Height = 21
-      CharCase = ecUpperCase
-      Enabled = False
-      MaxLength = 6
-      TabOrder = 4
-      Text = '0'
-    end
-    object Panel2: TPanel
-      Left = 24
-      Top = 73
-      Width = 96
-      Height = 26
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
-      BevelWidth = 3
-      Caption = 'Lote'
-      TabOrder = 5
-    end
-    object StrGridDados: TStringGrid
-      Left = 26
-      Top = 217
-      Width = 280
-      Height = 156
-      ColCount = 4
-      DefaultRowHeight = 18
-      FixedCols = 0
-      RowCount = 20
-      FixedRows = 0
-      TabOrder = 6
-    end
-    object EdLocal: TEdit
-      Left = 123
-      Top = 38
-      Width = 236
-      Height = 21
-      MaxLength = 255
-      TabOrder = 7
-    end
-    object BtnAbrir: TBitBtn
-      Left = 21
-      Top = 37
-      Width = 100
-      Height = 25
-      Caption = '&Abrir'
-      TabOrder = 8
-      OnClick = BtnAbrirClick
-      Glyph.Data = {
-        36030000424D3603000000000000360000002800000010000000100000000100
-        18000000000000030000120B0000120B00000000000000000000FF00FF0274AC
-        0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274
-        ACFF00FFFF00FFFF00FF0274AC138AC456B6E16ACBF84BBFF74ABFF74ABFF74A
-        BFF74ABFF64ABFF74ABFF64BC0F72398CC0C81BAFF00FFFF00FF0274AC33AAE0
-        2392C489D9FA54C7F854C7F753C7F854C7F754C7F854C7F854C7F853C7F7279D
-        CEBAEBEF0274ACFF00FF0274AC57CAF80274AC99E2FB5ED1FA5ED1FA5ED1FA5E
-        D1FA5ED1FA5FD1FA5ED1F85ED1F82CA1CEBAEBEF0274ACFF00FF0274AC5ED3FA
-        0B81B782D5EF79E0FB6ADCFA69DCFB69DCFB6ADCFB69DCFB69DCFA6ADDFB2FA6
-        CFBAEBEF097EB4FF00FF0274AC68DAFB2BA4D14AB1D796EBFB74E5FB74E5FB74
-        E5FC74E5FC74E5FB74E5FC74E5FB33A9CFBAEBEFBAEBEF0274AC0274AC70E3FB
-        5CD1EF1184B7FEFFFFB8F4FCBAF4FCBAF4FCBAF4FEB8F4FEBAF4FCB8F4FE83C9
-        DEE3FEFEC5EFF60274AC0274AC7AEBFE7AEBFC0A7FB50274AC0274AC0274AC02
-        74AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC83F2FE
-        82F3FE82F3FE83F2FC83F3FE82F3FE83F2FE82F3FC83F2FE82F3FE82F3FE036F
-        A7FF00FFFF00FFFF00FF0274ACFEFEFE89FAFF89FAFE89FAFE8AF8FE8AFAFE89
-        F8FE8AFAFE8AFAFF89FAFF8AFAFF036FA7FF00FFFF00FFFF00FFFF00FF0274AC
-        FEFEFE8FFEFF8FFEFF8FFEFF0274AC0274AC0274AC0274AC0274AC0274ACFF00
-        FFFF00FFFF00FFFF00FFFF00FFFF00FF0274AC0274AC0274AC0274ACFF00FFFF
-        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
-        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
-        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
-        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
-        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
-        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
-        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
-    end
-    object BtnLeitura: TBitBtn
-      Left = 153
-      Top = 381
-      Width = 100
-      Height = 25
-      Caption = '&Leitura'
-      TabOrder = 9
-      OnClick = BtnLeituraClick
-      Glyph.Data = {
-        36030000424D3603000000000000360000002800000010000000100000000100
-        18000000000000030000120B0000120B00000000000000000000FF00FF0274AC
-        0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274
-        AC0274ACFF00FFFF00FF0274AC138AC457B7E06BCBF84BBFF74ABFF74ABFF74A
-        BFF74ABFF64ABFF74ABFF64BC0F72398CC0274ACFF00FFFF00FF0274AC33AAE0
-        2392C489D9FA54C7F854C7F753C7F854C7F754C7F854C7F854C7F853C7F7279D
-        CE6ACBE50274ACFF00FF0274AC57CAF80274AC99E3FB5ED1FA5ED1FA5ED1FA5E
-        D1FA5ED1FA5FD1FA5ED1F85ED1F82CA1CE99EDF70274ACFF00FF0274AC5ED3FA
-        0B81B782D5EF79E0FA6ADCFA69DCFB69DCFB6ADCFB69DCFB69DCFA6ADDFB2FA6
-        CF9FF0F70274ACFF00FF0274AC68DAFB2BA4D14AB2D797EBFC74E5FB74E5FB74
-        E5FC74E5FC74E5FB74E5FC046B0B33A9CFA3F4F752BBD70274AC0274AC70E3FB
-        5CD1EF1184B6FCFFFFB8F4FEBAF4FEBAF4FEBAF4FEB8F4FE046B0B25AA42046B
-        0BD4F7FACAF3F70274AC0274AC7AEBFE7AEBFC0A7FB50274AC0274AC0274AC02
-        74AC0274AC046B0B38CE6547E77F29B44A046B0B0274AC0274AC0274AC83F2FE
-        82F3FE82F3FE83F2FC83F3FE82F3FE83F2FE046B0B2DC0513FDC6E3ED86E46E5
-        7B28B04A046B0BFF00FF0274ACFEFEFE89FAFF89FAFE89FAFE8AF8FE8AFAFE04
-        6B0B046B0B046B0B046B0B3CD86A2EBF53046B0B046B0B046B0BFF00FF0274AC
-        FEFEFE8FFEFF8FFEFF8FFEFF0273A32BA4D12BA4D12BA4D1046B0B35D35E20A7
-        3A046B0BFF00FFFF00FFFF00FFFF00FF0274AC0274AC0274AC0274ACFF00FFFF
-        00FFFF00FFFF00FF046B0B28C24A046B0BFF00FFFF00FFFF00FFFF00FFFF00FF
-        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF046B0B17A42B19A730046B
-        0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
-        00FFFF00FF046B0B11A122046B0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
-        FF00FFFF00FFFF00FFFF00FFFF00FF046B0B046B0B046B0B046B0BFF00FFFF00
-        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF046B0B046B0B04
-        6B0B046B0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
-    end
     object BtnSalvar: TBitBtn
-      Left = 259
-      Top = 381
-      Width = 100
-      Height = 25
+      Left = 292
+      Top = 429
+      Width = 99
+      Height = 32
       Caption = '&Salvar'
       Enabled = False
-      TabOrder = 10
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 12
       OnClick = BtnSalvarClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -355,115 +498,111 @@ object FrmPreCadToken: TFrmPreCadToken
         00FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
         00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
-    object Panel3: TPanel
-      Left = 368
-      Top = 70
-      Width = 96
-      Height = 26
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
-      BevelWidth = 3
-      Caption = 'Erros'
-      TabOrder = 11
-    end
-    object EdQtdreg: TEdit
-      Left = 467
-      Top = 37
-      Width = 121
-      Height = 21
-      Enabled = False
+    object BtnLeitura: TBitBtn
+      Left = 177
+      Top = 429
+      Width = 99
+      Height = 32
+      Caption = '&Leitura'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      MaxLength = 4
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
       ParentFont = False
-      TabOrder = 12
+      TabOrder = 1
+      OnClick = BtnLeituraClick
+      Glyph.Data = {
+        36030000424D3603000000000000360000002800000010000000100000000100
+        18000000000000030000120B0000120B00000000000000000000FF00FF0274AC
+        0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274AC0274
+        AC0274ACFF00FFFF00FF0274AC138AC457B7E06BCBF84BBFF74ABFF74ABFF74A
+        BFF74ABFF64ABFF74ABFF64BC0F72398CC0274ACFF00FFFF00FF0274AC33AAE0
+        2392C489D9FA54C7F854C7F753C7F854C7F754C7F854C7F854C7F853C7F7279D
+        CE6ACBE50274ACFF00FF0274AC57CAF80274AC99E3FB5ED1FA5ED1FA5ED1FA5E
+        D1FA5ED1FA5FD1FA5ED1F85ED1F82CA1CE99EDF70274ACFF00FF0274AC5ED3FA
+        0B81B782D5EF79E0FA6ADCFA69DCFB69DCFB6ADCFB69DCFB69DCFA6ADDFB2FA6
+        CF9FF0F70274ACFF00FF0274AC68DAFB2BA4D14AB2D797EBFC74E5FB74E5FB74
+        E5FC74E5FC74E5FB74E5FC046B0B33A9CFA3F4F752BBD70274AC0274AC70E3FB
+        5CD1EF1184B6FCFFFFB8F4FEBAF4FEBAF4FEBAF4FEB8F4FE046B0B25AA42046B
+        0BD4F7FACAF3F70274AC0274AC7AEBFE7AEBFC0A7FB50274AC0274AC0274AC02
+        74AC0274AC046B0B38CE6547E77F29B44A046B0B0274AC0274AC0274AC83F2FE
+        82F3FE82F3FE83F2FC83F3FE82F3FE83F2FE046B0B2DC0513FDC6E3ED86E46E5
+        7B28B04A046B0BFF00FF0274ACFEFEFE89FAFF89FAFE89FAFE8AF8FE8AFAFE04
+        6B0B046B0B046B0B046B0B3CD86A2EBF53046B0B046B0B046B0BFF00FF0274AC
+        FEFEFE8FFEFF8FFEFF8FFEFF0273A32BA4D12BA4D12BA4D1046B0B35D35E20A7
+        3A046B0BFF00FFFF00FFFF00FFFF00FF0274AC0274AC0274AC0274ACFF00FFFF
+        00FFFF00FFFF00FF046B0B28C24A046B0BFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF046B0B17A42B19A730046B
+        0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FF046B0B11A122046B0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FF046B0B046B0B046B0B046B0BFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF046B0B046B0B04
+        6B0B046B0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
-    object Panel4: TPanel
-      Left = 25
-      Top = 111
-      Width = 96
+    object CboProdutoServSedex: TDBLookupComboBox
+      Left = 68
+      Top = 81
+      Width = 387
       Height = 26
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
-      BevelWidth = 3
-      Caption = 'Gravados'
+      Hint = 'Produto atribu'#237'do ao Cart'#227'o de Postagem'
+      DropDownRows = 10
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      KeyField = 'tbsdxserv_prod'
+      ListField = 'tbsdxserv_dsc'
+      ListSource = Dm.DtSSdxServ
+      ParentFont = False
       TabOrder = 13
     end
-    object EdGrava: TEdit
-      Left = 127
-      Top = 114
-      Width = 123
-      Height = 21
-      Enabled = False
+    object PanelProgress: TPanel
+      AlignWithMargins = True
+      Left = 201
+      Top = 230
+      Width = 315
+      Height = 68
+      Align = alCustom
+      Anchors = []
+      BevelInner = bvRaised
+      BevelOuter = bvNone
+      BorderWidth = 1
+      BorderStyle = bsSingle
+      Caption = 'Executando a opera'#231#227'o. Aguarde...'
+      UseDockManager = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      MaxLength = 4
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
       ParentFont = False
       TabOrder = 14
-    end
-    object StrGridErro: TStringGrid
-      Left = 320
-      Top = 217
-      Width = 280
-      Height = 156
-      ColCount = 4
-      DefaultRowHeight = 18
-      FixedCols = 0
-      RowCount = 20
-      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
-      TabOrder = 15
-    end
-    object RdGrpOpc: TRadioGroup
-      Left = 366
-      Top = 105
-      Width = 227
-      Height = 32
-      Caption = 'Novo Lote'
-      Columns = 2
-      Items.Strings = (
-        '0 - Sim'
-        '1 - N'#227'o')
-      TabOrder = 16
-    end
-    object Panel5: TPanel
-      Left = 25
-      Top = 184
-      Width = 96
-      Height = 26
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
-      BevelWidth = 3
-      Caption = 'Leitura'
-      TabOrder = 17
-    end
-    object Panel6: TPanel
-      Left = 315
-      Top = 184
-      Width = 96
-      Height = 26
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
-      BevelWidth = 3
-      Caption = 'Errados'
-      TabOrder = 18
+      VerticalAlignment = taAlignTop
+      Visible = False
+      object PanelProgressBar: TProgressBar
+        AlignWithMargins = True
+        Left = 24
+        Top = 26
+        Width = 265
+        Height = 23
+        BorderWidth = 2
+        Smooth = True
+        TabOrder = 0
+      end
     end
   end
   object OpenArq: TOpenDialog
     Filter = 'Excel|*.xls'
-    Left = 75
-    Top = 369
+    Left = 11
+    Top = 425
   end
   object ExcelApplication1: TExcelApplication
     AutoConnect = False
     ConnectKind = ckRunningOrNew
     AutoQuit = False
-    Left = 116
-    Top = 369
+    Left = 78
+    Top = 426
   end
 end
