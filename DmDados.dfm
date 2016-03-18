@@ -1818,12 +1818,9 @@ object Dm: TDm
       DisplayWidth = 2
       FieldName = 'tbsdxserv_status'
     end
-<<<<<<< HEAD
-=======
     object SqlSdxServtbsdxserv_txasrv: TFloatField
       FieldName = 'tbsdxserv_txasrv'
     end
->>>>>>> milestone-v2.0.14
   end
   object DtSSdxServ: TDataSource
     DataSet = SqlSdxServ
@@ -1898,17 +1895,6 @@ object Dm: TDm
     Connection = Ads
     AutoCalcFields = False
     SQL.Strings = (
-<<<<<<< HEAD
-      'SELECT t.*, s.tbsdxserv_sigla, s.tbsdxserv_dsc '
-      'FROM public.tbsdx02 t'
-      
-        #9'INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj2 = e.tbsdxect_si' +
-        'gla || e.tbsdxect_num || e.tbsdxect_dv || '#39'BR'#39')'
-      
-        '    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxs' +
-        'erv_prod)'
-      'LIMIT 1')
-=======
       'SELECT t.*, s.tbsdxserv_sigla, s.tbsdxserv_dsc, d.bxasdx_dscbxa'
       'FROM public.tbsdx02 t'
       
@@ -1921,7 +1907,6 @@ object Dm: TDm
         '    LEFT JOIN public.tbbxasdx d ON (t.sdx_codbxa = d.bxasdx_codb' +
         'xa)'
       'ORDER BY t.sdx_dtbaixa DESC LIMIT 10')
->>>>>>> milestone-v2.0.14
     Params = <>
     Left = 200
     Top = 741
@@ -2094,13 +2079,10 @@ object Dm: TDm
     object SqlSdx4tbsdxserv_codprod: TIntegerField
       FieldName = 'tbsdxserv_prod'
     end
-<<<<<<< HEAD
-=======
     object SqlSdx4bxasdx_dscbxa: TStringField
       FieldName = 'bxasdx_dscbxa'
       Size = 50
     end
->>>>>>> milestone-v2.0.14
   end
   object DtSSdx4: TDataSource
     DataSet = SqlSdx4

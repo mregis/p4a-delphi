@@ -503,8 +503,6 @@ type
     SqlSdx4tbsdxserv_codprod: TIntegerField;
     SqlSdxServtbsdxserv_status: TSmallintField;
     SqlSdxServtbsdxserv_txasrv: TFloatField;
-<<<<<<< HEAD
-=======
     SqlSdx6: TZQuery;
     DtsSdx6: TDataSource;
     SqlSdx6Lote: TLargeintField;
@@ -531,7 +529,6 @@ type
     SqlSdx3sdx_alt: TFloatField;
     SqlSdx3tbsdxect_sigla: TStringField;
     SqlRelCartaoPrazo: TTimeField;
->>>>>>> milestone-v2.0.14
     procedure DataModuleCreate(Sender: TObject);
 
 
@@ -567,7 +564,6 @@ begin
 
 
   try
-<<<<<<< HEAD
     Ads.Connected :=  True;
     Ads.StartTransaction;
     conect        :=  true;
@@ -576,7 +572,10 @@ begin
       Ads.Rollback;
       conect  :=  false;
     end;
-=======
+
+  end;
+
+  Try
     // Recuperando as configurações do aplicativo
     iniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
     // Letra da unidade onde o executável que está em execução se encontra
@@ -591,11 +590,9 @@ begin
     Ads.User := iniFile.ReadString('BD', 'Usuario', 'ads');
     // Senha de acesso ao Bando de Dados
     Ads.Password := iniFile.ReadString('BD', 'Senha', 'ads!.!');
-
   except
     raise Exception.Create('Erro ao ler informações do arquivo de configuração!');
     iniFile.Free;
->>>>>>> milestone-v2.0.14
   end;
 
   try
