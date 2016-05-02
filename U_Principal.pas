@@ -77,7 +77,6 @@ type
     ExtratoCarto1: TMenuItem;
     RelatoriodeProduo5: TMenuItem;
     RelatoriodeFaturamento5: TMenuItem;
-//    CartesExtratoPequeno2: TMenuItem;
     BNDE2: TMenuItem;
     BCN2: TMenuItem;
     Bradesco2: TMenuItem;
@@ -342,7 +341,6 @@ type
     procedure ExtratoUnificado3Click(Sender: TObject);
     procedure ExtratoConsolidado3Click(Sender: TObject);
     procedure ExtratoContaCorrentePoupana2Click(Sender: TObject);
-    //procedure RetornoCrtClick(Sender: TObject);
     procedure ImpEtqRCSClick(Sender: TObject);
     procedure AgenciaClick(Sender: TObject);
     procedure RelatorioCartaParaAgencia1Click(Sender: TObject);
@@ -389,14 +387,12 @@ type
     procedure RelProdDrcCConvClick(Sender: TObject);
     procedure DRCRelFatCConvClick(Sender: TObject);
     procedure CrtSegurClick(Sender: TObject);
-   // procedure RetCrtConvClick(Sender: TObject);
     procedure RetCrtSegClick(Sender: TObject);
     procedure RetCrtConvClick(Sender: TObject);
     procedure BrindesSecretariaClick(Sender: TObject);
     procedure RelBrindeSecrEntrClick(Sender: TObject);
     procedure RelBrindSecrSaiClick(Sender: TObject);
     procedure RetTokenClick(Sender: TObject);
-//    procedure CartesExtratoPequeno1Click(Sender: TObject);
     procedure CadCodEticaBradClick(Sender: TObject);
     procedure BxaCodEticaBradClick(Sender: TObject);
     procedure RetBxaCodEticaClick(Sender: TObject);
@@ -432,14 +428,14 @@ implementation
 
 uses U_ExtConsolidado, FrmExtContaCorrentePopanca, U_CadBaixa,
   U_CadUsu, U_Acesso, U_Dig_Christian_Science, U_PesqImp,
-  U_CadAuto_Christian_Science, U_CadSucursal, U_ImpPrev, U_RetornoExtratos, //U_CadAgencia,
+  U_CadAuto_Christian_Science, U_CadSucursal, U_ImpPrev, U_RetornoExtratos,
   U_CadAssinantes, U_CadEdicao, U_PesImpAssinantes, u_FrmMkEdi, u_FrmmKcep,
   u_FrmMkFilial, U_Cartao, U_FrmMkLoja, u_FrmMkdivisao, U_CadMakro,
   un_frmprint, Un_cadcli, U_FrmDigExtratoUnificado, UFrTokenBradesco,
   U_PreCadToken, U_AltTokens, U_FrmConsulta, U_CadSedex, U_PesqImpSedex,
   U_FrmRelArSedexLista, U_FrmRlTotRa, DmDados, U_FrmCadNLido, U_FrmRemessaSedex,
   U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr,
-  U_FrmGeraListaPostagem, U_FrmConfig, U_FrmGeraRelatToken;
+  U_FrmGeraListaPostagem, U_FrmConfig, U_FrmGeraRelatToken, U_FrmImprRelExtrBase;
 
 {$R *.dfm}
 procedure TFrmPrincipal.AbreBaixa(tipo:Integer);
@@ -587,18 +583,22 @@ begin
   setfocus;
 end;
 
+{ Prepara o formulário de Extrato Base para gerar Relatório de Extrato Consolidado }
 procedure TFrmPrincipal.RelatoriodeProduo1Click(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPesqImp,FrmPesqImp);
-  FrmPesqImp.Tag := 4;
-  FrmPesqImp.ShowModal;
+  Application.CreateForm(TFrmImprRelExtrBase, FrmImprRelExtrBase);
+  FrmImprRelExtrBase.Tag := 1;
+  FrmImprRelExtrBase.ShowModal;
+  SetFocus;
 end;
 
+{ Prepara o formulário de Extrato Base para gerar Relatório de Extrato Unificado }
 procedure TFrmPrincipal.RelatoriodeProduo2Click(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPesqImp,FrmPesqImp);
-  FrmPesqImp.Tag := 5;
-  FrmPesqImp.ShowModal;
+  Application.CreateForm(TFrmImprRelExtrBase, FrmImprRelExtrBase);
+  FrmImprRelExtrBase.Tag := 5;
+  FrmImprRelExtrBase.ShowModal;
+  SetFocus;
 end;
 
 procedure TFrmPrincipal.RelatoriodeProduo3Click(Sender: TObject);
@@ -1151,11 +1151,13 @@ begin
   setfocus;
 end;
 
+{ Prepara o formulário de Extrato Base para gerar Relatório de Extrato CVM/INVE }
 procedure TFrmPrincipal.RelatoriodeProduo6Click(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPesqImp,FrmPesqImp);
-  FrmPesqImp.Tag := 20;
-  FrmPesqImp.ShowModal;
+  Application.CreateForm(TFrmImprRelExtrBase, FrmImprRelExtrBase);
+  FrmImprRelExtrBase.Tag := 7;
+  FrmImprRelExtrBase.ShowModal;
+  SetFocus;
 end;
 
 procedure TFrmPrincipal.RelatoriodeFaturamento6Click(Sender: TObject);
@@ -1895,13 +1897,13 @@ end;
 
 end;
 
+{ Prepara formulário para gerar relatório de Tancodes }
 procedure TFrmPrincipal.ImpBxaTanCodeClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPesqImp,FrmPesqImp);
-  FrmPesqImp.Tag := 28;
-  FrmPesqImp.ShowModal;
+  Application.CreateForm(TFrmImprRelExtrBase, FrmImprRelExtrBase);
+  FrmImprRelExtrBase.Tag := 6;
+  FrmImprRelExtrBase.ShowModal;
   SetFocus;
-
 end;
 
 procedure TFrmPrincipal.AltTokenClick(Sender: TObject);

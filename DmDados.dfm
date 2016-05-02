@@ -5,13 +5,10 @@ object Dm: TDm
   Width = 1087
   object Ads: TZConnection
     Protocol = 'postgresql-8.x'
-    HostName = '10.1.1.10'
     Port = 5432
     Database = 'dbads'
     User = 'ads'
     Password = 'ads!.!'
-    ReadOnly = True
-    DesignConnection = True
     Left = 30
     Top = 16
   end
@@ -2125,7 +2122,7 @@ object Dm: TDm
     TitleSetup = 'Output Options'
     TitleStatus = 'Report Status'
     TitlePreview = 'Report Preview'
-    SystemFiler.StatusFormat = 'Generating page %p'
+    SystemFiler.StatusFormat = 'Gerando p'#225'gina %p'
     SystemPreview.ZoomFactor = 100.000000000000000000
     SystemPrinter.ScaleX = 100.000000000000000000
     SystemPrinter.ScaleY = 100.000000000000000000
@@ -2404,5 +2401,129 @@ object Dm: TDm
     DataSet = SqlSdx7
     Left = 283
     Top = 795
+  end
+  object SqlSdx8: TZQuery
+    Connection = Ads
+    SQL.Strings = (
+      'SELECT COUNT(a.cg75_remes) as qtde, '
+      '    b.cg20_descricao as descricao, '
+      '    b.cg20_codbaixa as codbaixa'
+      'FROM cga75 a '
+      '  INNER JOIN cga20 b ON (a.cg75_codbaixa = b.cg20_codbaixa)'
+      'WHERE a.cg75_dtbaixa BETWEEN :dtini AND :dtfim'
+      'GROUP BY b.cg20_descricao, b.cg20_codbaixa'
+      'ORDER BY b.cg20_descricao')
+    Params = <
+      item
+        DataType = ftDate
+        Name = 'dtini'
+        ParamType = ptUnknown
+        Value = 0d
+      end
+      item
+        DataType = ftDate
+        Name = 'dtfim'
+        ParamType = ptUnknown
+        Value = 0d
+      end>
+    Left = 389
+    Top = 805
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dtini'
+        ParamType = ptUnknown
+        Value = 0d
+      end
+      item
+        DataType = ftDate
+        Name = 'dtfim'
+        ParamType = ptUnknown
+        Value = 0d
+      end>
+    object SqlSdx8cg20_descricao: TStringField
+      FieldName = 'descricao'
+      Size = 35
+    end
+    object SqlSdx8cg20_codbaixa: TStringField
+      FieldName = 'codbaixa'
+      Size = 3
+    end
+    object SqlSdx8qtde: TLargeintField
+      FieldName = 'qtde'
+    end
+  end
+  object DtsSdx8: TDataSource
+    DataSet = SqlSdx8
+    Left = 467
+    Top = 805
+  end
+  object RvDtsSdx8: TRvDataSetConnection
+    RuntimeVisibility = rtDeveloper
+    DataSet = SqlSdx8
+    Left = 536
+    Top = 805
+  end
+  object SqlSdx9: TZQuery
+    Connection = Ads
+    SQL.Strings = (
+      'SELECT COUNT(a.cg75_remes) as qtde, '
+      '    a.cg75_dtbaixa as dtbaixa, '
+      '    b.cg20_descricao as descricao, '
+      '    b.cg20_codbaixa as codbaixa'
+      'FROM cga75 a '
+      '  INNER JOIN cga20 b ON (a.cg75_codbaixa = b.cg20_codbaixa)'
+      'WHERE a.cg75_dtbaixa BETWEEN :dtini AND :dtfim'
+      'GROUP BY a.cg75_dtbaixa, b.cg20_descricao, b.cg20_codbaixa'
+      'ORDER BY b.cg20_descricao, a.cg75_dtbaixa')
+    Params = <
+      item
+        DataType = ftDate
+        Name = 'dtini'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDate
+        Name = 'dtfim'
+        ParamType = ptUnknown
+      end>
+    Left = 389
+    Top = 861
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dtini'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDate
+        Name = 'dtfim'
+        ParamType = ptUnknown
+      end>
+    object DateTimeField1: TDateTimeField
+      FieldName = 'dtbaixa'
+    end
+    object StringField6: TStringField
+      FieldName = 'descricao'
+      Size = 35
+    end
+    object StringField7: TStringField
+      FieldName = 'codbaixa'
+      Size = 3
+    end
+    object SqlSdx9qtde: TLargeintField
+      FieldName = 'qtde'
+    end
+  end
+  object DtsSdx9: TDataSource
+    DataSet = SqlSdx9
+    Left = 467
+    Top = 861
+  end
+  object RvDtsSdx9: TRvDataSetConnection
+    RuntimeVisibility = rtDeveloper
+    DataSet = SqlSdx9
+    Left = 536
+    Top = 861
   end
 end
