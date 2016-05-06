@@ -529,6 +529,19 @@ type
     SqlSdx3sdx_alt: TFloatField;
     SqlSdx3tbsdxect_sigla: TStringField;
     SqlRelCartaoPrazo: TTimeField;
+    SqlSdx8: TZQuery;
+    SqlSdx8_descricao: TStringField;
+    SqlSdx8_codbaixa: TStringField;
+    DtsSdx8: TDataSource;
+    RvDtsSdx8: TRvDataSetConnection;
+    SqlSdx9: TZQuery;
+    DateTimeField1: TDateTimeField;
+    StringField6: TStringField;
+    StringField7: TStringField;
+    DtsSdx9: TDataSource;
+    RvDtsSdx9: TRvDataSetConnection;
+    SqlSdx8qtde: TLargeintField;
+    SqlSdx9qtde: TLargeintField;
     procedure DataModuleCreate(Sender: TObject);
 
 
@@ -561,19 +574,6 @@ begin
       Application.CreateForm(TFrmConfig, FrmConfig);
       FrmConfig.ShowModal;
     end;
-
-
-  try
-    Ads.Connected :=  True;
-    Ads.StartTransaction;
-    conect        :=  true;
-  Except on e: exception do
-    begin
-      Ads.Rollback;
-      conect  :=  false;
-    end;
-
-  end;
 
   Try
     // Recuperando as configurações do aplicativo

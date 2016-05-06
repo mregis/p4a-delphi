@@ -1523,8 +1523,8 @@ begin
             Dm.SqlRel.Sql.Add('where (cga76.cg76_dtentr between :dtini and :dtfin) ');
             Dm.SqlRel.Sql.Add('group by cga76.cg76_dtentr,cga_acesso.nome ');
             Dm.SqlRel.Sql.Add('order by upper(cga_acesso.nome),cga76.cg76_dtentr ');
-            Dm.SqlRel.Params[0].AsString  :=  formatdatetime('mm/dd/yyyy',strtodate(MkEdDtIni.Text));
-            Dm.SqlRel.Params[1].AsString  :=  formatdatetime('mm/dd/yyyy',strtodate(MkEdDtFin.Text));
+            Dm.SqlRel.Params[0].AsDate  :=  strtodate(MkEdDtIni.Text);
+            Dm.SqlRel.Params[1].AsDate  :=  strtodate(MkEdDtFin.Text);
             Dm.SqlRel.Open;
             case Dm.SqlRel.RecordCount of
             0:
@@ -1574,16 +1574,15 @@ begin
             sel := sel + ' when ("Tipo_Servico" = 24) then '+Chr(39)+'DRC AMEX'+Chr(39);
             sel := sel + ' end ';
             sel := sel + 'from relcons ';
-            sel := sel + 'where "DATA" between '+Chr(39)+FormatDateTime('mm-dd-yyyy',StrToDate(MkEdDtIni.Text))+Chr(39);
-            sel := sel + ' and '+Chr(39)+FormatDateTime('mm-dd-yyyy',StrToDate(MkEdDtFin.Text))+Chr(39);
-            //sel := sel + ' group by "QTDE","Usuario","DATA","Tipo_Servico"';
+            sel := sel + 'where "DATA" between :dti AND :dtf ';
             sel := sel + ' order by "Usuario","DATA","Tipo_Servico"';
             with Dm.SqlRel do
               begin
                 Close;
                 SQL.Clear;
                 SQL.Add(sel);
-           //     inputbox('','',sel);
+                ParamByName('dti').asDate := StrToDate(MkEdDtIni.Text);
+                ParamByName('dtf').asDate := StrToDate(MkEdDtFin.Text);
                 Open;
               end;
             case Dm.SqlRel.RecordCount of

@@ -4,7 +4,7 @@ object FrmPrincipal: TFrmPrincipal
   Align = alCustom
   BorderStyle = bsSingle
   Caption = 'Address S.A - SISTEMA ADS'
-  ClientHeight = 620
+  ClientHeight = 677
   ClientWidth = 734
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -327,19 +327,19 @@ object FrmPrincipal: TFrmPrincipal
     Left = 0
     Top = 0
     Width = 734
-    Height = 620
+    Height = 677
     VertScrollBar.Range = 19
     Align = alClient
     AutoScroll = False
     Color = 16707787
     ParentColor = False
     TabOrder = 0
-    ExplicitHeight = 601
+    ExplicitHeight = 658
     object Image1: TImage
       Left = 0
       Top = 0
       Width = 730
-      Height = 597
+      Height = 654
       Align = alClient
       Picture.Data = {
         07544269746D6170B6620300424DB66203000000000036040000280000002602
@@ -7285,7 +7285,7 @@ object FrmPrincipal: TFrmPrincipal
     end
     object StsMenu: TStatusBar
       Left = 0
-      Top = 597
+      Top = 654
       Width = 730
       Height = 19
       Color = 16776697
@@ -7309,7 +7309,7 @@ object FrmPrincipal: TFrmPrincipal
         item
           Width = 120
         end>
-      ExplicitTop = 578
+      ExplicitTop = 635
     end
     object BitBtnCargaAR: TBitBtn
       Left = 24
