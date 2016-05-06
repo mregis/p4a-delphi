@@ -2441,13 +2441,14 @@ object Dm: TDm
         ParamType = ptUnknown
         Value = 0d
       end>
-    object SqlSdx8cg20_descricao: TStringField
+    object SqlSdx8_descricao: TStringField
       FieldName = 'descricao'
       Size = 35
     end
-    object SqlSdx8cg20_codbaixa: TStringField
+    object SqlSdx8_codbaixa: TStringField
+      DisplayWidth = 4
       FieldName = 'codbaixa'
-      Size = 3
+      Size = 4
     end
     object SqlSdx8qtde: TLargeintField
       FieldName = 'qtde'
@@ -2508,8 +2509,9 @@ object Dm: TDm
       Size = 35
     end
     object StringField7: TStringField
+      DisplayWidth = 4
       FieldName = 'codbaixa'
-      Size = 3
+      Size = 4
     end
     object SqlSdx9qtde: TLargeintField
       FieldName = 'qtde'

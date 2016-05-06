@@ -18,6 +18,11 @@ type
     RvPrjRelExtrBase: TRvProject;
     StsMenu: TStatusBar;
     MemoDica: TMemo;
+    EdAgencia: TEdit;
+    LblAgencia: TLabel;
+    GrpBxTpPessoa: TGroupBox;
+    ChckBxPessoaFisica: TCheckBox;
+    ChckBxPessoaJuridica: TCheckBox;
     procedure BtnGerarClick(Sender: TObject);
     procedure BtnFecharClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -33,7 +38,7 @@ var
 implementation
 
 {$R *.dfm}
-uses DmDados;
+uses DmDados, U_Func;
 
 procedure TFrmImprRelExtrBase.BtnFecharClick(Sender: TObject);
 begin
@@ -41,7 +46,12 @@ begin
 end;
 
 procedure TFrmImprRelExtrBase.BtnGerarClick(Sender: TObject);
-var tblnum, sqlcount, relTitle, sqlrelbase : String;
+var tblnum, relTitle,
+  // queries
+  sqlCheckCount, sqlRelDet, sqlRelBase, sqlSumario,
+  // Diversas
+  tpf, tpj, whereag : String;
+  ag : Integer;
 begin
   if (CompareDate(DtPickerDtIni.Date, DtPickerDtFin.Date) > 0) then
     begin
@@ -54,13 +64,15 @@ begin
   RvPrjRelExtrBase.ProjectFile := ExtractFilePath(Application.ExeName) +
       'RelExtratoBase.rav';
 
-  sqlcount := 'SELECT COUNT(a.*) as qtde, ' + #13#10 +
+  // consulta verificação de resultados
+  sqlcheckcount := 'SELECT COUNT(a.*) as qtde, ' + #13#10 +
         ' b.cg20_descricao as descricao, b.cg20_codbaixa as codbaixa ' + #13#10 +
         'FROM cga%s a ' + #13#10 + '  INNER JOIN cga20 b ON (a.cg%0:s_codbaixa = b.cg20_codbaixa) ' + #13#10 +
         'WHERE a.cg%0:s_dtbaixa BETWEEN :dtini AND :dtfim ' + #13#10 +
         'GROUP BY b.cg20_descricao, b.cg20_codbaixa ' + #13#10 +
         'ORDER BY b.cg20_descricao';
 
+  // Consulta total de resultados
   sqlrelbase := 'SELECT COUNT(z.*) AS total ' + #13#10 +
         'FROM (SELECT DISTINCT a.cg%s_remes, b.cg20_codbrad,  ' + #13#10 +
         '    a.cg%0:s_dtbaixa' + #13#10 +
@@ -69,6 +81,25 @@ begin
         'BETWEEN :dti AND :dtf ' + #13#10 +
         '  GROUP BY b.cg20_codbrad, ' + #13#10 +
         '    a.cg%0:s_dtbaixa, a.cg%0:s_remes) z';
+
+    // consulta do relatório
+    sqlRelDet := 'SELECT COUNT(a.*) as qtde, ' + #13#10 +
+              ' a.cg%s_dtbaixa as dtbaixa, ' + #13#10 +
+              ' b.cg20_descricao as descricao, b.cg20_codbaixa as codbaixa' + #13#10 +
+              'FROM cga%0:s a ' + #13#10 +
+              '  INNER JOIN cga20 b ON (a.cg%0:s_codbaixa = b.cg20_codbaixa) ' + #13#10 +
+              'WHERE a.cg%0:s_dtbaixa BETWEEN :dtini AND :dtfim ' + #13#10 +
+              'GROUP BY a.cg%0:s_dtbaixa, b.cg20_descricao, ' + #13#10 +
+              ' b.cg20_codbaixa ' + #13#10 +
+              'ORDER BY b.cg20_descricao, a.cg%0:s_dtbaixa';
+
+    sqlSumario := 'SELECT (SELECT COALESCE(SUM(ads05servnlido_qtd), 0) ' + #13#10 +
+              '  FROM ads005_servnaolido ' + #13#10 +
+              '  WHERE ads05servnlido_codserv = :cod AND ' + #13#10 +
+              '      ads05servnlido_dti BETWEEN :dti1 and :dtf1' + #13#10 + ') as nlido,' + #13#10 +
+              '(SELECT COUNT(a.*) ' + #13#10 + '  FROM cga%s a ' + #13#10 +
+              ' WHERE a.cg%0:s_dtbaixa ' + #13#10 +
+              ' BETWEEN :dti2 and :dtf2) as lido';
 
   case Tag of
     1: // Consolidado
@@ -99,34 +130,143 @@ begin
           '  GROUP BY b.cg20_codbrad, ' + #13#10 +
           '    a.cg%0:s_dtbaixa, a.cg%0:s_remes1) z';
       end;
+
+    32:
+      begin
+        if (NOT ChckBxPessoaFisica.Checked AND NOT ChckBxPessoaJuridica.Checked)  then
+          begin
+            Application.MessageBox(Pchar('Selecione ao menos um tipo para gerar o relatório.'),
+              'Address - ADS', MB_OK + MB_ICONWARNING);
+            ChckBxPessoaFisica.SetFocus;
+            exit;
+          end;
+        tblnum := '76';
+        tpf := '99';
+        tpj := '99';
+        RvPrjRelExtrBase.ProjectFile := ExtractFilePath(Application.ExeName) +
+      'RelExtratoTokensBaixados.rav';
+        relTitle := 'Tokens Baixados - Pessoa';
+        if ChckBxPessoaFisica.Checked then
+          begin
+            relTitle := relTitle + ' Física e';
+            tpf := '0';
+          end;
+        if ChckBxPessoaJuridica.Checked then
+          begin
+            relTitle := relTitle + ' Jurídica';
+            tpj := '1';
+          end
+        else
+          StringReplace(relTitle, ' e', '', []);
+
+        if EdAgencia.Text <> '' then
+          begin
+            if not TryStrToInt(EdAgencia.Text, ag) then
+              ag := 0;
+            whereag := Format('    AND a.cg%s_ag IN(%s,%s,%s) ' + #13#10,
+                        [tblnum, QuotedStr(EdAgencia.Text),
+                        QuotedStr(IntToStr(ag)),
+                        QuotedStr(LPad(IntToStr(ag), 4, '0'))]);
+
+          end;
+        // SQL de verificação de resultados e de cabeçalhos para cada
+        // Agência
+        sqlcheckcount := 'SELECT COUNT(a.cg%s_remes) as qtde, ' + #13#10 +
+              '    CAST(a.cg%0:s_ag || '' - '' || COALESCE(b.depto, '''') AS VARCHAR) as descricao, ' + #13#10 +
+              '    CAST(b.juncao as VARCHAR) as codbaixa ' + #13#10 +
+              'FROM cga%0:s a ' + #13#10 +
+              '        INNER JOIN tbbraddptos b ON (CAST(a.cg%0:s_ag AS INTEGER) = b.juncao) ' + #13#10 +
+              'WHERE a.cg%0:s_dtsai BETWEEN :dtini AND :dtfim ' + #13#10 +
+              '    AND cg76_tipocli IN ' +
+              Format('(%s, %s) ' + #13#10, [tpf, tpj]) +
+              whereag;
+
+        sqlcheckcount := sqlcheckcount + 'GROUP BY b.juncao, a.cg%0:s_ag '  + #13#10 +
+              'ORDER BY b.juncao';
+
+        // SQL de registros
+        sqlRelDet := 'SELECT COUNT(a.cg%s_remes) as qtde,  ' + #13#10 +
+              '    CAST((CASE WHEN cg76_tipocli = 1 THEN ''Pessoa Juridica'' ELSE ''Pessoa Fisica'' END) AS VARCHAR) as descricao, ' + #13#10 +
+              '    CAST(b.juncao AS VARCHAR) as codbaixa, ' + #13#10 +
+              '    a.cg%0:s_dtsai as dtbaixa, a.cg76_tipocli ' + #13#10 +
+              'FROM cga%0:s a ' + #13#10 +
+              '        INNER JOIN tbbraddptos b ON (CAST(a.cg%0:s_ag AS INTEGER) = b.juncao) ' + #13#10 +
+              'WHERE a.cg%0:s_dtsai BETWEEN :dtini AND :dtfim ' + #13#10 +
+              '    AND cg%0:s_tipocli IN ' +
+              Format('(%s, %s) ' + #13#10, [tpf, tpj]) +
+              whereag;
+
+        sqlRelDet := sqlRelDet + 'GROUP BY b.juncao, a.cg%0:s_dtsai, a.cg%0:s_tipocli ' + #13#10 +
+              'ORDER BY b.juncao, a.cg%0:s_dtsai, a.cg%0:s_tipocli ';
+
+
+        // SQL de sumário para Tokens Baixados
+        sqlSumario := 'SELECT :cod as cod,  :dti1, :dtf1, '+ #13#10 +
+              '    SUM(CASE WHEN cg76_tipocli = 1 THEN 1 ELSE 0 END) as lido, ' + #13#10 +
+              '    SUM(CASE WHEN cg76_tipocli = 0 THEN 1 ELSE 0 END) as nlido ' + #13#10 +
+              'FROM cga76 a ' + #13#10 +
+              'WHERE a.cg76_dtsai BETWEEN :dti2 and :dtf2 ' + #13#10 +
+              '    AND cg76_tipocli IN ' +
+              Format('(%s, %s) ' + #13#10, [tpf, tpj]) + whereag;
+
+        // SQL de sumário para Total de Agências Presentes no relatório
+        sqlRelBase := 'SELECT COUNT(DISTINCT a.cg%s_ag) as total ' + #13#10 +
+              'FROM cga%0:s a ' + #13#10 +
+              'WHERE a.cg%0:s_dtsai BETWEEN :dti AND :dtf ' +
+              '    AND cg76_tipocli IN ' +
+              Format('(%s, %s) ' + #13#10, [tpf, tpj]) + whereag;
+      end;
+
+    39:
+      begin
+        tblnum := '76';
+        relTitle := 'Tokens Lidos';
+        sqlcheckcount := 'SELECT COUNT(a.*) as qtde, ' + #13#10 +
+              '    b.nome as descricao, CAST(b.codigo AS VARCHAR) as codbaixa ' + #13#10 +
+              'FROM cga76 a ' + #13#10 +
+              '    INNER JOIN cga_acesso b on a.cg76_codusu_dig = b.codigo ' + #13#10 +
+              'WHERE a.cg76_dtentr BETWEEN :dtini AND :dtfim ' + #13#10 +
+              'GROUP BY b.nome, b.codigo ' + #13#10 +
+              'ORDER BY b.nome';
+
+        sqlRelDet := 'SELECT COUNT(a.*) as qtde, a.cg%s_dtentr as dtbaixa, ' + #13#10 +
+              '    b.nome as descricao, CAST(b.codigo as VARCHAR) as codbaixa ' + #13#10 +
+              'FROM cga%0:s a ' + #13#10 +
+              '    INNER JOIN cga_acesso b on a.cg%0:s_codusu_dig = b.codigo ' + #13#10 +
+              'WHERE a.cg%0:s_dtentr BETWEEN :dtini AND :dtfim ' + #13#10 +
+              'GROUP BY a.cg%0:s_dtentr, b.nome, b.codigo ' + #13#10 +
+              'ORDER BY b.nome, a.cg%0:s_dtentr ';
+
+        // SQL de sumário para Tokens Lidos
+        sqlSumario := 'SELECT 0 as nlido, :cod as cod,  :dti1, :dtf1, ' + #13#10 +
+              '(SELECT COUNT(a.*) ' + #13#10 + '  FROM cga%s a ' + #13#10 +
+              ' WHERE a.cg%0:s_dtentr BETWEEN :dti2 and :dtf2) as lido';
+
+        // SQL de sumário para Total de Tokens Lidos
+        sqlRelBase := 'SELECT COUNT(a.*) as total ' + #13#10 +
+              'FROM cga%s a ' + #13#10 +
+              '    INNER JOIN cga_acesso b on a.cg%0:s_codusu_dig = b.codigo ' + #13#10 +
+              'WHERE a.cg%0:s_dtentr BETWEEN :dti AND :dtf ';
+      end;
   end;
 
-  sqlcount := Format(sqlcount, [tblnum]);
+  sqlcheckcount := Format(sqlcheckcount, [tblnum]);
   With Dm Do
     Begin
       SqlSdx8.Close;
       SqlSdx8.Sql.Clear;
-      SqlSdx8.SQL.Add(sqlcount);
+      SqlSdx8.SQL.Add(sqlcheckcount);
       SqlSdx8.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
       SqlSdx8.ParamByName('dtfim').AsDate := DtPickerDtFin.Date;
 
       SqlSdx8.Open;
       if (SqlSdx8.RecordCount > 0 ) then
         Begin
-          // Preparando a consulta do relatório
-          sqlcount := 'SELECT COUNT(a.*) as qtde, ' + #13#10 +
-              ' a.cg%s_dtbaixa as dtbaixa, ' + #13#10 +
-              ' b.cg20_descricao as descricao, b.cg20_codbaixa as codbaixa' + #13#10 +
-              'FROM cga%0:s a ' + #13#10 +
-              '  INNER JOIN cga20 b ON (a.cg%0:s_codbaixa = b.cg20_codbaixa) ' + #13#10 +
-              'WHERE a.cg%0:s_dtbaixa BETWEEN :dtini AND :dtfim ' + #13#10 +
-              'GROUP BY a.cg%0:s_dtbaixa, b.cg20_descricao, ' + #13#10 +
-              ' b.cg20_codbaixa ' + #13#10 +
-              'ORDER BY b.cg20_descricao, a.cg%0:s_dtbaixa';
-          sqlcount := Format(sqlcount, [tblnum]);
+
+          sqlRelDet := Format(sqlRelDet, [tblnum]);
           SqlSdx9.Close;
           SqlSdx9.Sql.Clear;
-          SqlSdx9.SQL.Add(sqlcount);
+          SqlSdx9.SQL.Add(sqlRelDet);
           SqlSdx9.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
           SqlSdx9.ParamByName('dtfim').AsDate := DtPickerDtFin.Date;
           // Necessário executar o Open antes de definir parâmetros internos
@@ -134,14 +274,8 @@ begin
           // Recuperando a soma total dos lidos e não lidos para o período
           SqlRel.Close;
           SqlRel.Sql.Clear;
-          SqlRel.Sql.Add('SELECT (SELECT COALESCE(SUM(ads05servnlido_qtd), 0) ');
-          SqlRel.Sql.Add('  FROM ads005_servnaolido ');
-          SqlRel.Sql.Add('  WHERE ads05servnlido_codserv = :cod AND ');
-          SqlRel.Sql.Add('      ads05servnlido_dti BETWEEN :dti1 and :dtf1');
-          SqlRel.Sql.Add(') as nlido,');
-          SqlRel.Sql.Add(Format('(SELECT COUNT(a.*) ' + #13#10 +
-                '  FROM cga%s a ' + #13#10 + '  WHERE a.cg%0:s_dtbaixa ' +
-                'BETWEEN :dti2 and :dtf2) as lido', [tblnum]));
+          sqlSumario := Format(sqlSumario, [tblnum]);
+          SqlRel.Sql.Add(sqlSumario);
           SqlRel.ParamByName('cod').AsInteger := Tag;
           SqlRel.ParamByName('dti1').AsDate := DtPickerDtIni.Date;
           SqlRel.ParamByName('dtf1').AsDate := DtPickerDtFin.Date;
@@ -158,7 +292,7 @@ begin
           // Quantidade de registros
           SqlRel.Close;
           SqlRel.Sql.Clear;
-          SqlRel.Sql.Add( Format(sqlrelbase, [tblnum]));
+          SqlRel.Sql.Add( Format(sqlRelBase, [tblnum]));
           SqlRel.ParamByName('dti').AsDate := DtPickerDtIni.Date;
           SqlRel.ParamByName('dtf').AsDate := DtPickerDtFin.Date;
           SqlRel.Open;
@@ -298,6 +432,14 @@ procedure TFrmImprRelExtrBase.FormShow(Sender: TObject);
 begin
   DtPickerDtIni.Date := Date - 30;
   DtPickerDtFin.Date := Date;
+  case Tag of 
+    32:
+      begin
+        FrmImprRelExtrBase.GrpBxTpPessoa.Visible := true;
+        FrmImprRelExtrBase.LblAgencia.Visible := true;
+        FrmImprRelExtrBase.EdAgencia.Visible := true;
+      end;  
+  end;
 end;
 
 end.

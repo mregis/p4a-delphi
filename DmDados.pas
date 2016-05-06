@@ -530,8 +530,8 @@ type
     SqlSdx3tbsdxect_sigla: TStringField;
     SqlRelCartaoPrazo: TTimeField;
     SqlSdx8: TZQuery;
-    SqlSdx8cg20_descricao: TStringField;
-    SqlSdx8cg20_codbaixa: TStringField;
+    SqlSdx8_descricao: TStringField;
+    SqlSdx8_codbaixa: TStringField;
     DtsSdx8: TDataSource;
     RvDtsSdx8: TRvDataSetConnection;
     SqlSdx9: TZQuery;

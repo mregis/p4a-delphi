@@ -1813,26 +1813,18 @@ end;
 
 procedure TFrmPrincipal.ProdTokBxaClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPesqImp,FrmPesqImp);
-  FrmPesqImp.Tag := 32;
-  FrmPesqImp.EdAgIni.Enabled    :=  true;
-  FrmPesqImp.EdAgFin.Enabled    :=  true;
-  FrmPesqImp.RdGrpTipo.Enabled  :=  true;
-  FrmPesqImp.RdGrpTipo.Visible  :=  true;
-  FrmPesqImp.ShowModal;
-
+  Application.CreateForm(TFrmImprRelExtrBase, FrmImprRelExtrBase);
+  FrmImprRelExtrBase.Tag := 32;
+  FrmImprRelExtrBase.ShowModal;
+  SetFocus;
 end;
 
 procedure TFrmPrincipal.ProdTokLidoClick(Sender: TObject);
 begin
-  Application.CreateForm(TFrmPesqImp,FrmPesqImp);
-  FrmPesqImp.Tag := 39;
-  FrmPesqImp.EdAgIni.Enabled    :=  true;
-  FrmPesqImp.EdAgFin.Enabled    :=  true;
-  FrmPesqImp.RdGrpTipo.Enabled  :=  true;
-  FrmPesqImp.RdGrpTipo.Visible  :=  true;
-  FrmPesqImp.ShowModal;
-
+  Application.CreateForm(TFrmImprRelExtrBase, FrmImprRelExtrBase);
+  FrmImprRelExtrBase.Tag := 39;
+  FrmImprRelExtrBase.ShowModal;
+  SetFocus;
 end;
 
 procedure TFrmPrincipal.PreOLClick(Sender: TObject);

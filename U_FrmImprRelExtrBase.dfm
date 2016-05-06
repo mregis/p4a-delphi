@@ -2,7 +2,7 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
   Left = 0
   Top = 0
   Caption = 'Impress'#227'o Extrato Consolidado'
-  ClientHeight = 218
+  ClientHeight = 251
   ClientWidth = 467
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
@@ -14,11 +14,27 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object LblAgencia: TLabel
+    Left = 277
+    Top = 147
+    Width = 53
+    Height = 16
+    BiDiMode = bdLeftToRight
+    Caption = 'Ag'#234'ncia:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentBiDiMode = False
+    ParentFont = False
+    Visible = False
+  end
   object GroupBoxPeridoCarga: TGroupBox
     Left = 8
-    Top = 69
+    Top = 65
     Width = 452
-    Height = 73
+    Height = 64
     Hint = 'Per'#237'odo em que os objetos foram cadastrados '
     Caption = 'Per'#237'odo'
     Font.Charset = DEFAULT_CHARSET
@@ -29,7 +45,7 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
     ParentFont = False
     TabOrder = 0
     object LabelDtIni: TLabel
-      Left = 39
+      Left = 21
       Top = 28
       Width = 66
       Height = 16
@@ -61,12 +77,12 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
       ParentFont = False
     end
     object DtPickerDtIni: TDateTimePicker
-      Left = 112
+      Left = 94
       Top = 23
       Width = 107
       Height = 26
-      Date = 42283.000000000000000000
-      Time = 42283.000000000000000000
+      Date = 42346.000000000000000000
+      Time = 42346.000000000000000000
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
@@ -80,8 +96,8 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
       Top = 23
       Width = 105
       Height = 26
-      Date = 42290.000000000000000000
-      Time = 42290.000000000000000000
+      Date = 42361.000000000000000000
+      Time = 42361.000000000000000000
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
@@ -92,8 +108,8 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
     end
   end
   object BtnGerar: TBitBtn
-    Left = 56
-    Top = 148
+    Left = 47
+    Top = 188
     Width = 147
     Height = 32
     Caption = '&Gerar Relat'#243'rio'
@@ -160,8 +176,8 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
       5353535353532333322C2C24241E255353535353535353535353}
   end
   object BtnFechar: TBitBtn
-    Left = 297
-    Top = 148
+    Left = 290
+    Top = 188
     Width = 100
     Height = 32
     Caption = '&Fechar'
@@ -250,7 +266,7 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
   end
   object StsMenu: TStatusBar
     Left = 0
-    Top = 199
+    Top = 232
     Width = 467
     Height = 19
     Color = 16776697
@@ -274,6 +290,7 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
       item
         Width = 120
       end>
+    ExplicitTop = 199
   end
   object MemoDica: TMemo
     Left = 8
@@ -303,8 +320,66 @@ object FrmImprRelExtrBase: TFrmImprRelExtrBase
     ReadOnly = True
     TabOrder = 4
   end
+  object EdAgencia: TEdit
+    Left = 336
+    Top = 142
+    Width = 105
+    Height = 26
+    Hint = 'C'#243'digo da Ag'#234'ncia '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 5
+    Visible = False
+  end
+  object GrpBxTpPessoa: TGroupBox
+    Left = 8
+    Top = 131
+    Width = 219
+    Height = 46
+    Caption = 'Tipo Pessoa'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 6
+    Visible = False
+    object ChckBxPessoaFisica: TCheckBox
+      Left = 23
+      Top = 19
+      Width = 76
+      Height = 17
+      Caption = 'F'#237'sica'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+    object ChckBxPessoaJuridica: TCheckBox
+      Left = 127
+      Top = 15
+      Width = 76
+      Height = 17
+      Caption = 'Jur'#237'dica'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
   object RvPrjRelExtrBase: TRvProject
-    Left = 264
-    Top = 144
+    Left = 230
+    Top = 186
   end
 end
