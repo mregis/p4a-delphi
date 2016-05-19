@@ -74,7 +74,8 @@ uses
   U_FrmPrintAR in 'U_FrmPrintAR.pas' {FrmPrintAR},
   U_FrmGeraListaPostagem in 'U_FrmGeraListaPostagem.pas' {FrmGeraListaPostagem},
   U_FrmConfig in 'U_FrmConfig.pas' {FrmConfig},
-  U_FrmGeraRelatToken in 'U_FrmGeraRelatToken.pas' {FrmGeraRelatToken};
+  U_FrmGeraRelatToken in 'U_FrmGeraRelatToken.pas' {FrmGeraRelatToken},
+  U_FrmCadToken in 'U_FrmCadToken.pas' {FrmCadToken};
 
 {$R *.res}
 

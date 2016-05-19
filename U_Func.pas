@@ -57,6 +57,7 @@ Function LPad(const s: String; Pad: Integer; const c : String) : String;
 Function RPad(const s: String; Pad: Integer; const c : String) : String;
 Function StripNonAscii(const s: String): String;
 Function ReplaceNonAscii(const s: String): String;
+Function getTokenDV(const s: String) : String;
 
 implementation
 
@@ -1513,6 +1514,28 @@ Begin
 
 end;
 
+{
+  Calcula o Dígito Verificador de um Número de Serial de Token SafeSignature
+}
+
+Function getTokenDV(const s: String) : String;
+var qtpos, soma, i, termo, dv : Integer; // Contagem de posições, soma dos termos, iterador
+Begin
+  soma := 0;
+  qtpos := Length(s);
+  for i := qtpos downto 1 do
+    begin
+      if not TryStrToInt(s[i], termo) then
+        begin
+          Result := 'E';
+          exit;
+        end;
+        soma := soma + (termo * ((qtpos - i) + 2));
+    end;
+
+  dv := (soma * 10 mod 11) mod 10;
+  Result := IntToStr(dv);
+end;
 end.
 
 

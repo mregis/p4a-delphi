@@ -218,17 +218,24 @@ type
     RelPredDrcAmex: TMenuItem;
     IFatDrcAmex: TMenuItem;
     PlanilhaGeral1: TMenuItem;
-    Image1: TImage;
     precargamenuitem: TMenuItem;
     ImprimeARs: TMenuItem;
+    MenuItemCadCaixaToken: TMenuItem;
+    MenuItemCadToken: TMenuItem;
+    MenuCadToken1A1: TMenuItem;
+    ScrollBox2: TScrollBox;
     BitBtnCargaAR: TBitBtn;
-    BitBtnPrintArs: TBitBtn;
     BitBtnRepostagemAR: TBitBtn;
-    BitBtnPesagem: TBitBtn;
     BitBtnListaPostagem: TBitBtn;
-    BitBtnConfig: TBitBtn;
     BitBtnVinculaToken: TBitBtn;
+    BitBtnPesagem: TBitBtn;
+    BitBtnPrintArs: TBitBtn;
+    BitBtnConfig: TBitBtn;
     BitBtnDesvinculaToken: TBitBtn;
+    Image1: TImage;
+    procedure MenuCadToken1A1Click(Sender: TObject);
+    procedure MenuItemCadCaixaTokenClick(Sender: TObject);
+    procedure MenuItemCadTokenClick(Sender: TObject);
     procedure BitBtnConfigClick(Sender: TObject);
     procedure BitBtnListaPostagemClick(Sender: TObject);
     procedure BitBtnPesagemClick(Sender: TObject);
@@ -243,7 +250,6 @@ type
     procedure RelProdDrcZogMCSIClick(Sender: TObject);
     procedure DRCBolAmexClick(Sender: TObject);
     procedure DRCZogMsciClick(Sender: TObject);
-//    procedure CartoConvencional1Click(Sender: TObject);
     procedure lFatDrcCrtFatClick(Sender: TObject);
     procedure RelProdDrcCrtFATClick(Sender: TObject);
     procedure DRCCrtFatClick(Sender: TObject);
@@ -291,7 +297,6 @@ type
     procedure SedexTKClick(Sender: TObject);
     procedure SedexTCClick(Sender: TObject);
     procedure SedexOLClick(Sender: TObject);
-    procedure TokCadEntrClick(Sender: TObject);
     procedure SigepSedex1Click(Sender: TObject);
     procedure SedexOLTKTC1Click(Sender: TObject);
     procedure ResumoArOL1Click(Sender: TObject);
@@ -326,7 +331,6 @@ type
     procedure RelatoriodeMovimentoClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadastroporEMail1Click(Sender: TObject);
-//    procedure Digitao2Click(Sender: TObject);
     procedure SucursalClick(Sender: TObject);
     procedure QuatroColunas1Click(Sender: TObject);
     procedure ImpBolRCSClick(Sender: TObject);
@@ -378,7 +382,6 @@ type
     procedure ExtratoContaCorrenteClick(Sender: TObject);
     procedure RelatriodoContratodeLimitedeCrditoEspecial1Click(
       Sender: TObject);
-    procedure EntradadeTokens1Click(Sender: TObject);
     procedure SaidadeTokens1Click(Sender: TObject);
     procedure RelAgeClick(Sender: TObject);
     procedure DRCCrtAvisoClick(Sender: TObject);
@@ -435,7 +438,8 @@ uses U_ExtConsolidado, FrmExtContaCorrentePopanca, U_CadBaixa,
   U_PreCadToken, U_AltTokens, U_FrmConsulta, U_CadSedex, U_PesqImpSedex,
   U_FrmRelArSedexLista, U_FrmRlTotRa, DmDados, U_FrmCadNLido, U_FrmRemessaSedex,
   U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr,
-  U_FrmGeraListaPostagem, U_FrmConfig, U_FrmGeraRelatToken, U_FrmImprRelExtrBase;
+  U_FrmGeraListaPostagem, U_FrmConfig, U_FrmGeraRelatToken,
+  U_FrmImprRelExtrBase, U_FrmCadToken;
 
 {$R *.dfm}
 procedure TFrmPrincipal.AbreBaixa(tipo:Integer);
@@ -808,6 +812,57 @@ begin
    dm.SqlCga105.Sql.Add('select * from cga105cadedi order by numedi');
    dm.SqlCga105.Open;
    FrmMkCadEdi.ShowModal;
+end;
+
+procedure TFrmPrincipal.MenuCadToken1A1Click(Sender: TObject);
+begin
+  Application.CreateForm(TFrmExtContaCorrentePoupanca,FrmExtContaCorrentePoupanca);
+  FrmExtContaCorrentePoupanca.EdCaixa.Text := formatdatetime('ddmmyyyy',date)+formatdatetime('hhmmssn',time);
+  FrmExtContaCorrentePoupanca.Tag := 52;
+  AbreBaixa(1);
+  FrmExtContaCorrentePoupanca.Caption:='Cadastro e Entrada de Tokens';
+  FrmExtContaCorrentePoupanca.EdRemessa.MaxLength := 25;
+  FrmExtContaCorrentePoupanca.EdRemessa2.Visible := False;
+  FrmExtContaCorrentePoupanca.EdRemessa2.Enabled := False;
+  FrmExtContaCorrentePoupanca.Panel2.Caption  :=  'Cadastro e Entrada de Tokens';
+  FrmExtContaCorrentePoupanca.Panel5.Visible  :=  False;
+  FrmExtContaCorrentePoupanca.Panel5.Enabled  :=  False;
+  FrmExtContaCorrentePoupanca.DbLkBaixa.KeyValue  :=  '119';
+  FrmExtContaCorrentePoupanca.BtnFechaCxa.Enabled := true;
+  FrmExtContaCorrentePoupanca.BtnFechaCxa.Visible := true;
+  FrmExtContaCorrentePoupanca.BtnRecCxa.Enabled   := true;
+  FrmExtContaCorrentePoupanca.BtnRecCxa.Visible   := true;
+  FrmExtContaCorrentePoupanca.ShowModal;
+  setfocus;
+end;
+
+procedure TFrmPrincipal.MenuItemCadCaixaTokenClick(Sender: TObject);
+begin
+  Application.CreateForm(TFrmCadToken, FrmCadToken);
+  FrmCadToken.ShowModal;
+  SetFocus;
+end;
+
+procedure TFrmPrincipal.MenuItemCadTokenClick(Sender: TObject);
+begin
+  Application.CreateForm(TFrmExtContaCorrentePoupanca,FrmExtContaCorrentePoupanca);
+  FrmExtContaCorrentePoupanca.EdCaixa.Text := formatdatetime('ddmmyyyy',date)+formatdatetime('hhmmssn',time);
+  FrmExtContaCorrentePoupanca.Tag := 7;
+  AbreBaixa(1);
+  FrmExtContaCorrentePoupanca.Caption:='Entrada de Tokens';
+  FrmExtContaCorrentePoupanca.EdRemessa.MaxLength := 25;
+  FrmExtContaCorrentePoupanca.EdRemessa2.Visible := False;
+  FrmExtContaCorrentePoupanca.EdRemessa2.Enabled := False;
+  FrmExtContaCorrentePoupanca.Panel2.Caption  :=  'Entrada';
+  FrmExtContaCorrentePoupanca.Panel5.Visible  :=  False;
+  FrmExtContaCorrentePoupanca.Panel5.Enabled  :=  False;
+  FrmExtContaCorrentePoupanca.DbLkBaixa.KeyValue  :=  '119';
+  FrmExtContaCorrentePoupanca.BtnFechaCxa.Enabled := true;
+  FrmExtContaCorrentePoupanca.BtnFechaCxa.Visible := true;
+  FrmExtContaCorrentePoupanca.BtnRecCxa.Enabled   := true;
+  FrmExtContaCorrentePoupanca.BtnRecCxa.Visible   := true;
+  FrmExtContaCorrentePoupanca.ShowModal;
+  setfocus;
 end;
 
 procedure TFrmPrincipal.mfilialClick(Sender: TObject);
@@ -1240,30 +1295,6 @@ begin
   FrmPesqImp.ShowModal;
 end;
 
-
-procedure TFrmPrincipal.EntradadeTokens1Click(Sender: TObject);
-Begin
-  Application.CreateForm(TFrmExtContaCorrentePoupanca,FrmExtContaCorrentePoupanca);
-  FrmExtContaCorrentePoupanca.EdCaixa.Text := formatdatetime('ddmmyyyy',date)+formatdatetime('hhmmssn',time);
-  FrmExtContaCorrentePoupanca.Tag := 7;
-  AbreBaixa(1);
-  FrmExtContaCorrentePoupanca.Caption:='Entrada de Tokens';
-  FrmExtContaCorrentePoupanca.EdRemessa.MaxLength := 25;
-//  FrmExtContaCorrentePoupanca.EdRemessa2.MaxLength := 35;
-  FrmExtContaCorrentePoupanca.EdRemessa2.Visible := False;
-  FrmExtContaCorrentePoupanca.EdRemessa2.Enabled := False;
-  FrmExtContaCorrentePoupanca.Panel2.Caption  :=  'Entrada';
-  FrmExtContaCorrentePoupanca.Panel5.Visible  :=  False;
-  FrmExtContaCorrentePoupanca.Panel5.Enabled  :=  False;
-  FrmExtContaCorrentePoupanca.DbLkBaixa.KeyValue  :=  '119';
-  FrmExtContaCorrentePoupanca.BtnFechaCxa.Enabled := true;
-  FrmExtContaCorrentePoupanca.BtnFechaCxa.Visible := true;
-  FrmExtContaCorrentePoupanca.BtnRecCxa.Enabled   := true;
-  FrmExtContaCorrentePoupanca.BtnRecCxa.Visible   := true;
-//  FrmExtContaCorrentePoupanca.Panel2.AutoSize :=  true;
-  FrmExtContaCorrentePoupanca.ShowModal;
-  setfocus;
-End;
 
 procedure TFrmPrincipal.SaidadeTokens1Click(Sender: TObject);
 Begin
@@ -1928,31 +1959,6 @@ procedure TFrmPrincipal.ImprimeARsClick(Sender: TObject);
 begin
   Application.CreateForm(TFrmPrintAr, FrmPrintAr);
   FrmPrintAr.ShowModal;
-end;
-
-procedure TFrmPrincipal.TokCadEntrClick(Sender: TObject);
-begin
-  Application.CreateForm(TFrmExtContaCorrentePoupanca,FrmExtContaCorrentePoupanca);
-  FrmExtContaCorrentePoupanca.EdCaixa.Text := formatdatetime('ddmmyyyy',date)+formatdatetime('hhmmssn',time);
-  FrmExtContaCorrentePoupanca.Tag := 52;
-  AbreBaixa(1);
-  FrmExtContaCorrentePoupanca.Caption:='Cadastro e Entrada de Tokens';
-  FrmExtContaCorrentePoupanca.EdRemessa.MaxLength := 25;
-//  FrmExtContaCorrentePoupanca.EdRemessa2.MaxLength := 35;
-  FrmExtContaCorrentePoupanca.EdRemessa2.Visible := False;
-  FrmExtContaCorrentePoupanca.EdRemessa2.Enabled := False;
-  FrmExtContaCorrentePoupanca.Panel2.Caption  :=  'Cadastro e Entrada de Tokens';
-  FrmExtContaCorrentePoupanca.Panel5.Visible  :=  False;
-  FrmExtContaCorrentePoupanca.Panel5.Enabled  :=  False;
-  FrmExtContaCorrentePoupanca.DbLkBaixa.KeyValue  :=  '119';
-  FrmExtContaCorrentePoupanca.BtnFechaCxa.Enabled := true;
-  FrmExtContaCorrentePoupanca.BtnFechaCxa.Visible := true;
-  FrmExtContaCorrentePoupanca.BtnRecCxa.Enabled   := true;
-  FrmExtContaCorrentePoupanca.BtnRecCxa.Visible   := true;
-//  FrmExtContaCorrentePoupanca.Panel2.AutoSize :=  true;
-  FrmExtContaCorrentePoupanca.ShowModal;
-  setfocus;
-
 end;
 
 procedure TFrmPrincipal.TokenClick(Sender: TObject);

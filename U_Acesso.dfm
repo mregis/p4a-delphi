@@ -2,7 +2,6 @@ object FrmAcesso: TFrmAcesso
   Left = 411
   Top = 259
   ActiveControl = ScrollBox1
-  Align = alCustom
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'ADS - Autentica'#231#227'o'
@@ -21,8 +20,6 @@ object FrmAcesso: TFrmAcesso
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnShow = FormShow
-  ExplicitWidth = 320
-  ExplicitHeight = 240
   PixelsPerInch = 96
   TextHeight = 13
   object ScrollBox1: TScrollBox
