@@ -170,9 +170,10 @@ begin
     begin
       SqlAux1.Close;
       SqlAux1.SQL.Clear;
-      SqlAux1.SQL.Add('select distinct(cg76_caixa) from cga76 where (cg76_codusu_dig = :dig) and (cg76_remes = :token)');
-      SqlAux1.Params[0].Value  :=  sqlcga_acessocodigo.AsInteger;
-      SqlAux1.Params[1].Value  :=  EdRemessa.Text;
+      SqlAux1.SQL.Add('select distinct(cg76_caixa) from cga76 ');
+      SqlAux1.SQL.Add('WHERE cg76_codusu_dig = :dig AND substr(cg76_remes, 1, LENGTH(cg76_remes) -1) = :token');
+      SqlAux1.ParamByName('dig').AsInteger := sqlcga_acessocodigo.AsInteger;
+      SqlAux1.ParamByName('token').AsString :=  Copy(EdRemessa.Text, 1, Length(EdRemessa.Text) -1);
       SqlAux1.Open;
       case SqlAux1.RecordCount of
         0: Application.MessageBox('Não há Registros','ADS',0);
@@ -343,6 +344,7 @@ begin
 end; //fim case 12
 
 procedure TFrmExtContaCorrentePoupanca.procentrtoken(tipo:  Integer);
+var codtkn : String;
 begin
   with dm do
     begin
@@ -365,23 +367,26 @@ begin
               begin
                 SqlAux1.Close;
                 SqlAux1.Sql.Clear;
-                SqlAux1.Sql.Add('select cg76_remes from  cga76  where (cg76_remes = :remes) and (cg76_dtentr is not null)');
-                SqlAux1.Params[0].Value  :=   EdRemessa.Text;
+                SqlAux1.Sql.Add('SELECT cg76_remes FROM cga76 ');
+                SqlAux1.Sql.Add('WHERE SUBSTR(cg76_remes, 1, LENGTH(cg76_remes) - 1) = :remes');
+                SqlAux1.Sql.Add('     AND cg76_dtentr IS NOT NULL');
+                SqlAux1.ParamByName('cg76_remes').AsString := Copy(EdRemessa.Text, 1, Length(EdRemessa.Text) - 1);
                 SqlAux1.Open;
                 case SqlAux1.RecordCount of
                   0:
                     begin
+                      codtkn := SqlAux1.FieldByName('cg76_remes').AsString;
                       SqlAux1.Close;
                       SqlAux1.Sql.Clear;
                       //                                                0                         1                         2                              3
-                      SqlAux1.Sql.Add('update cga76 set cg76_remes = :cg76_remes,cg76_dtentr = (select current_date),cg76_caixa = :cg76_caixa, cg76_codusu_dig = :codusu, ');
-                      SqlAux1.Sql.Add('cg76_codentr = :codentr where (cg76_remes = :remes) and (cg76_dtentr is null) and (cg76_codbaixa is null) and (cg76_dtsai is null) ');
-                      SqlAux1.Sql.Add('and (cg76_ag is null) and (cg76_dtb is null) and (cg76_numlote is null) and (cg76_codusu_dig is null)');
-                      SqlAux1.Params[0].Value := trim(EdRemessa.Text);
-                      SqlAux1.Params[1].Value := trim(EdCaixa.Text);
-                      SqlAux1.Params[2].Value := sqlcga_acessocodigo.AsInteger;
-                      SqlAux1.Params[3].Value := SqlCga20cg20_codbaixa.AsString;
-                      SqlAux1.Params[4].Value := trim(EdRemessa.Text);
+                      SqlAux1.Sql.Add('UPDATE cga76 SET cg76_remes = :cg76_remes, cg76_dtentr = CURRENT_DATE, cg76_caixa = :cg76_caixa, cg76_codusu_dig = :codusu, ');
+                      SqlAux1.Sql.Add('cg76_codentr = :codentr WHERE cg76_remes = :remes AND cg76_dtentr IS NULL AND cg76_codbaixa IS NULL AND cg76_dtsai IS NULL ');
+                      SqlAux1.Sql.Add('AND cg76_ag IS NULL AND cg76_dtb IS NULL AND cg76_numlote IS NULL AND cg76_codusu_dig IS NULL ');
+                      SqlAux1.ParamByname('cg76_remes').AsString := codtkn;
+                      SqlAux1.ParamByName('cg76_caixa').AsInteger := StrToInt64(trim(EdCaixa.Text));
+                      SqlAux1.ParamByName('codusu').AsInteger := sqlcga_acessocodigo.AsInteger;
+                      SqlAux1.ParamByName('codentr').AsString := SqlCga20cg20_codbaixa.AsString;
+                      SqlAux1.ParamByName('remes').AsString := Copy(EdRemessa.Text, 1, Length(EdRemessa.Text) - 1);
                       try
                         SqlAux1.ExecSql;
                         StBr.Panels[0].Text := '';
@@ -406,8 +411,6 @@ begin
                       except on e: exception do
                         begin
                           Application.MessageBox(PChar('Ocorreu um erro fatal: '+e.Message),'Ads',MB_OK+MB_ICONERROR);
-                          //EdRemessa.Clear;
-                          //EdRemessa.SetFocus;
                           ScrollBox1.SetFocus;
                           exit;
                         end;
@@ -416,8 +419,6 @@ begin
                   else
                     begin
                       Application.MessageBox(PChar('Token já Lido: '+EdRemessa.Text),'Ads',MB_OK+MB_ICONERROR);
-                      //EdRemessa.Clear;
-                      //EdRemessa.SetFocus;
                       ScrollBox1.SetFocus;
                       exit;
                     end;
@@ -426,8 +427,6 @@ begin
           else
             begin
               StBr.Panels[0].Text := 'Número de Token Incorreta';
-              //EdRemessa.Clear;
-              //EdRemessa.SetFocus;
               ScrollBox1.SetFocus;
             end;
           end;
@@ -435,8 +434,6 @@ begin
       else
         begin
           StBr.Panels[0].Text := 'Anterior Igual ao Atual';
-          //EdRemessa.Clear;
-          //EdRemessa.SetFocus;
           ScrollBox1.SetFocus;
         end;
     end;
@@ -455,12 +452,12 @@ StBr.Panels[0].Text :=  '';
             SqlAux1.Sql.Add('SELECT COUNT(cg77_dtb) as qt ');
             SqlAux1.Sql.Add('FROM cga77 ');
             SqlAux1.Sql.Add('WHERE cg77_dtb = :grm AND cg77_numlote = :numlote ');
-            SqlAux1.Sql.Add('    AND (cg77_ag = :ag OR cg77_ag = :ag2) ');
+            SqlAux1.Sql.Add('    AND cg77_ag IN (:ag, :ag2) ');
             SqlAux1.Sql.Add('    AND cg77_status = :status');
             SqlAux1.ParamByName('grm').AsString := Trim(dtb);
             SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
             SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-            SqlAux1.ParamByName('ag2').AsInteger := StrToInt(trim(Edremessa2.Text));
+            SqlAux1.ParamByName('ag2').AsString := IntToStr(StrToInt(trim(Edremessa2.Text)));
             SqlAux1.ParamByName('status').AsString := '0';
             SqlAux1.Open;
             case SqlAux1.FieldByName('qt').AsInteger of
@@ -1670,7 +1667,7 @@ begin
           dm.SqlAux1.SQL.Clear;
           dm.SqlAux1.SQL.Add('SELECT cg77_qtd, cg77_dtb ');
           dm.SqlAux1.SQL.Add('FROM cga77 ');
-          dm.SqlAux1.SQL.Add('WHERE (cg77_ag = :ag OR cg77_ag = :ag2) AND cg77_numlote = :numlote ');
+          dm.SqlAux1.SQL.Add('WHERE cg77_ag IN (:ag, :ag2) AND cg77_numlote = :numlote ');
           dm.SqlAux1.SQL.Add('    AND cg77_status = :status');
           dm.SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
           dm.SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
@@ -1686,7 +1683,7 @@ begin
               dm.SqlAux1.SQL.Clear;
               dm.SqlAux1.SQL.Add('SELECT COUNT(cg76_remes) as qt ');
               dm.SqlAux1.SQL.Add('FROM cga76 ');
-              dm.SqlAux1.SQL.Add('WHERE (cg76_ag = :ag OR cg76_ag = :ag2) ');
+              dm.SqlAux1.SQL.Add('WHERE cg76_ag IN (:ag, :ag2) ');
               dm.SqlAux1.SQL.Add('    AND cg76_numlote = :numlote');
               dm.SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
               dm.SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
@@ -1727,6 +1724,7 @@ begin
 end;
 
 procedure TFrmExtContaCorrentePoupanca.gravatoken;
+var codtkn, codag : String;
 begin
   with dm do
     begin
@@ -1735,7 +1733,7 @@ begin
      SqlAux1.Sql.Add('SELECT COUNT(cg77_dtb) as qt');
      SqlAux1.Sql.Add('FROM cga77 WHERE cg77_dtb = :dtb ');
      SqlAux1.Sql.Add('    AND cg77_numlote = :numlote ');
-     SqlAux1.Sql.Add('    AND (cg77_ag = :ag OR cg77_ag = :ag2) ');
+     SqlAux1.Sql.Add('    AND cg77_ag IN (:ag, :ag2) ');
      if CheckBox1.Checked = false then
        begin
          SqlAux1.Sql.Add('    AND cg77_tokfin >= :tokfin ');
@@ -1746,7 +1744,7 @@ begin
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
+     SqlAux1.ParamByName('ag2').AsString := IntToStr(StrToInt(Edremessa2.Text));
 
      SqlAux1.Open;
      if (SqlAux1.Fields[0].Value = 0) and (CheckBox1.Checked = false) then
@@ -1765,25 +1763,30 @@ begin
        begin
          SqlAux1.Close;
          SqlAux1.Sql.Clear;
-         SqlAux1.Sql.Add('select count(cg76_remes) from cga76 where (cg76_dtb = :dtb) and (cg76_numlote = :numlote)');
-         SqlAux1.Params[0].AsString := Trim(dtb);
-         SqlAux1.Params[1].AsString := Trim(Ednumlote.Text);
+         SqlAux1.Sql.Add('SELECT COUNT(cg76_remes) ');
+         SqlAux1.Sql.Add('FROM cga76 ');
+         SqlAux1.Sql.Add('WHERE cg76_dtb = :dtb AND cg76_numlote = :numlote');
+         SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
+         SqlAux1.ParamByName('numlote').AsString := Trim(Ednumlote.Text);
          SqlAux1.Open;
          if (SqlAux1.Fields[0].Value < qtde) then
            begin
              SqlAux1.Close;
              SqlAux1.Sql.Clear;
-             SqlAux1.Sql.Add('select count(cg76_remes) from cga76 where cg76_remes = :cg76_remes');
-             SqlAux1.Params[0].AsString := Trim(EdRemessa.Text);
+             SqlAux1.Sql.Add('SELECT cg76_ag, cg76_remes  ');
+             SqlAux1.Sql.Add('FROM cga76 ');
+             SqlAux1.Sql.Add('WHERE SUBSTR(cg76_remes, 1, LENGTH(cg76_remes) - 1) = :cg76_remes ');
+             EdRemessa.Text := Trim(EdRemessa.Text);
+             // Sempre supondo que o último caractere lido do Token é o DV
+             SqlAux1.ParamByName('cg76_remes').AsString := Copy(EdRemessa.Text, 1, Length(EdRemessa.Text) - 1);
              SqlAux1.Open;
-             If SqlAux1.Fields[0].AsInteger <> 0  Then
+             If SqlAux1.RecordCount > 0  Then
                Begin
-                 SqlAux1.Close;
-                 SqlAux1.Sql.Clear;
-                 SqlAux1.Sql.Add('select cg76_ag from cga76 where cg76_remes = :cg76_remes');
-                 SqlAux1.Params[0].AsString := Trim(EdRemessa.Text);
-                 SqlAux1.Open;
-                 If ((trim(SqlAux1.Fields[0].AsString) = '') or (SqlAux1.Fields[0].Value = null)) or (CheckBox1.Checked = true) Then
+                 codtkn := SqlAux1.FieldByName('cg76_remes').AsString;
+                 codag := SqlAux1.FieldByName('cg76_ag').AsString;
+                 If ((trim(codag) = '') or
+                    (codag = null)) or
+                    (CheckBox1.Checked = true) Then
                   Begin
                     SqlAux1.Close;
                     SqlAux1.Sql.Clear;
@@ -1791,15 +1794,17 @@ begin
                     SqlAux1.Sql.Add('SET cg76_codbaixa = :codbaixa, ');
                     SqlAux1.Sql.Add('cg76_dtsai = CURRENT_DATE, cg76_ag =:ag, ');
                     SqlAux1.Sql.Add('cg76_tipocli = :tipocli, cg76_dtb = :dtb, ');
-                    SqlAux1.Sql.Add('cg76_numlote = :numlote, cg76_codusu = :codusu ');
-                    SqlAux1.Sql.Add('WHERE cg76_remes = :cg76_remes');
+                    SqlAux1.Sql.Add('cg76_numlote = :numlote, cg76_codusu = :codusu, ');
+                    SqlAux1.Sql.Add('cg76_remes = :cg76_remes ');
+                    SqlAux1.Sql.Add('WHERE cg76_remes = :cg76_remes2');
                     SqlAux1.ParamByName('codbaixa').AsString := SqlCga20cg20_codbaixa.AsString;
                     SqlAux1.ParamByName('ag').AsString := LPad(Trim(EdRemessa2.Text), 4, '0');
                     SqlAux1.ParamByName('tipocli').AsInteger := RdGrptipocli.ItemIndex;
                     SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
                     SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text),6, '0');
                     SqlAux1.ParamByName('codusu').AsInteger := Dm.sqlcga_acessocodigo.AsInteger;
-                    SqlAux1.ParamByName('cg76_remes').AsString := Trim(EdRemessa.Text);
+                    SqlAux1.ParamByName('cg76_remes').AsString := EdRemessa.Text;
+                    SqlAux1.ParamByName('cg76_remes2').AsString := codtkn;
 
                      try
                        SqlAux1.ExecSql;
@@ -1839,7 +1844,6 @@ begin
                End
              Else
                Begin
-                 //application.MessageBox(PChar('Remessa não Cadastrada: '),'Ads',MB_OK+MB_ICONERROR);
                  procentrtoken(1);
                  EdRemessa.Clear;
                  EdRemessa.SetFocus;
@@ -1865,13 +1869,12 @@ begin
      SqlAux1.Sql.Add('UPDATE cga77 ');
      SqlAux1.Sql.Add('SET cg77_status = :status ');
      SqlAux1.Sql.Add('WHERE cg77_dtb = :dtb AND cg77_numlote = :numlote');
-     SqlAux1.Sql.Add('    AND (cg77_ag = :ag OR cg77_ag = :ag2) ');
+     SqlAux1.Sql.Add('    AND cg77_ag  IN (:ag, :ag2) ');
      SqlAux1.ParamByName('status').AsString := '1';
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text),6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
-//     SqlAux1.Params[4].AsString := '0';
+     SqlAux1.ParamByName('ag2').AsString := IntToStr(StrToInt(Edremessa2.Text));
      try
        SqlAux1.ExecSQL;
      except on e: exception do
@@ -1893,12 +1896,12 @@ begin
      SqlAux1.Sql.Clear;
      SqlAux1.Sql.Add('SELECT COUNT(cg77_ag) FROM cga77 ');
      SqlAux1.Sql.Add('WHERE cg77_dtb = :dtb AND cg77_numlote = :numlote ');
-     SqlAux1.Sql.Add('    AND (cg77_ag = :ag OR cg77_ag = :ag2) ');
+     SqlAux1.Sql.Add('    AND cg77_ag  IN (:ag, :ag2) ');
      SqlAux1.Sql.Add('    AND cg77_tokini > :tokini');
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
+     SqlAux1.ParamByName('ag2').AsString := IntToStr(StrToInt(Edremessa2.Text));
      SqlAux1.ParamByName('tokini').AsString := '0';
      SqlAux1.Open;
      case SqlAux1.Fields[0].Value of
@@ -1917,12 +1920,12 @@ begin
      SqlAux1.Sql.Add('SELECT COUNT(cg77_tokini) ');
      SqlAux1.Sql.Add('FROM cga77 ');
      SqlAux1.Sql.Add('WHERE cg77_dtb = :dtb AND cg77_numlote = :numlote ');
-     SqlAux1.Sql.Add('    AND (cg77_ag = :ag OR cg77_ag = :ag2) ');
+     SqlAux1.Sql.Add('    AND cg77_ag IN(:ag,:ag2) ');
      SqlAux1.Sql.Add('    AND cg77_tokini <= :toki AND cg77_tokfin >= :tokf ');
      SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
      SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
      SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-     SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
+     SqlAux1.ParamByName('ag2').AsString := IntToStr(StrToInt(Edremessa2.Text));
      SqlAux1.ParamByName('toki').AsString := copy(trim(EdRemessa.Text), 1, 9);
      SqlAux1.ParamByName('tokf').AsString := copy(trim(EdRemessa.Text), 1, 9);
      SqlAux1.Open;
@@ -1934,14 +1937,14 @@ begin
            SqlAux1.Sql.Add('UPDATE cga77 ');
            SqlAux1.Sql.Add('SET cg77_tokini = :tokini, cg77_tokfin = :tokfin ');
            SqlAux1.Sql.Add('WHERE cg77_dtb = :dtb AND cg77_numlote = :numlote ');
-           SqlAux1.Sql.Add('    AND (cg77_ag = :ag OR cg77_ag = :ag2) ');
+           SqlAux1.Sql.Add('    AND cg77_ag IN (:ag, :ag2) ');
            SqlAux1.Sql.Add('    AND cg77_status = :tok');
            SqlAux1.ParamByName('tokini').AsString := copy(trim(EdRemessa.Text), 1, 9);
            SqlAux1.ParamByName('tokfin').AsInteger := StrToInt(copy(EdRemessa.Text, 1, 9)) + qtde - 1;
            SqlAux1.ParamByName('dtb').AsString := Trim(dtb);
            SqlAux1.ParamByName('numlote').AsString := LPad(trim(Ednumlote.Text), 6, '0');
            SqlAux1.ParamByName('ag').AsString := LPad(trim(Edremessa2.Text), 4, '0');
-           SqlAux1.ParamByName('ag2').AsString := Edremessa2.Text;
+           SqlAux1.ParamByName('ag2').AsString := IntToStr(StrToInt(Edremessa2.Text));
            SqlAux1.ParamByName('tok').AsString := '0';
            try
              begin
@@ -1953,10 +1956,7 @@ begin
                    exit;
                  end
                else
-                 begin
-                   // verseqtok;
                    gravatoken;
-                 end;
              end;
            except on e: exception do
              begin

@@ -42,7 +42,7 @@ var
 
 implementation
 
-uses DmDados, U_Func;
+uses DmDados, U_Func, DB;
 
 {$R *.dfm}
 
@@ -121,11 +121,11 @@ begin
                                Dm.SqlAux1.Sql.Add('(:cg75_caixa,:cg75_codbaixa,:cg75_codusu,:cg75_dtbaixa,:cg75_dup,:cg75_remes,:cg75_conta,:cg75_codag,:cg75_tipo,:cg75_dv)');
                                 //                        0             1            2             3           4          5           6            7          8         9
                                dgconta := Modulo11(Copy(EdRemes.Text,1,7));
-                               Dm.SqlAux1.Params[6].Value := Copy(EdRemes.Text,1,7) + dgconta;
-                               Dm.SqlAux1.Params[7].Value := Copy(EdRemes.Text,10,5);
+                               Dm.SqlAux1.ParamByName('cg75_conta').AsInteger := StrToInt64(Copy(EdRemes.Text,1,7) + dgconta);
+                               Dm.SqlAux1.ParamByName('cg75_codag').AsInteger := StrToInt64(Copy(EdRemes.Text,10,5));
                                EdAgencia.Text             := inttostr(strtoint(Copy(EdRemes.Text,10,5)));
-                               Dm.SqlAux1.Params[8].Value := 4;
-                               Dm.SqlAux1.Params[9].Value := Modulo11(Copy(EdRemes.Text,11,4));
+                               Dm.SqlAux1.ParamByName('cg75_tipo').AsInteger := 4;
+                               Dm.SqlAux1.ParamByName('cg75_dv').AsInteger := StrToInt(Modulo11(Copy(EdRemes.Text,11,4)));
                              end;
                           26:
                              begin
@@ -134,11 +134,10 @@ begin
                                Dm.SqlAux1.Sql.Add(' values ');
                                Dm.SqlAux1.Sql.Add('(:cg75_caixa,:cg75_codbaixa,:cg75_codusu,:cg75_dtbaixa,:cg75_dup,:cg75_remes,:cg75_conta,:cg75_codag,:cg75_dv,:cg75_tipo)');
                                //                        0             1               2           3           4          5           6           7          8         9
-                               //dgconta := Modulo11(Copy(EdRemes.Text,8,6));
-                               Dm.SqlAux1.Params[6].Value := Copy(EdRemes.Text,7,8);
-                               Dm.SqlAux1.Params[7].Value := Copy(EdRemes.Text,1,5);
-                               Dm.SqlAux1.Params[8].Value := Modulo11(Copy(EdRemes.Text,1,5));
-                               Dm.SqlAux1.Params[9].Value := 4;
+                               Dm.SqlAux1.ParamByName('cg75_remes').AsString := Copy(EdRemes.Text,7,8);
+                               Dm.SqlAux1.ParamByname('cg75_codag').AsInteger := StrToInt64(Copy(EdRemes.Text,1,5));
+                               Dm.SqlAux1.ParamByName('cg75_dv').AsInteger := StrToInt(Modulo11(Copy(EdRemes.Text,1,5)));
+                               Dm.SqlAux1.ParamByName('cg75_tipo').AsInteger := 4;
                                EdAgencia.Text             := inttostr(strtoint(Copy(EdRemes.Text,1,5)));
                              end;
                           32:
@@ -146,19 +145,20 @@ begin
                                Dm.SqlAux1.Sql.Add('(cg75_caixa,cg75_codbaixa,cg75_codusu,cg75_dtbaixa,cg75_dup,cg75_remes,cg75_codag,cg75_conta,cg75_dtext,cg75_tipo)');
                                Dm.SqlAux1.Sql.Add(' values ');
                                Dm.SqlAux1.Sql.Add('(:cg75_caixa,:cg75_codbaixa,:cg75_codusu,:cg75_dtbaixa,:cg75_dup,:cg75_remes,:cg75_codag,:cg75_conta,:cg75_dtext,:cg75_tipo)');
-                               Dm.SqlAux1.Params[6].Value := copy(EdRemes.Text,1,6);
-                               Dm.SqlAux1.Params[7].Value := copy(EdRemes.Text,7,8);
+                               //                       0             1             2             3           4         5           6             7           8           9
+                               Dm.SqlAux1.ParamByname('cg75_codag').AsInteger := StrToInt64(copy(EdRemes.Text,1,6));
+                               Dm.SqlAux1.ParamByName('cg75_conta').AsInteger := StrToInt64(copy(EdRemes.Text,7,8));
                                EdAgencia.Text             := inttostr(strtoint(copy(EdRemes.Text,1,5)))+'-'+inttostr(strtoint(copy(EdRemes.Text,6,1)));
-                               Dm.SqlAux1.Params[8].Value := (Copy(EdRemes.Text,21,4)+'-'+Copy(EdRemes.Text,19,2)+'-'+Copy(EdRemes.Text,17,2));
-                               Dm.SqlAux1.Params[9].Value := copy(EdRemes.Text,15,2);
+                               Dm.SqlAux1.ParamByName('cg75_dtext').AsDate := StrToDate(Copy(EdRemes.Text,21,4)+'-'+Copy(EdRemes.Text,19,2)+'-'+Copy(EdRemes.Text,17,2));
+                               Dm.SqlAux1.ParamByName('cg75_tipo').AsInteger := StrToInt64(copy(EdRemes.Text,15,2));
                              end;
                         end;
-                        Dm.SqlAux1.Params[0].Value := Trim(EdCaixa.Text);
-                        Dm.SqlAux1.Params[1].Value := Dm.SqlCga20cg20_codbaixa.Value;
-                        Dm.SqlAux1.Params[2].Value := Dm.sqlcga_acessocodigo.Value;
-                        Dm.SqlAux1.Params[3].Value := formatdatetime('mm-dd-yyyy',date);
-                        Dm.SqlAux1.Params[4].Value := 1;
-                        Dm.SqlAux1.Params[5].Value := Trim(EdRemes.Text);
+                        Dm.SqlAux1.ParamByName('cg75_caixa').AsInteger := StrToInt64(EdCaixa.Text);
+                        Dm.SqlAux1.ParamByName('cg75_codbaixa').AsString := Dm.SqlCga20cg20_codbaixa.AsString;
+                        Dm.SqlAux1.ParamByName('cg75_codusu').AsInteger := Dm.sqlcga_acessocodigo.AsInteger;
+                        Dm.SqlAux1.ParamByname('cg75_dtbaixa').AsDate := Date;
+                        Dm.SqlAux1.ParamByName('cg75_dup').AsInteger := 1;
+                        Dm.SqlAux1.ParamByName('cg75_remes').AsString := Trim(EdRemes.Text);
                         try
                           EdRemes.Clear;
                           Dm.SqlAux1.ExecSql;

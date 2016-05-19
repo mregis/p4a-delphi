@@ -3,7 +3,7 @@ object FrmGeraRelatToken: TFrmGeraRelatToken
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Relat'#243'rios de Tokens'
-  ClientHeight = 325
+  ClientHeight = 297
   ClientWidth = 471
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
@@ -352,10 +352,10 @@ object FrmGeraRelatToken: TFrmGeraRelatToken
   end
   object StsRemSdx: TStatusBar
     Left = 0
-    Top = 296
+    Top = 276
     Width = 471
-    Height = 29
-    Color = 16776697
+    Height = 21
+    Color = clActiveBorder
     Panels = <
       item
         Text = 'Ads - Address SA'
@@ -364,6 +364,6 @@ object FrmGeraRelatToken: TFrmGeraRelatToken
       item
         Width = 100
       end>
-    ExplicitTop = 360
+    ExplicitTop = 304
   end
 end
