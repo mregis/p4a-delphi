@@ -1502,7 +1502,6 @@ Begin
   SetLength(Result, Length(s));
   for i := 1 to Length(s) do
     begin
-      pos := ord(s[i]);
       if (s[i] in [#32, #48..#57, #65..#90, #97..#122]) then
         Result[i] := s[i]
       else
@@ -1533,7 +1532,18 @@ Begin
         soma := soma + (termo * ((qtpos - i) + 2));
     end;
 
-  dv := (soma * 10 mod 11) mod 10;
+  dv := (soma * 10 mod 11);
+  { Quando o resto for 10, há uma regra especial para calcular o DV.
+    Essa regra consiste em recuperar o valor ASCII do ultimo caracter
+    do codigo de Token passado.
+    Ex. 337913709, quando calculado, retornará um resto 10.
+    Então pegamos o codigo ASCII do ultimo caractere do numero do token, que
+    neste caso é o 9, o que resulta em 57 e então utilizamos mod 10 para
+    calcular o DV. | ASCII('9') = 57,  57 MOD 10 = 7;
+  }
+  if dv = 10 then
+    dv := Ord(s[qtpos]) mod 10;
+
   Result := IntToStr(dv);
 end;
 end.
