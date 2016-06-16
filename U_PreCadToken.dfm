@@ -4,7 +4,7 @@ object FrmPreCadToken: TFrmPreCadToken
   BorderStyle = bsDialog
   Caption = 'FrmPreCadToken'
   ClientHeight = 495
-  ClientWidth = 688
+  ClientWidth = 790
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object FrmPreCadToken: TFrmPreCadToken
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
-    Width = 688
+    Width = 790
     Height = 495
     HorzScrollBar.Range = 634
     VertScrollBar.Range = 156
@@ -30,8 +30,8 @@ object FrmPreCadToken: TFrmPreCadToken
     ParentColor = False
     TabOrder = 0
     object Lbl001: TLabel
-      Left = 72
-      Top = 122
+      Left = 100
+      Top = 116
       Width = 48
       Height = 18
       Caption = 'Lbl001'
@@ -52,7 +52,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Height = 42
     end
     object LabelLote: TLabel
-      Left = 34
+      Left = 50
       Top = 52
       Width = 32
       Height = 17
@@ -65,7 +65,7 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentFont = False
     end
     object LabelErros: TLabel
-      Left = 497
+      Left = 593
       Top = 51
       Width = 40
       Height = 17
@@ -79,8 +79,8 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentFont = False
     end
     object LabelGravados: TLabel
-      Left = 470
-      Top = 15
+      Left = 566
+      Top = 13
       Width = 67
       Height = 17
       Alignment = taRightJustify
@@ -107,7 +107,7 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentFont = False
     end
     object Label38: TLabel
-      Left = 17
+      Left = 33
       Top = 86
       Width = 49
       Height = 16
@@ -122,8 +122,8 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentFont = False
     end
     object EdErro: TEdit
-      Left = 541
-      Top = 44
+      Left = 637
+      Top = 46
       Width = 117
       Height = 27
       BevelInner = bvNone
@@ -143,7 +143,7 @@ object FrmPreCadToken: TFrmPreCadToken
     object StBr: TStatusBar
       Left = 0
       Top = 474
-      Width = 684
+      Width = 786
       Height = 17
       Panels = <
         item
@@ -152,7 +152,7 @@ object FrmPreCadToken: TFrmPreCadToken
         end>
     end
     object Ednumlote: TEdit
-      Left = 68
+      Left = 84
       Top = 47
       Width = 117
       Height = 26
@@ -172,19 +172,28 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object StrGridDados: TStringGrid
       Left = 0
-      Top = 153
-      Width = 684
-      Height = 263
+      Top = 142
+      Width = 786
+      Height = 274
       BevelInner = bvNone
       BevelOuter = bvNone
+      BiDiMode = bdLeftToRight
       Color = clWhite
-      ColCount = 10
+      ColCount = 11
       Ctl3D = False
       DefaultRowHeight = 18
+      FixedColor = clSilver
       FixedCols = 0
       RowCount = 20
-      Options = [goFixedVertLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
+      ParentBiDiMode = False
       ParentCtl3D = False
+      ParentFont = False
       TabOrder = 6
       ColWidths = (
         34
@@ -196,10 +205,11 @@ object FrmPreCadToken: TFrmPreCadToken
         45
         74
         70
-        64)
+        79
+        83)
     end
     object EdLocal: TEdit
-      Left = 85
+      Left = 101
       Top = 8
       Width = 370
       Height = 26
@@ -216,7 +226,7 @@ object FrmPreCadToken: TFrmPreCadToken
       TabOrder = 7
     end
     object BtnAbrir: TBitBtn
-      Left = 7
+      Left = 23
       Top = 8
       Width = 74
       Height = 32
@@ -258,7 +268,7 @@ object FrmPreCadToken: TFrmPreCadToken
         00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
     object EdQtdreg: TEdit
-      Left = 367
+      Left = 383
       Top = 46
       Width = 88
       Height = 27
@@ -276,8 +286,8 @@ object FrmPreCadToken: TFrmPreCadToken
       Text = '0'
     end
     object EdGrava: TEdit
-      Left = 541
-      Top = 11
+      Left = 637
+      Top = 8
       Width = 117
       Height = 27
       BevelInner = bvNone
@@ -294,9 +304,9 @@ object FrmPreCadToken: TFrmPreCadToken
       Text = '0'
     end
     object Panel5: TPanel
-      Left = 3
-      Top = 131
-      Width = 63
+      Left = 6
+      Top = 116
+      Width = 76
       Height = 20
       BevelInner = bvLowered
       BevelOuter = bvNone
@@ -312,7 +322,7 @@ object FrmPreCadToken: TFrmPreCadToken
       TabOrder = 10
     end
     object NovoLoteChkBox: TCheckBox
-      Left = 211
+      Left = 227
       Top = 53
       Width = 97
       Height = 17
@@ -541,7 +551,7 @@ object FrmPreCadToken: TFrmPreCadToken
         6B0B046B0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
     object CboProdutoServSedex: TDBLookupComboBox
-      Left = 68
+      Left = 84
       Top = 81
       Width = 387
       Height = 26
@@ -560,8 +570,8 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object PanelProgress: TPanel
       AlignWithMargins = True
-      Left = 201
-      Top = 230
+      Left = 263
+      Top = 236
       Width = 315
       Height = 68
       Align = alCustom
@@ -581,6 +591,8 @@ object FrmPreCadToken: TFrmPreCadToken
       TabOrder = 14
       VerticalAlignment = taAlignTop
       Visible = False
+      ExplicitLeft = 260
+      ExplicitTop = 233
       object PanelProgressBar: TProgressBar
         AlignWithMargins = True
         Left = 24
