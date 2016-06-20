@@ -1820,6 +1820,7 @@ object Dm: TDm
     end
   end
   object DtSSdxServ: TDataSource
+    AutoEdit = False
     DataSet = SqlSdxServ
     Left = 465
     Top = 685
@@ -2283,12 +2284,37 @@ object Dm: TDm
       
         '  INNER JOIN public.tbsdxserv serv ON (e.tbsdxect_prod = serv.tb' +
         'sdxserv_prod)'
+      'WHERE sdx02.sdx_dtcarga BETWEEN :dtini AND :dtfin'
       'GROUP BY 1, 2, 3'
-      'ORDER BY 6 DESC'
-      'LIMIT 5  ')
-    Params = <>
+      'ORDER BY 6 DESC, sdx_seqcarga DESC')
+    Params = <
+      item
+        DataType = ftDate
+        Name = 'dtini'
+        ParamType = ptUnknown
+        Value = 0d
+      end
+      item
+        DataType = ftDate
+        Name = 'dtfin'
+        ParamType = ptUnknown
+        Value = 0d
+      end>
     Left = 30
     Top = 795
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dtini'
+        ParamType = ptUnknown
+        Value = 0d
+      end
+      item
+        DataType = ftDate
+        Name = 'dtfin'
+        ParamType = ptUnknown
+        Value = 0d
+      end>
     object SqlSdx6Lote: TLargeintField
       FieldName = 'lote'
     end

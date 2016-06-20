@@ -570,8 +570,8 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object PanelProgress: TPanel
       AlignWithMargins = True
-      Left = 263
-      Top = 236
+      Left = 299
+      Top = 272
       Width = 315
       Height = 68
       Align = alCustom
@@ -591,8 +591,6 @@ object FrmPreCadToken: TFrmPreCadToken
       TabOrder = 14
       VerticalAlignment = taAlignTop
       Visible = False
-      ExplicitLeft = 260
-      ExplicitTop = 233
       object PanelProgressBar: TProgressBar
         AlignWithMargins = True
         Left = 24

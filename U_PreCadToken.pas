@@ -157,7 +157,7 @@ begin
   if (trim(CboProdutoServSedex.Text) = '') then
     begin
       application.MessageBox(PChar('Selecione um Produto!'),
-          'Ads', MB_OK+MB_ICONINFORMATION);
+          'Ads', MB_OK + MB_ICONINFORMATION);
       exit;
     end;
 
@@ -693,7 +693,7 @@ end;
 procedure TFrmPreCadToken.gravaol2;
 var siglaobj, num_obj, siglaprod,
   dv, sqldadosobj, insmov: String;
-  i, j: Integer;
+  i, j, iTmp: Integer;
 begin
   PanelProgressBar.Max := StrGridDados.RowCount - 1;
   nLotes := TStringList.Create;
@@ -754,7 +754,17 @@ begin
           if StrGridDados.Cells[0, i] <> 'UF' then // Escapando o cabeçalho
             begin
               // Buscando os dados do destino
-              SqlTbBradDeptos.Params[0].AsInteger := StrToInt(StrGridDados.Cells[1, i]);
+              if not TryStrToInt(StrGridDados.Cells[1, i], iTmp) then
+                begin
+                  Application.MessageBox(PChar('Código de Agência ' +
+                      StrGridDados.Cells[1, i] + ', presente na linha ' +
+                      IntToStr(i + 1) + ', é inválido! '),
+                    'ADS', MB_OK + MB_ICONERROR);
+                  exit;
+                end;
+
+              SqlTbBradDeptos.Params[0].AsInteger := iTmp;
+              SqlTbBradDeptos.ExecSQL;
               SqlTbBradDeptos.Open;
               if (SqlTbBradDeptos.RecordCount < 1) then
                 begin
@@ -794,55 +804,69 @@ begin
                   SqlAux3.ParamByName('prod').AsInteger := StrToInt(StrGridDados.Cells[10, i]);
                   SqlAux3.ExecSQL;
                   SqlAux3.Open;
-                  num_obj := SqlAux3.Fields[0].AsString;
-                  dv := SqlAux3.Fields[1].AsString;
-                  siglaobj := SqlAux3.Fields[2].AsString;
-                  siglaprod := SqlAux3.Fields[3].AsString;
-                  // Inserindo o envio
-                  SqlAux1.ParamByName('sigla').AsString := SqlSdxServtbsdxserv_sigla.AsString;
-                  SqlAux1.ParamByName('numobj').AsInteger := StrToInt(num_obj + dv);
-                  SqlAux1.ParamByName('numobj4').AsString := 'AR' + num_obj + dv + siglaprod;
-                  SqlAux1.ParamByName('nomdest').AsString := gerant(SqlTbBradDeptosjuncao.AsString, 4) + ': ' + SqlTbBradDeptosdepto.AsString;
-                  SqlAux1.ParamByName('enddest').AsString := SqlTbBradDeptosender.AsString;
-                  SqlAux1.ParamByName('ciddest').AsString := SqlTbBradDeptoscidade.Text;
-                  SqlAux1.ParamByName('ufdest').AsString := SqlTbBradDeptosuf.Text;
-                  SqlAux1.ParamByName('cepdest').AsString := copy(SqlTbBradDeptoscep.Text, 1, 5) + copy(SqlTbBradDeptoscep.Text, 7, 3);
-                  SqlAux1.ParamByName('numreg').AsString := GeraNt(inttostr(random(999)), 3) + FormatDateTime('yyyymmdd', date) + FormatDateTime('hhmmss', Time) + GeraNT(sqlcga_acessocodigo.AsString, 4) + GeraNt(inttostr(random(999)), 3);
-                  SqlAux1.ParamByName('numobj2').AsString := siglaobj + num_obj + dv + 'BR';
-                  SqlAux1.ParamByName('numobj1').AsString := 'AR' + num_obj + dv + siglaprod;
-                  SqlAux1.ParamByName('codusu').AsString := sqlcga_acessocodigo.AsString;
-                  SqlAux1.ParamByName('sdx_valdec').AsFloat := Moeda2Float(trim(StrGridDados.Cells[8, i]));
-                  SqlAux1.ParamByName('sdx_seqcarga').AsString := nLote;
-                  SqlAux1.ParamByName('qtprod').AsInteger := strtoint(trim(StrGridDados.Cells[3, i]));
-                  SqlAux1.ParamByName('sdx_dtmov').AsString := FormatDateTime('yyyy-mm-dd', StrToDate(StrGridDados.Cells[4, i]));
-                  SqlAux1.ParamByName('sdx_juncaopagante').AsString := StrGridDados.Cells[9, i];
-                  try
-                    SqlAux1.ExecSQL;
-                    EdGrava.Text := IntToStr(i);
-                    EdGrava.Refresh;
-                    ProgressBarStepItOne;
-
-                    SqlAux2.ParamByName('use').AsString := 'S';
-                    SqlAux2.ParamByName('numobj').AsString := num_obj;
-                    SqlAux2.ParamByName('prod').AsInteger := StrToInt(StrGridDados.Cells[10, i]);
-                    SqlAux2.ExecSQL;
-                    if (SqlAux2.RowsAffected < 1) then
-                        raise Exception.Create('Numero de objeto ' + num_obj + ' não pode ser marcado como utilizado.');
-
-                  except on e: Exception do
+                  if SqlAux3.RecordCount > 0 then
                     begin
-                      application.MessageBox(PChar('Ocorreu um erro fatal ao tentar ' +
-                            'vincular um numero de objeto para o item da linha ' +
-                            IntToStr(i) + '. ' + #13#10 + 'Detalhes: ' + e.Message +
-                            #13#10 + 'Nro Objeto: ' + num_obj + dv),
-                        'Ads', MB_OK + MB_ICONERROR);
-                      SqlAux1.SQL.Text := 'ROLLBACK';
-                      SqlAux1.ExecSQL;
-                      EdGrava.Text := '0';
-                      exit;
+                      num_obj := SqlAux3.Fields[0].AsString;
+                      dv := SqlAux3.Fields[1].AsString;
+                      siglaobj := SqlAux3.Fields[2].AsString;
+                      siglaprod := SqlAux3.Fields[3].AsString;
+                      // Inserindo o envio
+                      SqlAux1.ParamByName('sigla').AsString := SqlSdxServtbsdxserv_sigla.AsString;
+                      SqlAux1.ParamByName('numobj').AsInteger := StrToInt(num_obj + dv);
+                      SqlAux1.ParamByName('numobj4').AsString := 'AR' + num_obj + dv + siglaprod;
+                      SqlAux1.ParamByName('nomdest').AsString := gerant(SqlTbBradDeptosjuncao.AsString, 4) + ': ' + SqlTbBradDeptosdepto.AsString;
+                      SqlAux1.ParamByName('enddest').AsString := SqlTbBradDeptosender.AsString;
+                      SqlAux1.ParamByName('ciddest').AsString := SqlTbBradDeptoscidade.Text;
+                      SqlAux1.ParamByName('ufdest').AsString := SqlTbBradDeptosuf.Text;
+                      SqlAux1.ParamByName('cepdest').AsString := copy(SqlTbBradDeptoscep.Text, 1, 5) + copy(SqlTbBradDeptoscep.Text, 7, 3);
+                      SqlAux1.ParamByName('numreg').AsString := GeraNt(inttostr(random(999)), 3) + FormatDateTime('yyyymmdd', date) + FormatDateTime('hhmmss', Time) + GeraNT(sqlcga_acessocodigo.AsString, 4) + GeraNt(inttostr(random(999)), 3);
+                      SqlAux1.ParamByName('numobj2').AsString := siglaobj + num_obj + dv + 'BR';
+                      SqlAux1.ParamByName('numobj1').AsString := 'AR' + num_obj + dv + siglaprod;
+                      SqlAux1.ParamByName('codusu').AsString := sqlcga_acessocodigo.AsString;
+                      SqlAux1.ParamByName('sdx_valdec').AsFloat := Moeda2Float(trim(StrGridDados.Cells[8, i]));
+                      SqlAux1.ParamByName('sdx_seqcarga').AsString := nLote;
+                      SqlAux1.ParamByName('qtprod').AsInteger := strtoint(trim(StrGridDados.Cells[3, i]));
+                      SqlAux1.ParamByName('sdx_dtmov').AsString := FormatDateTime('yyyy-mm-dd', StrToDate(StrGridDados.Cells[4, i]));
+                      SqlAux1.ParamByName('sdx_juncaopagante').AsString := StrGridDados.Cells[9, i];
+                      try
+                        SqlAux1.ExecSQL;
+                        EdGrava.Text := IntToStr(i);
+                        EdGrava.Refresh;
+                        ProgressBarStepItOne;
+
+                        SqlAux2.ParamByName('use').AsString := 'S';
+                        SqlAux2.ParamByName('numobj').AsString := num_obj;
+                        SqlAux2.ParamByName('prod').AsInteger := StrToInt(StrGridDados.Cells[10, i]);
+                        SqlAux2.ExecSQL;
+                        if (SqlAux2.RowsAffected < 1) then
+                            raise Exception.Create('Numero de objeto ' + num_obj + ' não pode ser marcado como utilizado.');
+
+                      except on e: Exception do
+                        begin
+                          application.MessageBox(PChar('Ocorreu um erro fatal ao tentar ' +
+                                'vincular um numero de objeto para o item da linha ' +
+                                IntToStr(i) + '. ' + #13#10 + 'Detalhes: ' + e.Message +
+                                #13#10 + 'Nro Objeto: ' + num_obj + dv),
+                            'Ads', MB_OK + MB_ICONERROR);
+                          SqlAux1.SQL.Text := 'ROLLBACK';
+                          SqlAux1.ExecSQL;
+                          EdGrava.Text := '0';
+                          exit;
+                        end;
+                      end;
+                    end
+                  else
+                    begin
+                      application.MessageBox(PChar('O Cartão de Postagem do pagante ' +
+                            StrGridDados.Cells[10, i] + ', presente na linha ' +
+                            IntToStr(i) + ', não possui números de objetos livres. ' + #13#10 +
+                            'Requisite novos objetos!'),
+                          'ADS', MB_OK + MB_ICONERROR);
+                    exit;
+
+
                     end;
                 end;
-            end;
           end;
         end;
       // Finalizando a transação
@@ -1215,12 +1239,12 @@ begin
     WorkSheet := WorkBk.WorkSheets.Get_Item(1) as _WorkSheet;
     // Selecionando a ultima celula da ultima linha com dados
     lines := WorkSheet.Cells.SpecialCells(xlCellTypeLastCell, EmptyParam).Row;
-    cols := 11;
-    StrGridDados.ColCount := cols;
+    cols := 10;
+    StrGridDados.ColCount := cols + 1;
     RangeMatrix := ExcelApplication1.Range['A1', ExcelApplication1.Cells.Item[lines, cols]].Value2;
     ExcelApplication1.Quit;
 
-    PanelProgressBar.Max := lines * Cols;
+    PanelProgressBar.Max := lines * cols;
   Finally
     ExcelApplication1.Disconnect;
   End;
@@ -1275,11 +1299,11 @@ begin
           // Lendo os dados do cabeçalho
           for _Col := 1 to cols do
             begin
-              StrGridDados.Cells[_Col-1, 0] := trim(RangeMatrix[iIni, _Col]);
+              StrGridDados.Cells[_Col - 1, 0] := trim(RangeMatrix[iIni, _Col]);
               ProgressBarStepItOne;
             end;
             // Adicionando o cabeção de Cartao de Postagem após ultima coluna
-          StrGridDados.Cells[10, 0] := 'CARTAO POSTAGEM';
+          StrGridDados.Cells[cols, 0] := 'CARTAO POSTAGEM';
           break;
         end;
       PanelProgressBar.StepBy(cols);
@@ -1425,7 +1449,7 @@ begin
                     SqlAux2.SQL.Add('FROM tbbraddptos d ');
                     SqlAux2.SQL.Add('    INNER JOIN tbsdxserv t ON (d.cartao_postagem = t.tbsdxserv_cod) ');
                     SqlAux2.SQL.Add('WHERE d.juncao = :juncao');
-                    SqlAux2.ParamByName('juncao').AsInteger := StrToInt(RangeMatrix[_Line, _Col]);
+                    SqlAux2.ParamByName('juncao').AsInteger := jTemp;
                     SqlAux2.Open;
                   end;
 
@@ -1439,6 +1463,7 @@ begin
                               // Tem numero de objeto livre
                               cartoes[i].qtde := cartoes[i].qtde - StrToInt(RangeMatrix[_Line, 6]);
                               StrGridDados.Cells[_Col, R] := IntToStr(cartoes[i].cod);
+                              StrGridDados.Cells[_Col - 1, R] := RangeMatrix[_Line, _Col];
                               break;
                             end
                           else
@@ -1497,13 +1522,11 @@ begin
   if (StrGridDados.RowCount > 1 ) then
     begin
       BtnSalvar.Enabled := true;
-      BtnLeitura.Enabled := false;
-
       ShowMessage(IntToStr(StrGridDados.RowCount - 1) + ' registros lidos com sucesso!');
       // Facilitando...
-      // Selecionando automaticamente o produto a qual o ultimo registro
-      // tem como pagante
-      CboProdutoServSedex.KeyValue := StrToInt(StrGridDados.Cells[10, StrGridDados.RowCount - 2]);
+      // Selecionando o produto a qual o ultimo registro tem como pagante
+      if TryStrToInt(StrGridDados.Cells[10, StrGridDados.RowCount - 1], R) then
+        CboProdutoServSedex.KeyValue := R;
     end;
 
 end;

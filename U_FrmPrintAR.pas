@@ -27,6 +27,10 @@ type
     LabelObjeto: TLabel;
     EditLotes: TEdit;
     LabelLote: TLabel;
+    BitBtnReset: TBitBtn;
+    procedure BitBtnResetClick(Sender: TObject);
+    procedure DBMacroProdCloseUp(Sender: TObject);
+    procedure DtPickerDtIniChange(Sender: TObject);
     procedure DBGridLotesKeyPress(Sender: TObject; var Key: Char);
     procedure BtnImprimeClick(Sender: TObject);
     procedure DBGridLotesCellClick(Column: TColumn);
@@ -36,6 +40,7 @@ type
     procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     procedure DbGridSelectItem;
+    procedure DBGridRefreshListItens;
     { Private declarations }
   public
     { Public declarations }
@@ -147,7 +152,6 @@ begin
       SqlAux2.SQL.Add(SqlSdx3.SQL.GetText);      
       SqlAux2.SQL.Add(') z ');
       SqlAux2.Params := SqlSdx3.Params;
-      s := SqlAux2.SQL.GetText;
       SqlAux2.Open;
       i := SqlAux2.FieldByName('qt').AsInteger;
       if (i < 1) then
@@ -190,6 +194,15 @@ begin
 
 end;
 
+procedure TFrmPrintAR.BitBtnResetClick(Sender: TObject);
+begin
+  DBMacroProd.KeyValue := null;
+  EditLotes.Clear;
+  EditObjeto.Clear;
+  DBMacroProd.Refresh;
+  DBGridRefreshListItens;
+end;
+
 procedure TFrmPrintAR.BtnFecharClick(Sender: TObject);
 begin
   Close;
@@ -225,13 +238,61 @@ end;
 
 procedure TFrmPrintAR.DbGridSelectItem;
 begin
+    with Dm do
+      if (SqlSdx6Lote.Value > 0) then
+        begin
+          DtPickerDtIni.Date := SqlSdx6Dtini.Value;
+          DtPickerDtFin.Date := SqlSdx6Dtfin.Value;
+          DBMacroProd.KeyValue := SqlSdx6CodProduto.Value;
+          EditLotes.Text := IntToStr(SqlSdx6Lote.Value);
+        end;
+end;
+
+procedure TFrmPrintAR.DBGridRefreshListItens;
+begin
+  With Dm do
+    begin
+      SqlSdx6.Close;
+      SqlSdx6.SQL.Clear;
+      SqlSdx6.SQL.Add('SELECT sdx02.sdx_seqcarga AS lote, ');
+      SqlSdx6.SQL.Add('  serv.tbsdxserv_prod AS codproduto, serv.tbsdxserv_dsc as produto, ');
+      SqlSdx6.SQL.Add('  COUNT(*) as qtitens, ');
+      SqlSdx6.SQL.Add('  MIN(sdx02.sdx_dtcarga) AS dtini, ');
+      SqlSdx6.SQL.Add('  MAX(sdx02.sdx_dtcarga) AS dtfin ');
+      SqlSdx6.SQL.Add('FROM tbsdx02 sdx02 ');
+      SqlSdx6.SQL.Add('  INNER JOIN public.tbsdx_ect e ON (sdx02.sdx_numobj2 = e.tbsdxect_sigla || e.tbsdxect_num || e.tbsdxect_dv || ''BR'') ');
+      SqlSdx6.SQL.Add('  INNER JOIN public.tbsdxserv serv ON (e.tbsdxect_prod = serv.tbsdxserv_prod) ');
+      SqlSdx6.SQL.Add('WHERE sdx02.sdx_dtcarga BETWEEN :dtini AND :dtfin ');
+      if (DBMacroProd.KeyValue <> null) and (DBMacroProd.KeyValue > 0) then
+        begin
+          SqlSdx6.SQL.Add('    AND serv.tbsdxserv_prod = :prod');
+          SqlSdx6.ParamByName('prod').AsInteger := DBMacroProd.KeyValue;
+        end;
+      SqlSdx6.SQL.Add('GROUP BY 1, 2, 3 ');
+      SqlSdx6.SQL.Add('ORDER BY 6 DESC, sdx_seqcarga DESC');
+      SqlSdx6.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlSdx6.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlSdx6.Open;
+      DBGridLotes.Refresh;
+    end;
+end;
+
+procedure TFrmPrintAR.DBMacroProdCloseUp(Sender: TObject);
+begin
+  DBGridRefreshListItens;
+end;
+
+procedure TFrmPrintAR.DtPickerDtIniChange(Sender: TObject);
+begin
   with Dm do
-  begin
-    DtPickerDtIni.Date := SqlSdx6Dtini.Value;
-    DtPickerDtFin.Date := SqlSdx6Dtfin.Value;
-    DBMacroProd.KeyValue := SqlSdx6CodProduto.Value;
-    EditLotes.Text := IntToStr(SqlSdx6Lote.Value);
-  end;
+    begin
+      SqlSdx6.Close;
+      SqlSdx6.ParamByName('dtini').AsDate := DtPickerDtIni.Date;
+      SqlSdx6.ParamByName('dtfin').AsDate := DtPickerDtFin.Date;
+      SqlSdx6.Open;
+      SqlSdx6.Refresh;
+      DBGridLotes.Refresh;
+    end;
 end;
 
 procedure TFrmPrintAR.FormShow(Sender: TObject);
@@ -241,12 +302,12 @@ begin
       SqlSdxServ.Close;
       SqlSdxServ.SQL.Clear;
       SqlSdxServ.SQL.Add('SELECT * FROM public.tbsdxserv t ');
-      SqlSdxServ.SQL.Add('WHERE t.tbsdxserv_status = 1 AND ');
-      SqlSdxServ.SQL.Add('(t.tbsdxserv_dsc ILIKE ''%TOKEN%'' OR ');
-      SqlSdxServ.SQL.Add('t.tbsdxserv_dsc ILIKE ''%TANCODE%'' OR ');
-      SqlSdxServ.SQL.Add('t.tbsdxserv_dsc ILIKE ''% OL %'')');
-
+      SqlSdxServ.SQL.Add('WHERE t.tbsdxserv_status = 1 ');
       SqlSdxServ.Open;
+
+      SqlSdx6.Close;
+      SqlSdx6.ParamByName('dtini').AsDate := Date;
+      SqlSdx6.ParamByName('dtfin').AsDate := Date;
       SqlSdx6.Open;
     end;
     DBMacroProd.Refresh;
@@ -254,9 +315,6 @@ begin
     // Ajustando data de exibição
     DtPickerDtIni.Date := Date;
     DtPickerDtFin.Date := Date;
-
-
 end;
-
 
 end.
