@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ComCtrls, StdCtrls, DBCtrls, Buttons, ExtCtrls, Grids, DBGrids, 
-  DateUtils;
+  Dialogs, ComCtrls, StdCtrls, DBCtrls, Buttons, ExtCtrls, Grids, DBGrids,
+  DateUtils, Math;
 
 type
   TFrmPrintAR = class(TForm)
@@ -20,8 +20,8 @@ type
     LabelDtFin: TLabel;
     DtPickerDtFin: TDateTimePicker;
     LabelTipo: TLabel;
-    PanelProgress: TPanel;
-    ProgressBar1: TProgressBar;
+    PanelProgressImpressao: TPanel;
+    ProgressBarImpressao: TProgressBar;
     DBGridLotes: TDBGrid;
     EditObjeto: TEdit;
     LabelObjeto: TLabel;
@@ -38,6 +38,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnFecharClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
+    procedure ProgressBarStepItOne;
   private
     procedure DbGridSelectItem;
     procedure DBGridRefreshListItens;
@@ -109,11 +110,9 @@ begin
       SqlSdx3.SQL.Add('  s.tbsdxserv_nrocto, s.tbsdxserv_crtpst, t.sdx_cmp, t.sdx_bas, ');
       SqlSdx3.SQL.Add('  t.sdx_alt, e.tbsdxect_sigla ');
       SqlSdx3.SQL.Add('FROM public.tbsdx02 t ');
-      SqlSdx3.SQL.Add('    INNER JOIN public.tbsdxserv s ON (t.sdx_siglaobj = s.tbsdxserv_sigla) ');
       SqlSdx3.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj2 = e.tbsdxect_sigla || e.tbsdxect_num || ' +
                       'e.tbsdxect_dv || ''BR'' ) ');
-
-      // A data é o único campo obrigatório
+      SqlSdx3.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');                      
       SqlSdx3.SQL.Add('WHERE t.sdx_dtcarga BETWEEN :dt1 AND :dt2 ');
       SqlSdx3.ParamByName('dt1').AsDate := DtPickerDtIni.Date;
       SqlSdx3.ParamByName('dt2').AsDate := DtPickerDtFin.Date;
@@ -161,11 +160,14 @@ begin
         end
       else
         begin
+          ProgressBarImpressao.Max := Min(i, 2);
+          ProgressBarImpressao.Position := 0;
+          PanelProgressImpressao.Show;
           SqlSdx3.SQL.Add('ORDER BY t.sdx_nomdest ');
-          SqlSdx3.Open; 
+          SqlSdx3.Open;
 
           // Gerando o relatório de impressão
-          s := ExtractFilePath(Application.ExeName);             
+          s := ExtractFilePath(Application.ExeName);
           case CboTpEtiqueta.ItemIndex of
             0 :
               RvRelatorios.ProjectFile := s + 'RelatoriosAds.rav';
@@ -176,22 +178,23 @@ begin
             2:  // Ar Digital
               RvRelatorios.ProjectFile := s + 'ARDigital.rav';
 
-            else 
+            else
               begin
                 Application.MessageBox(Pchar('Ooops! Não foi selecionado o tipo de ' +
                     'etiqueta?'), 'Address - ADS', MB_OK + MB_ICONWARNING);
                 CboTpEtiqueta.SetFocus;
               end;
-               
-          end;         
+
+          end;
+          ProgressBarImpressao.Position := i div 2;
           RvRelatorios.ExecuteReport('RpSedexArOl');
+          ProgressBarImpressao.Position := ProgressBarImpressao.Max;
           RvRelatorios.Close;
-          
         end;
 
       lotes.Free;
     end;
-
+  PanelProgressImpressao.Hide;
 end;
 
 procedure TFrmPrintAR.BitBtnResetClick(Sender: TObject);
@@ -315,6 +318,16 @@ begin
     // Ajustando data de exibição
     DtPickerDtIni.Date := Date;
     DtPickerDtFin.Date := Date;
+end;
+
+{ Método que incrementa a Barra de Progresso }
+procedure TFrmPrintAR.ProgressBarStepItOne;
+begin
+  ProgressBarImpressao.StepBy(1);
+  ProgressBarImpressao.StepBy(-1);
+  ProgressBarImpressao.StepBy(1);
+  ProgressBarImpressao.Update;
+  ProgressBarImpressao.Refresh;
 end;
 
 end.

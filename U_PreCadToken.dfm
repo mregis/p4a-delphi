@@ -29,31 +29,33 @@ object FrmPreCadToken: TFrmPreCadToken
     Color = clSkyBlue
     ParentColor = False
     TabOrder = 0
-    object Lbl001: TLabel
-      Left = 100
-      Top = 116
-      Width = 48
-      Height = 18
-      Caption = 'Lbl001'
-      Color = 16704412
+    object lblLotesCriado: TLabel
+      Left = 91
+      Top = 106
+      Width = 470
+      Height = 17
+      AutoSize = False
+      Caption = 'Lote[s] criados:'
+      Color = clMoneyGreen
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
+      Font.Height = -15
       Font.Name = 'Arial'
       Font.Style = []
       ParentColor = False
       ParentFont = False
       Visible = False
+      WordWrap = True
     end
     object Bevel1: TBevel
-      Left = 168
+      Left = 219
       Top = 424
       Width = 348
       Height = 42
     end
     object LabelLote: TLabel
-      Left = 50
-      Top = 52
+      Left = 60
+      Top = 46
       Width = 32
       Height = 17
       Caption = 'Lote:'
@@ -66,7 +68,7 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object LabelErros: TLabel
       Left = 593
-      Top = 51
+      Top = 45
       Width = 40
       Height = 17
       Alignment = taRightJustify
@@ -93,8 +95,8 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentFont = False
     end
     object LabelLidos: TLabel
-      Left = 326
-      Top = 51
+      Left = 350
+      Top = 45
       Width = 39
       Height = 17
       Alignment = taRightJustify
@@ -107,68 +109,37 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentFont = False
     end
     object Label38: TLabel
-      Left = 33
-      Top = 86
-      Width = 49
-      Height = 16
+      Left = 37
+      Top = 78
+      Width = 55
+      Height = 18
       Alignment = taRightJustify
       Caption = 'Produto:'
       FocusControl = CboProdutoServSedex
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -15
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
     end
-    object EdErro: TEdit
-      Left = 637
-      Top = 46
-      Width = 117
-      Height = 27
-      BevelInner = bvNone
+    object Panel5: TPanel
+      Left = 9
+      Top = 119
+      Width = 76
+      Height = 20
+      BevelInner = bvLowered
       BevelOuter = bvNone
-      Enabled = False
+      Caption = 'Leitura'
+      Color = clBlue
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
+      Font.Color = clWindow
+      Font.Height = -15
       Font.Name = 'Arial'
+      Font.Pitch = fpFixed
       Font.Style = [fsBold]
-      MaxLength = 4
       ParentFont = False
-      ReadOnly = True
-      TabOrder = 4
-      Text = '0'
-    end
-    object StBr: TStatusBar
-      Left = 0
-      Top = 474
-      Width = 786
-      Height = 17
-      Panels = <
-        item
-          Alignment = taCenter
-          Width = 50
-        end>
-    end
-    object Ednumlote: TEdit
-      Left = 84
-      Top = 47
-      Width = 117
-      Height = 26
-      Align = alCustom
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      CharCase = ecUpperCase
-      Enabled = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial'
-      Font.Style = []
-      MaxLength = 6
-      ParentFont = False
-      TabOrder = 2
+      TabOrder = 9
     end
     object StrGridDados: TStringGrid
       Left = 0
@@ -188,13 +159,13 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Arial'
-      Font.Style = []
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
       ParentBiDiMode = False
       ParentCtl3D = False
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 5
       ColWidths = (
         34
         56
@@ -208,10 +179,203 @@ object FrmPreCadToken: TFrmPreCadToken
         79
         83)
     end
+    object DBGridRelObjetos: TDBGrid
+      Left = 0
+      Top = 105
+      Width = 785
+      Height = 313
+      Color = clWhite
+      DataSource = Dm.DtSAux4
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
+      ParentFont = False
+      TabOrder = 16
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -11
+      TitleFont.Name = 'Arial'
+      TitleFont.Style = []
+      OnDrawColumnCell = DBGridRelObjetosDrawColumnCell
+      Columns = <
+        item
+          DropDownRows = 10
+          Expanded = False
+          FieldName = 'sigla'
+          Title.Caption = 'SIGLA'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 35
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'cod'
+          Title.Caption = 'COD'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 45
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'pagante'
+          Title.Caption = 'PAGANTE'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 225
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'cartao'
+          Title.Caption = 'CARTAO'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 73
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'lote'
+          Title.Caption = 'LOTE'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 73
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'dtvencto'
+          Title.Caption = 'VENCIMENTO'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 72
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'carga'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'TOTAL'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 73
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'usado'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'UTILIZADO'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 73
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'livre'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'DISPONIVEL'
+          Title.Color = clNavy
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clCream
+          Title.Font.Height = -11
+          Title.Font.Name = 'Arial'
+          Title.Font.Style = [fsBold]
+          Width = 73
+          Visible = True
+        end>
+    end
+    object EdErro: TEdit
+      Left = 637
+      Top = 40
+      Width = 117
+      Height = 27
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      MaxLength = 4
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 3
+      Text = '0'
+    end
+    object StBr: TStatusBar
+      Left = 0
+      Top = 474
+      Width = 786
+      Height = 17
+      Panels = <
+        item
+          Alignment = taCenter
+          Width = 50
+        end>
+    end
+    object Ednumlote: TEdit
+      Left = 94
+      Top = 41
+      Width = 117
+      Height = 26
+      Align = alCustom
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      CharCase = ecUpperCase
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = []
+      MaxLength = 6
+      ParentFont = False
+      TabOrder = 1
+    end
     object EdLocal: TEdit
-      Left = 101
+      Left = 94
       Top = 8
-      Width = 370
+      Width = 387
       Height = 26
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -223,10 +387,10 @@ object FrmPreCadToken: TFrmPreCadToken
       MaxLength = 255
       ParentFont = False
       ReadOnly = True
-      TabOrder = 7
+      TabOrder = 6
     end
     object BtnAbrir: TBitBtn
-      Left = 23
+      Left = 18
       Top = 8
       Width = 74
       Height = 32
@@ -268,8 +432,8 @@ object FrmPreCadToken: TFrmPreCadToken
         00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
     object EdQtdreg: TEdit
-      Left = 383
-      Top = 46
+      Left = 393
+      Top = 40
       Width = 88
       Height = 27
       BevelInner = bvNone
@@ -282,7 +446,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Style = [fsBold]
       MaxLength = 4
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 7
       Text = '0'
     end
     object EdGrava: TEdit
@@ -300,30 +464,12 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Style = [fsBold]
       MaxLength = 4
       ParentFont = False
-      TabOrder = 9
+      TabOrder = 8
       Text = '0'
     end
-    object Panel5: TPanel
-      Left = 6
-      Top = 116
-      Width = 76
-      Height = 20
-      BevelInner = bvLowered
-      BevelOuter = bvNone
-      Caption = 'Leitura'
-      Color = clBlue
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindow
-      Font.Height = -15
-      Font.Name = 'Arial'
-      Font.Pitch = fpFixed
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 10
-    end
     object NovoLoteChkBox: TCheckBox
-      Left = 227
-      Top = 53
+      Left = 220
+      Top = 47
       Width = 97
       Height = 17
       Caption = 'Novo Lote'
@@ -335,11 +481,65 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Style = []
       ParentFont = False
       State = cbChecked
-      TabOrder = 3
+      TabOrder = 2
       OnClick = NovoLoteChkBoxClick
     end
+    object CboProdutoServSedex: TDBLookupComboBox
+      Left = 94
+      Top = 73
+      Width = 387
+      Height = 26
+      Hint = 'Produto atribu'#237'do ao Cart'#227'o de Postagem'
+      DropDownRows = 10
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      KeyField = 'tbsdxserv_prod'
+      ListField = 'tbsdxserv_dsc'
+      ListSource = Dm.DtSSdxServ
+      ParentFont = False
+      TabOrder = 10
+    end
+    object PanelProgress: TPanel
+      AlignWithMargins = True
+      Left = 254
+      Top = 227
+      Width = 315
+      Height = 68
+      Align = alCustom
+      Anchors = []
+      BevelInner = bvRaised
+      BevelOuter = bvNone
+      BorderWidth = 1
+      BorderStyle = bsSingle
+      Caption = 'Executando a opera'#231#227'o. Aguarde...'
+      UseDockManager = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 11
+      VerticalAlignment = taAlignTop
+      Visible = False
+      ExplicitLeft = 251
+      ExplicitTop = 224
+      object PanelProgressBar: TProgressBar
+        AlignWithMargins = True
+        Left = 24
+        Top = 26
+        Width = 265
+        Height = 23
+        BorderWidth = 2
+        Smooth = True
+        TabOrder = 0
+      end
+    end
     object BtnFechar: TBitBtn
-      Left = 408
+      Left = 459
       Top = 430
       Width = 100
       Height = 32
@@ -350,7 +550,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 11
+      TabOrder = 12
       OnClick = BtnFecharClick
       Glyph.Data = {
         B60D0000424DB60D000000000000360000002800000030000000180000000100
@@ -466,8 +666,8 @@ object FrmPreCadToken: TFrmPreCadToken
       NumGlyphs = 2
     end
     object BtnSalvar: TBitBtn
-      Left = 292
-      Top = 429
+      Left = 342
+      Top = 430
       Width = 99
       Height = 32
       Caption = '&Salvar'
@@ -478,7 +678,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 12
+      TabOrder = 13
       OnClick = BtnSalvarClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -509,8 +709,8 @@ object FrmPreCadToken: TFrmPreCadToken
         00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
     object BtnLeitura: TBitBtn
-      Left = 177
-      Top = 429
+      Left = 226
+      Top = 430
       Width = 99
       Height = 32
       Caption = '&Leitura'
@@ -520,7 +720,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 14
       OnClick = BtnLeituraClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -550,57 +750,78 @@ object FrmPreCadToken: TFrmPreCadToken
         FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF046B0B046B0B04
         6B0B046B0BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
-    object CboProdutoServSedex: TDBLookupComboBox
-      Left = 84
-      Top = 81
-      Width = 387
-      Height = 26
-      Hint = 'Produto atribu'#237'do ao Cart'#227'o de Postagem'
-      DropDownRows = 10
+    object BitBtnImprimeARs: TBitBtn
+      Left = 599
+      Top = 110
+      Width = 155
+      Height = 28
+      Caption = '&Imprimir ARs'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
       Font.Name = 'Tahoma'
       Font.Style = []
-      KeyField = 'tbsdxserv_prod'
-      ListField = 'tbsdxserv_dsc'
-      ListSource = Dm.DtSSdxServ
       ParentFont = False
-      TabOrder = 13
-    end
-    object PanelProgress: TPanel
-      AlignWithMargins = True
-      Left = 299
-      Top = 272
-      Width = 315
-      Height = 68
-      Align = alCustom
-      Anchors = []
-      BevelInner = bvRaised
-      BevelOuter = bvNone
-      BorderWidth = 1
-      BorderStyle = bsSingle
-      Caption = 'Executando a opera'#231#227'o. Aguarde...'
-      UseDockManager = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 14
-      VerticalAlignment = taAlignTop
+      TabOrder = 15
       Visible = False
-      object PanelProgressBar: TProgressBar
-        AlignWithMargins = True
-        Left = 24
-        Top = 26
-        Width = 265
-        Height = 23
-        BorderWidth = 2
-        Smooth = True
-        TabOrder = 0
-      end
+      OnClick = BitBtnImprimeARsClick
+      Glyph.Data = {
+        F6060000424DF606000000000000360000002800000018000000180000000100
+        180000000000C0060000120B0000120B00000000000000000000FF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFAEABACCCCACB
+        B1AFAFA09D9EFF00FFFF00FFACAAABD3D3D3DBDADAC0BEBEADAAABFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFAEABACC7
+        C5C6F4F3F3F7F6F6BCBABAB1AFAF5D5C5D615F60888687AEACACCBCACAE3E2E2
+        E7E7E7D5D4D4B6B4B5FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFADAB
+        ACBBB8B9EAE9E9FFFEFEFDFCFCF3F2F2BAB8B8B2B0B04C4B4D23232530303242
+        4244626062878486AFADADD2D1D1E9E8E8DEDDDDAAA7A8FF00FFFF00FFFF00FF
+        FF00FFAFADAEE1DFDFFDFCFCFCFBFBFAF9F9FCFBFBEDEBECB6B4B4B6B4B49897
+        986F6E6F4C4B4D33333528282A2E2E30414143605F608C898AA7A5A5FF00FFFF
+        00FFFF00FFA4A1A2D1CFCFF8F7F7FBFAFAF7F6F6F7F6F6EAE9E9C8C7C7ADABAC
+        A09D9EA3A1A1AFACADB8B5B6B3B1B19E9D9D7B7A7B57565738383A2627294342
+        44A19E9FFF00FFFF00FFFF00FFA4A1A2F0F0F0F4F4F4F1F0F0E2E1E1C1BFBFAB
+        A8A9B9B7B7D4D3D3B7B5B5A8A5A5A29FA09F9C9DA2A0A0ABA8A9B5B3B2B5B3B3
+        A7A5A68483846C6C6DA2A0A0FF00FFFF00FFFF00FFA4A1A2E6E5E5DBDADABAB8
+        B8A9A6A7BAB8B8D6D5D6DFE0DFE4E3E3E8E7E7D8D6D6C9C7C7BAB8B8AFACADA5
+        A2A3A19E9FA09D9EA7A4A4B1AEAEB6B4B4A7A5A5FF00FFFF00FFFF00FFA4A1A2
+        B2B0B1A9A7A7BBBABAD4D4D4DCDDDDD9D9D9D5D5D5ECEBEBF8F7F7F6F6F6F1F0
+        F0E7E6E6DAD9D9CDCCCCC0BEBEB5B3B3AAA8A8A3A1A1A19E9F9D9A9BFF00FFFF
+        00FFFF00FFA4A1A2BCBABBD5D4D4DADADAD7D7D7D6D6D6D3D3D3E3E3E3F7F6F6
+        C5C3C4C6BCC4D1CFD0E1E0E0E8E8E8E9E9E9E2E2E2D9D9D9CFCECEC4C3C3BCBA
+        BAA8A5A6FF00FFFF00FFFF00FFA4A1A2D6D6D6D8D8D8D6D6D6D6D6D6D4D4D4E0
+        E0E0F7F6F6C0BCBEAEB2AD80C184B2B6B1AEAAACB0AFAFBCBBBBCAC9C9D8D7D7
+        DCDCDCDCDCDCDADADAAFAEAEFF00FFFF00FFFF00FFFF00FFBFBDBEDBDBDBD8D9
+        D9D9D9D9E6E6E6EAE9E9B7B5B5BDBBBCF2F2F1D4F1D5EBEEEBE7E5E6FAC0AFC1
+        BFC0B3B1B1AAA7A8AFACADBDBBBBBDBBBCB6B3B4FF00FFFF00FFFF00FFFF00FF
+        FF00FFB5B3B4CAC9C9D6D5D5C6C4C4AEACACCCCACAF7F6F6F7F6F6F7F2F6EFED
+        EDEBEAEAE9E9E9E8E8E8E2E2E2D9D9D9CDCDCDAAA8A9A5A2A3FF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFA19E9FBBBABADCDCDCCDCDCDADAEAE
+        C9C9C9DDDCDCE6E5E5E8E7E7E6E6E6E4E4E4E5E5E5E0E0E0C5C5C5BAB7B8FF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFB1AFB0F6F7F7F7
+        F6F5E2DFDEBCBABABABBBBC4C7C8D4D7D8D5D8D8D8D9D9D8D8D8C6C5C6ADABAC
+        BAB7B8FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFEED9D8FFEAE2FFE5DAFEDFD4FADDD3F6DCD3F1DCD6ECDEDAE6E1DFDB
+        DBDBC8C7C8FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFE5C4C1FFE7DDFFE1D5FFDACEFFD4C5FFCEBCFFC9
+        B7FFC7B3FDC1AEEBD2CFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFE6C5C1FFEBE1FFE1D5FFDACE
+        FFD5C7FECFBFFECAB8FFC4B0F9B9A7FF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFECCDC8FF
+        EBE1FFE1D5FFDACEFFD5C7FECFBFFECAB8FFC5B1F0B4A5FF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFE8CCC8FFE9DFFFE1D5FFDACEFFD5C7FECFBFFECAB8FFC5B1FAC0AFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFE8CCC8FFE7DDFFE1D5FFDACEFFD5C7FECFBFFFCA
+        B8FAC0AFFAC0AFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFE7C9C5FFF1E9FFE7DDFFE1D5FFDACE
+        FED5C7FED0BFFFCCB9FAC0AFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFE8CCC8FFF4EBFF
+        EBE1FFE6D9FFDFD2FFD9CAFFD4C3F1BDB0FAC0AFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFD9B3
+        B1E8CCC8E7C7C3E7C5BFE7C2BBE7BEB8E7BCB4E5B6AFFAC0AFFF00FFFF00FFFF
+        00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
     end
   end
   object OpenArq: TOpenDialog
