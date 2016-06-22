@@ -415,38 +415,6 @@ object FrmPrintAR: TFrmPrintAR
     ParentFont = False
     TabOrder = 8
   end
-  object PanelProgress: TPanel
-    AlignWithMargins = True
-    Left = 100
-    Top = 344
-    Width = 315
-    Height = 73
-    BevelInner = bvRaised
-    BevelOuter = bvNone
-    BorderWidth = 1
-    BorderStyle = bsSingle
-    Caption = 'Executando a opera'#231#227'o. Aguarde...'
-    UseDockManager = False
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 5
-    VerticalAlignment = taAlignTop
-    Visible = False
-    object ProgressBar1: TProgressBar
-      AlignWithMargins = True
-      Left = 24
-      Top = 26
-      Width = 265
-      Height = 23
-      BorderWidth = 2
-      Smooth = True
-      TabOrder = 0
-    end
-  end
   object BitBtnReset: TBitBtn
     Left = 455
     Top = 84
@@ -521,5 +489,37 @@ object FrmPrintAR: TFrmPrintAR
       FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
       FFFF00FFFF00FF7DBAFF5AA6FF5AA6FF60AAFF60AAFF52A1FF3E96FF2C8AFF19
       7DFFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
+  end
+  object PanelProgressImpressao: TPanel
+    AlignWithMargins = True
+    Left = 107
+    Top = 176
+    Width = 315
+    Height = 73
+    BevelInner = bvRaised
+    BevelOuter = bvNone
+    BorderWidth = 1
+    BorderStyle = bsSingle
+    Caption = 'Preparando relat'#243'rio para impress'#227'o. Por favor aguarde.'
+    UseDockManager = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 5
+    VerticalAlignment = taAlignTop
+    Visible = False
+    object ProgressBarImpressao: TProgressBar
+      AlignWithMargins = True
+      Left = 24
+      Top = 26
+      Width = 265
+      Height = 23
+      BorderWidth = 2
+      Smooth = True
+      TabOrder = 0
+    end
   end
 end

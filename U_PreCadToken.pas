@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, ExcelXP, StdCtrls, ExtCtrls, ComCtrls,  Buttons, ShlObj,
   OleConst, SysConst, Types, OfficeXP,ComObj, ActiveX,  DB, Math, OleServer, OleDB,
-  DBCtrls;
+  DBCtrls, DBGrids, DateUtils;
 
 type
   TFrmPreCadToken = class(TForm)
@@ -22,12 +22,9 @@ type
     EdQtdreg: TEdit;
     EdGrava: TEdit;
     Panel5: TPanel;
-    Lbl001: TLabel;
+    lblLotesCriado: TLabel;
     NovoLoteChkBox: TCheckBox;
     Bevel1: TBevel;
-    BtnFechar: TBitBtn;
-    BtnSalvar: TBitBtn;
-    BtnLeitura: TBitBtn;
     LabelLote: TLabel;
     LabelErros: TLabel;
     LabelGravados: TLabel;
@@ -36,6 +33,14 @@ type
     Label38: TLabel;
     PanelProgress: TPanel;
     PanelProgressBar: TProgressBar;
+    BtnFechar: TBitBtn;
+    BtnSalvar: TBitBtn;
+    BtnLeitura: TBitBtn;
+    BitBtnImprimeARs: TBitBtn;
+    DBGridRelObjetos: TDBGrid;
+    procedure DBGridRelObjetosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure BitBtnImprimeARsClick(Sender: TObject);
     procedure NovoLoteChkBoxClick(Sender: TObject);
     procedure BtnAbrirClick(Sender: TObject);
     procedure BtnLeituraClick(Sender: TObject);
@@ -43,10 +48,6 @@ type
     procedure FormShow(Sender: TObject);
     procedure BtnFecharClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-//    procedure lertk;
-//    procedure lertc;
-//    procedure lerol;
-//    procedure lerol2;
     procedure gravaol;
     procedure gravaol2;
     procedure gravatk;
@@ -54,9 +55,7 @@ type
     procedure gravatc;
     procedure gravatc2;
     procedure crgtk;
-//    procedure lertb;
     procedure gravatb;
-
     procedure lerXlsPreCarga;
   private
     WorkBk : _WorkBook;
@@ -92,6 +91,64 @@ uses DmDados, U_Func, ZDataset;
 
 {$R *.dfm}
 
+procedure TFrmPreCadToken.BitBtnImprimeARsClick(Sender: TObject);
+var lotes : TStringList;
+  i : Integer;
+  s : String;
+begin
+  // Verificar se há o que imprimir baseado nas opções do formulário
+  With Dm do
+    begin
+      // Iniciando interação com o Banco
+      SqlSdx3.Close;
+      SqlSdx3.SQL.Clear;
+      SqlSdx3.SQL.Add('SELECT DISTINCT t.sdx_codcli, t.sdx_idcli, t.sdx_siglaobj, t.sdx_numobj,');
+      SqlSdx3.SQL.Add('  t.sdx_paisorigem, t.sdx_codoperacao, t.sdx_numobj3, t.sdx_nomdest,');
+      SqlSdx3.SQL.Add('  t.sdx_endedest, t.sdx_cidade, t.sdx_uf, t.sdx_cep, t.sdx_numseqarq,');
+      SqlSdx3.SQL.Add('  t.sdx_numseqreg, t.sdx_dtcarga, t.sdx_seqcarga, t.sdx_numobj2, ');
+      SqlSdx3.SQL.Add('  t.sdx_cepnet, t.sdx_numobj1, t.sdx_numobj4, t.sdx_numobj5, ');
+      SqlSdx3.SQL.Add('  t.sdx_peso, t.sdx_valor, t.sdx_qtde, t.sdx_tvalor, t.sdx_valdec, ');
+      SqlSdx3.SQL.Add('  s.tbsdxserv_nrocto, s.tbsdxserv_crtpst, t.sdx_cmp, t.sdx_bas, ');
+      SqlSdx3.SQL.Add('  t.sdx_alt, e.tbsdxect_sigla ');
+      SqlSdx3.SQL.Add('FROM public.tbsdx02 t ');
+      SqlSdx3.SQL.Add('    INNER JOIN public.tbsdx_ect e ON (t.sdx_numobj2 = e.tbsdxect_sigla || e.tbsdxect_num || ' +
+                      'e.tbsdxect_dv || ''BR'' ) ');
+      SqlSdx3.SQL.Add('    INNER JOIN public.tbsdxserv s ON (e.tbsdxect_prod = s.tbsdxserv_prod) ');                      
+      SqlSdx3.SQL.Add('WHERE t.sdx_dtcarga = CURRENT_DATE ');
+      lotes := TStringList.Create;
+      lotes.DelimitedText := StringReplace(lblLotesCriado.Caption, 'Lote[s] criados[s]: ', '', [rfReplaceAll]);
+      // Verificando se foi indicado um ou mais números de lotes
+      if (lotes.Count > 0) then
+        begin
+          SqlSdx3.SQL.Add(' AND t.sdx_seqcarga IN (:lote0'); // Abre
+          SqlSdx3.ParamByName('lote0').AsInteger := StrToInt64(lotes.Strings[0]);
+          for i := 1 to lotes.Count - 1 do
+            begin
+              s := 'lote' + IntToStr(i); // Nome do parametro
+              SqlSdx3.SQL.Add(', :' + s); // Abre
+              SqlSdx3.ParamByName(s).AsInteger := StrToInt64(lotes.Strings[i]);
+            end;
+          SqlSdx3.SQL.Add(') '); // Fecha
+          SqlSdx3.SQL.Add('ORDER BY t.sdx_nomdest ');
+          s := SqlSdx3.SQl.Text;
+          SqlSdx3.Open;
+
+          // Gerando o relatório de impressão
+          s := ExtractFilePath(Application.ExeName);
+          RvRelatorios.ProjectFile := s + 'ARDigital.rav';
+          RvRelatorios.ExecuteReport('RpSedexArOl');
+          RvRelatorios.Close;
+        end
+      else
+        Application.MessageBox(
+            PChar('Ocorreu um erro ao identificar os lotes criados. ' +
+                'Contate o administrador!'),
+            'ADS', MB_OK + MB_ICONERROR);
+
+      lotes.Free;
+    end;
+end;
+
 procedure TFrmPreCadToken.BtnAbrirClick(Sender: TObject);
 begin
   if FrmPreCadToken.Tag = 3 then
@@ -103,7 +160,7 @@ end;
 procedure TFrmPreCadToken.BtnLeituraClick(Sender: TObject);
 begin
   t:= 0;
-  Lbl001.Caption  :='';
+  lblLotesCriado.Caption  :='';
   if (trim(EdLocal.Text) = '') then
     begin
       Application.MessageBox('Escolha Um Arquivo! ','Ads',MB_OK + MB_ICONERROR);
@@ -111,6 +168,8 @@ begin
       exit;
     end;
 
+  DBGridRelObjetos.Hide;
+  BitBtnImprimeARs.Hide;
   EdQtdreg.Text :=  '0';
   EdErro.Text   :=  '0';
   PanelProgress.Visible := True;
@@ -126,11 +185,12 @@ end;
 
 procedure TFrmPreCadToken.FormShow(Sender: TObject);
 begin
-  Lbl001.Color  :=  $00FEE39C;
-  Lbl001.Visible:=  false;
+  lblLotesCriado.Color := clMoneyGreen;
+  LblLotesCriado.Visible :=  false;
 
   with dm do
     begin
+      // Preenchendo o Combo de Produtos
       SqlSdxServ.Close;
       SqlSdxServ.SQL.Clear;
       SqlSdxServ.SQL.Add('SELECT * FROM public.tbsdxserv t ');
@@ -141,6 +201,31 @@ begin
 
       SqlSdxServ.Open;
       CboProdutoServSedex.Refresh;
+
+      // Verificando estado do números de objetos e alertando caso existam
+      // Faixas com muitos números a vencerem nos próximos 5 dias
+      DBGridRelObjetos.Show; // Caso tenha sido ocultado anteriormente
+      SqlAux4.Close;
+      SqlAux4.SQL.Clear;
+      SqlAux4.SQL.Add('SELECT s.tbsdxserv_sigla as sigla, ');
+      SqlAux4.SQL.Add('    s.tbsdxserv_prod as cod, s.tbsdxserv_dsc as pagante, ');
+      SqlAux4.SQL.Add('    s.tbsdxserv_crtpst AS cartao, e.tbsdxect_lote as lote, ');
+      SqlAux4.SQL.Add('    e.tbsdxect_dtcad as dtcadastro, ');
+      SqlAux4.SQL.Add('    e.tbsdxect_dtvenc as dtvencto, COUNT(e.*) as carga, ');
+      SqlAux4.SQL.Add('    SUM(CASE WHEN e.tbsdx_use IS NOT NULL THEN 1 ELSE 0 END) AS usado, ');
+      SqlAux4.SQL.Add('    SUM(CASE WHEN e.tbsdx_use IS NULL AND e.tbsdxect_num IS NOT NULL THEN 1 ELSE 0 END) AS livre ');
+      SqlAux4.SQL.Add('FROM tbsdxserv s ');
+      SqlAux4.SQL.Add('    LEFT JOIN public.tbsdx_ect e ON (s.tbsdxserv_prod = e.tbsdxect_prod) ');
+      SqlAux4.SQL.Add('     	AND e.tbsdxect_dtvenc >= CURRENT_DATE ');
+      SqlAux4.SQL.Add('WHERE s.tbsdxserv_status = 1 ');
+      SqlAux4.SQL.Add('GROUP BY s.tbsdxserv_sigla, s.tbsdxserv_prod, ');
+      SqlAux4.SQL.Add('    s.tbsdxserv_dsc, s.tbsdxserv_crtpst, ');
+      SqlAux4.SQL.Add('    e.tbsdxect_lote, e.tbsdxect_dtcad, ');
+      SqlAux4.SQL.Add('    e.tbsdxect_dtvenc ');
+      SqlAux4.SQL.Add('ORDER BY s.tbsdxserv_prod');
+      SqlAux4.Open;
+      DBGridRelObjetos.Refresh;
+
     end;
 
   if (FrmPreCadToken.Tag in[3]) then
@@ -291,11 +376,12 @@ begin
       BtnLeitura.Enabled := true;
       if (nLotes.Count > 0) then
         begin
-          Lbl001.Visible := true;
-          Lbl001.Color := clRed;
-          Lbl001.Font.Size :=  12;
-          Lbl001.Font.Style := [fsBold];
-          Lbl001.Caption := 'Lote[s] ' + nLotes.CommaText + ' criado[s]';
+          LblLotesCriado.Visible := true;
+          LblLotesCriado.Color := clRed;
+          LblLotesCriado.Font.Size :=  12;
+          LblLotesCriado.Font.Style := [fsBold];
+          LblLotesCriado.Caption := 'Lote[s] criados[s]: ' + nLotes.CommaText;
+          BitBtnImprimeARs.Show;
           nLotes.Free;
         end;
     end;
@@ -460,7 +546,7 @@ begin
                           begin
                             novolote  :=  IntToStr(StrToInt(Ednumlote.Text)+1);
                             SqlAux2.ParamByName('numlote').AsString := GeraNt(novolote,6);
-                            Lbl001.Caption  :=  Lbl001.Caption + novolote + ' - ' + trim(StrGridDados.Cells[1,k] )+ ' - ';
+                            lblLotesCriado.Caption  :=  lblLotesCriado.Caption + novolote + ' - ' + trim(StrGridDados.Cells[1,k] )+ ' - ';
                           end
                         else
                           SqlAux2.ParamByName('numlote').AsString := gerant(trim(Ednumlote.Text),6);
@@ -603,7 +689,7 @@ begin
               if  (agant = trim(StrGridDados.Cells[1, k])) and (k > 1) then
                 begin
                   novolote  :=  IntToStr(StrToInt(Ednumlote.Text)+1);
-                  Lbl001.Caption  :=  Lbl001.Caption + novolote + ' - ' +
+                  lblLotesCriado.Caption  :=  lblLotesCriado.Caption + novolote + ' - ' +
                       trim(StrGridDados.Cells[1, k]) + ' - ';
                 end;
 
@@ -945,7 +1031,8 @@ begin
               if  (agant =  trim(StrGridDados.Cells[1,k])) and (k>=2)  then
                 begin
                   novolote  :=  IntToStr(StrToInt(Ednumlote.Text)+1);
-                  Lbl001.Caption  :=  Lbl001.Caption+novolote+ ' - '+trim(StrGridDados.Cells[1,k])+ ' - ';
+                  lblLotesCriado.Caption  :=  lblLotesCriado.Caption + novolote +
+                      ' - ' + trim(StrGridDados.Cells[1,k]) + ' - ';
                 end;
               agant :=  trim(StrGridDados.Cells[1,k]);
               SqlAux1.SQL.Clear;
@@ -1080,6 +1167,39 @@ begin
     end;
 end;
 
+
+procedure TFrmPreCadToken.DBGridRelObjetosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  with DBGridRelObjetos do
+    begin
+      if Odd( DataSource.DataSet.RecNo) then
+        Canvas.Brush.Color := clMoneyGreen;
+
+        Canvas.Font.Style := [];
+        Canvas.Font.Color := clBlack;
+        { Se or zero }
+      if (DataSource.DataSet.FieldByName('livre').AsInteger = 0) OR
+         { Ou se venceu }
+          (DataSource.DataSet.FieldByName('dtvencto').Value = null) then
+        begin
+          Canvas.Font.Style := [fsBold];
+          Canvas.Brush.Color := clRed;
+        end
+        { chegar a 89% de uso da carga inicial }
+      else if (DataSource.DataSet.FieldByName('livre').AsFloat <
+            DataSource.DataSet.FieldByName('carga').AsFloat * 0.11) OR
+        { Se faltar menos do que 1 semana para vencer a faixa }
+            (CompareDate(Date, DataSource.DataSet.FieldByName('dtvencto').AsDateTime - 30) > 0)  then
+        begin
+          Canvas.Font.Style := [fsBold];
+          Canvas.Brush.Color := clYellow;
+        end;
+
+      Canvas.FillRect(Rect);
+      DefaultDrawColumnCell(Rect,DataCol,Column,State);
+    end;
+end;
 
 procedure TFrmPreCadToken.gravatb;
 var i:Integer;
@@ -1523,10 +1643,11 @@ begin
     begin
       BtnSalvar.Enabled := true;
       ShowMessage(IntToStr(StrGridDados.RowCount - 1) + ' registros lidos com sucesso!');
-      // Facilitando...
-      // Selecionando o produto a qual o ultimo registro tem como pagante
-      if TryStrToInt(StrGridDados.Cells[10, StrGridDados.RowCount - 1], R) then
-        CboProdutoServSedex.KeyValue := R;
+      if CboProdutoServSedex.KeyValue = null then
+        begin
+          ShowMessage('Selecione o tipo de envio!');
+          CboProdutoServSedex.SetFocus;
+        end;
     end;
 
 end;
@@ -1534,7 +1655,6 @@ end;
 procedure TFrmPreCadToken.NovoLoteChkBoxClick(Sender: TObject);
 begin
   Ednumlote.Enabled := not (NovoLoteChkBox.Checked);
-
 end;
 
 procedure TFrmPreCadToken.ProgressBarStepItOne;
