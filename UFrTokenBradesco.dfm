@@ -1832,42 +1832,49 @@ object FrmFrTokenBradesco: TFrmFrTokenBradesco
         Left = 0
         Top = 0
         Width = 718
-        Height = 57
+        Height = 25
         BandType = btHeader
         object RLLabel14: TRLLabel
-          Left = 10
-          Top = 19
+          Left = 218
+          Top = 2
           Width = 85
           Height = 15
           AutoSize = False
           Caption = 'Data de Sa'#237'da: '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
-          Font.Height = -12
+          Font.Height = -15
           Font.Name = 'Arial'
           Font.Pitch = fpVariable
           Font.Style = [fsBold]
           ParentFont = False
         end
         object RLDBText1: TRLDBText
-          Left = 95
-          Top = 19
+          Left = 303
+          Top = 2
           Width = 81
           Height = 15
           AutoSize = False
           DataField = 'cg76_dtsai'
           DataSource = Dm.DtSListaToken
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Tahoma'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
         end
         object RLLabel13: TRLLabel
           Left = 10
-          Top = 0
+          Top = 2
           Width = 85
           Height = 15
           AutoSize = False
           Caption = 'Ag'#234'ncia: '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
-          Font.Height = -12
+          Font.Height = -15
           Font.Name = 'Arial'
           Font.Pitch = fpVariable
           Font.Style = [fsBold]
@@ -1875,41 +1882,55 @@ object FrmFrTokenBradesco: TFrmFrTokenBradesco
         end
         object RLDBText2: TRLDBText
           Left = 95
-          Top = 0
+          Top = 2
           Width = 81
           Height = 15
           AutoSize = False
           DataField = 'cg76_ag'
           DataSource = Dm.DtSListaToken
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
         end
         object RLLabel17: TRLLabel
-          Left = 10
-          Top = 38
+          Left = 442
+          Top = 2
           Width = 85
           Height = 15
           AutoSize = False
           Caption = 'DTB: '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
-          Font.Height = -12
+          Font.Height = -15
           Font.Name = 'Arial'
           Font.Pitch = fpVariable
           Font.Style = [fsBold]
           ParentFont = False
         end
         object RLDBText3: TRLDBText
-          Left = 95
-          Top = 38
+          Left = 527
+          Top = 2
           Width = 81
           Height = 15
           AutoSize = False
           DataField = 'cg76_dtb'
           DataSource = Dm.DtSListaToken
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Tahoma'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
         end
       end
       object RLGroup3: TRLGroup
         Left = 0
-        Top = 57
+        Top = 25
         Width = 718
         Height = 59
         DataFields = 'cg76_dtsai;cg76_ag;cg76_dtb;cg76_numlote'
@@ -2031,7 +2052,7 @@ object FrmFrTokenBradesco: TFrmFrTokenBradesco
           Left = 0
           Top = 52
           Width = 718
-          Height = 30
+          Height = 24
           BandType = btSummary
           object RLLabel19: TRLLabel
             Left = 10
@@ -2077,7 +2098,7 @@ object FrmFrTokenBradesco: TFrmFrTokenBradesco
       end
       object RLBand10: TRLBand
         Left = 0
-        Top = 116
+        Top = 84
         Width = 718
         Height = 21
         BandType = btSummary

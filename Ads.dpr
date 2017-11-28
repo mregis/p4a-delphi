@@ -75,7 +75,8 @@ uses
   U_FrmGeraListaPostagem in 'U_FrmGeraListaPostagem.pas' {FrmGeraListaPostagem},
   U_FrmConfig in 'U_FrmConfig.pas' {FrmConfig},
   U_FrmGeraRelatToken in 'U_FrmGeraRelatToken.pas' {FrmGeraRelatToken},
-  U_FrmCadToken in 'U_FrmCadToken.pas' {FrmCadToken};
+  U_FrmCadToken in 'U_FrmCadToken.pas' {FrmCadToken},
+  U_NovaBalanca in 'U_NovaBalanca.pas' {FormNovaBalanca};
 
 {$R *.res}
 

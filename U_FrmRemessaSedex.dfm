@@ -922,6 +922,7 @@ object FrmRemessaSedex: TFrmRemessaSedex
       ParentFont = False
       TabOrder = 5
       OnEnter = EdPesoEnter
+      OnExit = EdPesoExit
       OnKeyPress = EdPesoKeyPress
     end
   end
@@ -1663,5 +1664,24 @@ object FrmRemessaSedex: TFrmRemessaSedex
     OnTimer = Timer1Timer
     Left = 644
     Top = 200
+  end
+  object ComPort: TComPort
+    BaudRate = br9600
+    Port = 'COM1'
+    Parity.Bits = prNone
+    StopBits = sbOneStopBit
+    DataBits = dbEight
+    Events = [evRxChar, evTxEmpty, evRxFlag, evRing, evBreak, evCTS, evDSR, evError, evRLSD, evRx80Full]
+    FlowControl.OutCTSFlow = False
+    FlowControl.OutDSRFlow = False
+    FlowControl.ControlDTR = dtrDisable
+    FlowControl.ControlRTS = rtsDisable
+    FlowControl.XonXoffOut = False
+    FlowControl.XonXoffIn = False
+    StoredProps = [spBasic]
+    TriggersOnRxChar = True
+    OnRxChar = ComPortRxChar
+    Left = 640
+    Top = 104
   end
 end

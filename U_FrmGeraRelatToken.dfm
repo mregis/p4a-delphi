@@ -364,6 +364,5 @@ object FrmGeraRelatToken: TFrmGeraRelatToken
       item
         Width = 100
       end>
-    ExplicitTop = 304
   end
 end

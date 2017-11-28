@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Buttons, Grids, DBGrids, ExtCtrls, Mask, DBCtrls,
-  ComCtrls, Math;
+  ComCtrls, Math, CPort, IniFiles;
 
 type
   TFrmRemessaSedex = class(TForm)
@@ -98,6 +98,9 @@ type
     EdNovaUf: TEdit;
     MkEdNovoCep: TMaskEdit;
     DBCboBaixa: TDBLookupComboBox;
+    ComPort: TComPort;
+    procedure EdPesoExit(Sender: TObject);
+    procedure ComPortRxChar(Sender: TObject; Count: Integer);
     procedure EdnrocxaKeyPress(Sender: TObject; var Key: Char);
     procedure EdbasEnter(Sender: TObject);
     procedure EdaltKeyPress(Sender: TObject; var Key: Char);
@@ -137,18 +140,22 @@ type
     procedure verobj;
     procedure objtbsdx02(tipo:Integer);
     procedure ObtemConfiguracoes;
+    procedure CarregaBalanca;
     procedure calcvol;
     procedure proccxa(tipo:Integer);
   private
+    { Private declarations }
   uf, cepr, mpeso : String;
   v_soma,codcxa              : Integer;
   vvalor,txcor,pescub,volcub,pescal: Real;
   selcxa  : Boolean;
 
-    { Private declarations }
   public
-
     { Public declarations }
+    Balanca, comando, modo_leitura: string;
+    dec_sep: char;
+    i_ini, i_fim, unidade: Integer;
+    peso: Double;
 
   end;
 
@@ -426,7 +433,7 @@ begin
     end;
 
     calcvol;
-    mpeso       :=  EdPeso.Text;
+    mpeso:= FloatToStr(peso);
 
     if (pescub <= StrToFloat(mpeso)) then
       pescal  :=  StrToFloat(mpeso)
@@ -444,7 +451,7 @@ begin
   if v_soma > 0 then
       v_soma := 10 - v_soma;
 
-  CEPr := Format('/%s%d\', [MkEdCep.Text, v_soma]);
+  CEPr := Format('/%s%d\\', [MkEdCep.Text, v_soma]);
   // Fim Calculo DV CEP
 
   with dm do
@@ -460,7 +467,7 @@ begin
       SqlAux1.SQL.Add('sdx_difval = :valdif, sdx_horaenvio = CURRENT_TIME,');
       SqlAux1.SQL.Add('sdx_bas = :bas, sdx_cmp = :cmp, sdx_alt = :alt, ');
       SqlAux1.SQL.Add('sdx_pescub = :pescub, sdx_codcxa = :codcxa ');
-      SqlAux1.SQL.Add('WHERE sdx_numobj2 = :numboj2 ');
+      SqlAux1.SQL.Add('WHERE sdx_numobj2 = E:numboj2 ');
       SqlAux1.ParamByName('cepnet').AsString := CEPr;
       SqlAux1.ParamByName('valor').AsFloat := Moeda2Float(EdValor.Text);
       SqlAux1.ParamByName('peso').AsFloat := Moeda2Float(EdPeso.Text);
@@ -622,9 +629,13 @@ end;
 
 procedure TFrmRemessaSedex.EdPesoEnter(Sender: TObject);
 begin
-  if InicializaLeitura(0) then
-       Timer1.Enabled := True;
- end;
+  ComPort.Open;
+end;
+
+procedure TFrmRemessaSedex.EdPesoExit(Sender: TObject);
+begin
+  ComPort.Close;
+end;
 
 procedure TFrmRemessaSedex.EdPesoKeyPress(Sender: TObject; var Key: Char);
 begin
@@ -632,6 +643,7 @@ begin
     if FrmRemessaSedex.Tag = 9 then
       BtnSalva.SetFocus;
 end;
+
 procedure TFrmRemessaSedex.calcvol;
 begin
   if (vernum(Ednrocxa.Text) = true) then
@@ -759,7 +771,7 @@ end;
 
 procedure TFrmRemessaSedex.FormShow(Sender: TObject);
 begin
-  ObtemConfiguracoes;
+  CarregaBalanca;
   EdReg.Text  :=  '0';
   with Dm do
     begin
@@ -1217,6 +1229,76 @@ begin
     end
   else
       StsRemSdx.Panels[1].Text := '---------';
+end;
+
+
+procedure TFrmRemessaSedex.CarregaBalanca;
+var iniFile, balancaFile: TiniFile;
+Balancas : TStringList;
+i: Integer;
+s: String;
+begin
+  try
+    IniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+    Balancas:= TStringList.Create;
+    if iniFile.SectionExists('Balancas') then
+      begin
+        iniFile.ReadSection('Balancas', Balancas);
+        // Se não houver Balanca configurada, gerar alerta
+        // Se houver balanca configurada mas não marcada como padrão, utilizar a ultima
+        for i := 0 to Balancas.Count - 1 do
+          if (FileExists(Balancas.Names[i])) then
+            begin
+              Balanca := Balancas.Names[i];
+              if (Balancas.ValueFromIndex[i] = '1') then
+                begin
+                  ComPort.LoadSettings(stIniFile, Balanca);
+                  balancaFile:= TIniFile.Create(Balanca);
+                  modo_leitura:= balancaFile.ReadString('ConfigLeituraPeso', 'Modo', 'Constante');
+                  comando:= balancaFile.ReadString('ConfigLeituraPeso', 'Comando', 'R');
+                  i_ini:= balancaFile.ReadInteger('ConfigLeituraPeso', 'InicioLeitura', 0);
+                  i_fim:= balancaFile.ReadInteger('ConfigLeituraPeso', 'FimLeitura', 0);
+                  s:= balancaFile.ReadString('ConfigLeituraPeso', 'SeparadorDecimal', DecimalSeparator);
+                  dec_sep:= s[1];
+                  unidade:= balancaFile.ReadInteger('ConfigLeituraPeso', 'UnidadeMedida', 1);
+                  balancaFile.Free;
+                  exit;
+                end;
+            end;
+        iniFile.Free;
+      end;
+
+    if Balanca = null then
+      begin
+        Application.MessageBox(PChar('Nenhuma balanca configurada. '  +
+            'Vá até o painel de Configurações e adicione uma.'), 'ADS',ID_OK);
+      end;
+  Except
+    Application.MessageBox(PChar('Erro ao carregar informações da balança'),'ADS',ID_OK);
+  end;
+end;
+
+
+procedure TFrmRemessaSedex.ComPortRxChar(Sender: TObject; Count: Integer);
+var
+  Str: String;
+begin
+  try
+    ComPort.ReadStr(Str, Count);
+    if (modo_leitura = 'Constante') then
+      Str := copy(Str, i_ini, i_fim - i_ini);
+
+    peso := StrToPeso(str, dec_sep);
+
+    if (peso > 0) then
+      peso := peso / unidade;
+  Except
+    Application.MessageBox(PChar('Erro ao ler peso. ' +
+            'A balança está corretamente configurada?'),
+        'ADS',ID_OK);
+    ComPort.Close;
+  end;
+
 end;
 
 end.

@@ -1477,7 +1477,7 @@ object FrmAcesso: TFrmAcesso
     end
     object Label3: TLabel
       Left = 46
-      Top = 8
+      Top = 5
       Width = 290
       Height = 23
       Caption = 'IDENTIFICA'#199#195'O DO USU'#193'RIO'

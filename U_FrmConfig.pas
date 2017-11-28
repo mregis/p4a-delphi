@@ -4,13 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, IniFiles;
+  Dialogs, StdCtrls, Buttons, IniFiles, OleServer, CmAdmCtl, Grids;
 
 type
   TFrmConfig = class(TForm)
     BitBtnFechar: TBitBtn;
     BitBtnSalvar: TBitBtn;
-    GroupBox1: TGroupBox;
+    GroupBoxConexaoBD: TGroupBox;
     LabelDBHost: TLabel;
     EditDBHost: TEdit;
     LabelDBName: TLabel;
@@ -21,29 +21,46 @@ type
     EditDBUsername: TEdit;
     EditDBPassword: TEdit;
     LabelDBPassword: TLabel;
-    GroupBox2: TGroupBox;
+    GrpBoxArqDir: TGroupBox;
     LabelDirDest: TLabel;
     EditDirDest: TEdit;
+    GroupBoxBalanca: TGroupBox;
+    Label4: TLabel;
+    StringGridBalancas: TStringGrid;
+    BitBtnAddBalanca: TBitBtn;
+    BitBtnDelBalanca: TBitBtn;
+    BitBtnMakeDefaultBalanca: TBitBtn;
+    procedure BitBtnMakeDefaultBalancaClick(Sender: TObject);
+    procedure BitBtnDelBalancaClick(Sender: TObject);
+    procedure StringGridBalancasSelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+    procedure BitBtnAddBalancaClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtnSalvarClick(Sender: TObject);
     procedure BitBtnFecharClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
+
   private
     { Private declarations }
   public
     { Public declarations }
+    BalancaList : TStringList;
+    procedure DeleteRow(Grid: TStringGrid; ARow: Integer);
   end;
 
 var
   FrmConfig: TFrmConfig;
-  iniFile : TIniFile;
+  iniFile: TIniFile;
+
 
 implementation
 
+uses U_NovaBalanca;
 {$R *.dfm}
 
 procedure TFrmConfig.BitBtnSalvarClick(Sender: TObject);
 var i : Integer;
+// Balancas : TStringList;
 begin
   // Necessário validar campos
   for i := 0 to ComponentCount - 1 do
@@ -72,14 +89,73 @@ begin
     // Diretório de destino dos arquivos gerados
     iniFile.WriteString('Arquivos', 'Local', EditDirDest.Text);
 
+    if StringGridBalancas.RowCount > 1 then
+      begin
+//        Balancas:= TStringList.Create;
+        for i := 1 to StringGridBalancas.RowCount - 1 do
+          begin
+            if FileExists(StringGridBalancas.Cells[1, i]) then
+              // Adicionando a balanca configurada
+              iniFile.WriteString('Balancas', StringGridBalancas.Cells[0, i],
+                StringGridBalancas.Cells[1, i]);
+          end;
+      end;
+
   finally
     iniFile.Free;
   end;
 end;
 
+procedure TFrmConfig.BitBtnAddBalancaClick(Sender: TObject);
+var i: Integer;
+begin
+  BalancaList:= TStringList.Create;
+  Application.CreateForm(TFormNovaBalanca, FormNovaBalanca);
+  for i := 0 to StringGridBalancas.RowCount do
+    BalancaList.Add(StringGridBalancas.Cells[0, i+1] +
+      '='+StringGridBalancas.Cells[1, i+1]);
+
+  FormNovaBalanca.ShowModal;
+  SetFocus;
+  // Renovando a lista de Balancas exibidas
+  StringGridBalancas.RowCount := BalancaList.Count + 1;
+  for i := 1 to BalancaList.Count - 1 do
+    begin
+      StringGridBalancas.Cells[0, i + 1] := BalancaList.Names[i];
+      StringGridBalancas.Cells[1, i + 1] := BalancaList.ValueFromIndex[i];
+    end;
+  BalancaList.Free;
+
+end;
+
+procedure TFrmConfig.BitBtnDelBalancaClick(Sender: TObject);
+var is_default: boolean;
+begin
+  if (StringGridBalancas.Row > 0) then
+    begin
+      is_default := StringGridBalancas.Cells[1, StringGridBalancas.Row] = '1';
+      DeleteRow(StringGridBalancas, StringGridBalancas.Row);
+      if (is_default = true) then
+          BitBtnMakeDefaultBalancaClick(Self); // Forçando a selecionar outra balança como default
+    end;
+
+end;
+
 procedure TFrmConfig.BitBtnFecharClick(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TFrmConfig.BitBtnMakeDefaultBalancaClick(Sender: TObject);
+var i: Integer;
+begin
+  if (StringGridBalancas.Row > 0) then
+    for i := 1 to StringGridBalancas.RowCount - 1 do
+      if i = StringGridBalancas.Row then
+          StringGridBalancas.Cells[1, i] := '1'
+      else
+          StringGridBalancas.Cells[1, i] := '0';
+
 end;
 
 procedure TFrmConfig.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -88,8 +164,15 @@ begin
   FrmConfig := Nil;
 end;
 
-procedure TFrmConfig.FormShow(Sender: TObject);
+procedure TFrmConfig.FormCreate(Sender: TObject);
+var  I, J: Integer;
+Balancas : TStringList;
 begin
+  // Nomeando as colunas da lista de balanças configuradas
+  StringGridBalancas.Cells[0, 0] := 'Nome da Balança';
+  StringGridBalancas.Cells[1, 0] := 'Status';
+  Balancas := TStringList.Create;
+
   IniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
   try
     // Nome do Servidor onde se encontra a Base de Dados Postgres
@@ -104,11 +187,42 @@ begin
     EditDBPassword.Text := iniFile.ReadString('BD', 'Senha', 'ads!.!');
     // Diretório de destino dos arquivos gerados
     EditDirDest.Text := iniFile.ReadString('Arquivos', 'Local', GetCurrentDir);
+    // Balanças configuradas
+    if iniFile.SectionExists('Balancas') then
+      begin
+        iniFile.ReadSection('Balancas', Balancas);
+        StringGridBalancas.RowCount := Balancas.Count + 1;
+        for i := 0 to Balancas.Count - 1 do
+          begin
+            StringGridBalancas.Cells[0, i + 1] := Balancas.Names[i];
+            StringGridBalancas.Cells[1, i + 1] := Balancas.ValueFromIndex[i];
+          end;
+      end;
 
   finally
     iniFile.Free;
+    Balancas.Free;
   end;
 
+
+end;
+
+
+procedure TFrmConfig.StringGridBalancasSelectCell(Sender: TObject; ACol,
+  ARow: Integer; var CanSelect: Boolean);
+begin
+  BitBtnDelBalanca.Enabled := ARow > 0;
+  BitBtnMakeDefaultBalanca.Enabled := ARow > 0;
+end;
+
+
+procedure TFrmConfig.DeleteRow(Grid: TStringGrid; ARow: Integer);
+var
+  i: Integer;
+begin
+  for i := ARow to Grid.RowCount - 2 do
+    Grid.Rows[i].Assign(Grid.Rows[i + 1]);
+  Grid.RowCount := Grid.RowCount - 1;
 end;
 
 end.

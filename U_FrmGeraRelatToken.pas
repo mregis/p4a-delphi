@@ -59,7 +59,7 @@ begin
       SqlRel.ParamByName('dtini').AsDate :=  DtPickerDtIni.Date;
       SqlRel.ParamByName('dtfin').AsDate :=  DtPickerDtFin.Date;
       SqlRel.Open;
-      nlido :=  SqlRel.Fields[0].AsInteger;
+//      nlido :=  SqlRel.Fields[0].AsInteger;
 
       ZOQListaToken.Close;
       ZOQListaToken.Sql.Clear;
@@ -76,7 +76,7 @@ begin
         begin
           ZOQListaToken.Sql.Add('  AND (cg76_ag = :ag OR cg76_ag = :ag2) ');
           ZOQListaToken.ParamByName('ag').AsString := LPad(Trim(EdAgencia.Text), 4, '0');
-          ZOQListaToken.ParamByName('ag2').AsInteger := ag;
+          ZOQListaToken.ParamByName('ag2').AsString := IntToStr(ag);
         end
       else
         ZOQListaToken.Sql.Add('  AND cg76_ag IS NOT NULL ');
@@ -103,7 +103,6 @@ begin
 
       if ZOQListaToken.RecordCount > 0 then
         begin
-          v_tipocli := ZOQListaTokencg76_tipocli.AsInteger;
           application.CreateForm(TFrmFrTokenBradesco, FrmFrTokenBradesco);
 
           FrmFrTokenBradesco.Tag := 25;

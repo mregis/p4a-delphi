@@ -3,7 +3,7 @@ object FrmPrincipal: TFrmPrincipal
   Top = 172
   BorderStyle = bsSingle
   Caption = 'Address S.A - SISTEMA ADS'
-  ClientHeight = 492
+  ClientHeight = 532
   ClientWidth = 631
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -326,31 +326,27 @@ object FrmPrincipal: TFrmPrincipal
     Left = 0
     Top = 0
     Width = 631
-    Height = 492
+    Height = 532
     VertScrollBar.Range = 19
     Align = alClient
     AutoScroll = False
     Color = 16707787
     ParentColor = False
     TabOrder = 0
-    ExplicitWidth = 734
-    ExplicitHeight = 734
     object ScrollBox2: TScrollBox
       Left = 0
       Top = 0
       Width = 627
-      Height = 469
+      Height = 509
       Align = alClient
       Color = clSkyBlue
       ParentColor = False
       TabOrder = 1
-      ExplicitWidth = 728
-      ExplicitHeight = 647
       object Image1: TImage
         Left = 0
         Top = 0
         Width = 623
-        Height = 465
+        Height = 505
         Align = alClient
         Picture.Data = {
           07544269746D6170B6620300424DB66203000000000036040000280000002602
@@ -9467,7 +9463,7 @@ object FrmPrincipal: TFrmPrincipal
     end
     object StsMenu: TStatusBar
       Left = 0
-      Top = 469
+      Top = 509
       Width = 627
       Height = 19
       Color = 16776697
@@ -9491,8 +9487,6 @@ object FrmPrincipal: TFrmPrincipal
         item
           Width = 120
         end>
-      ExplicitTop = 711
-      ExplicitWidth = 730
     end
   end
   object MainMenu1: TMainMenu

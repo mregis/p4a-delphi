@@ -4,9 +4,9 @@ interface
 
 uses
   SysUtils,Windows, Messages, Classes, DB, ZAbstractRODataset, ZAbstractDataset, ZDataset,
-  ZConnection, RLXLSFilter, RLPDFFilter, RLHTMLFilter, RLFilters,
+  ZConnection, RLXLSFilter, RLPDFFilter, RLHTMLFilter, RLFilters, IniFiles,
   RLRichFilter, RpDefine, RpRave, RpCon, RpConDS, RpRender, RpRenderPDF, RpBase,
-  RpSystem, Forms;
+  RpSystem, Forms, ZAbstractConnection;
 
 type
   TDm = class(TDataModule)
@@ -544,14 +544,12 @@ type
     SqlSdx9qtde: TLargeintField;
     procedure DataModuleCreate(Sender: TObject);
 
-
-
   private
     { Private declarations }
   public
+    { Public declarations }
     conect:boolean;
     currdir,uni : string;
-    { Public declarations }
   end;
 
 var
@@ -559,7 +557,7 @@ var
 
 implementation
 
-uses U_Func, IniFiles, U_FrmConfig;
+uses U_Func, U_FrmConfig;
 
 {$R *.dfm}
 
@@ -603,8 +601,10 @@ begin
     // que foi configurado no servidor, devido a Bug da Lib Zeos
     SqlAux2.Close;
     SqlAux2.SQL.Clear;
-    SqlAux2.SQL.Add(FORMAT('SET DATESTYLE TO %s', [QuotedStr('ISO, DMY')]));
-    SqlAux2.Open;
+    SqlAux2.SQL.Text := FORMAT('SET DATESTYLE TO %s', [QuotedStr('ISO, DMY')]);
+    SqlAux2.ExecSQL;
+    SqlAux2.SQL.Text := FORMAT('SET NAMES %s', [QuotedStr('LATIN1')]);
+    SqlAux2.ExecSQL;
 
     Except on e: exception do
       begin

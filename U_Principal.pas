@@ -418,9 +418,9 @@ type
   private
     { Private declarations }
   public
-   ambiente,codusu : integer;
-   usuario : string;
-   FrmNome: TForm;
+    ambiente, codusu : integer;
+    usuario : string;
+    FrmNome: TForm;
     { Public declarations }
   end;
 
@@ -439,7 +439,7 @@ uses U_ExtConsolidado, FrmExtContaCorrentePopanca, U_CadBaixa,
   U_FrmRelArSedexLista, U_FrmRlTotRa, DmDados, U_FrmCadNLido, U_FrmRemessaSedex,
   U_FrmBxaSedex, U_FrmRemSdx, U_FrmBxaArqSdx, uGerarPlanilhaGeral, U_FrmPrintAr,
   U_FrmGeraListaPostagem, U_FrmConfig, U_FrmGeraRelatToken,
-  U_FrmImprRelExtrBase, U_FrmCadToken;
+  U_FrmImprRelExtrBase, U_FrmCadToken, U_NovaBalanca;
 
 {$R *.dfm}
 procedure TFrmPrincipal.AbreBaixa(tipo:Integer);
