@@ -1,4 +1,4 @@
-program Ads1;
+program ADS;
 
 uses
   Forms,

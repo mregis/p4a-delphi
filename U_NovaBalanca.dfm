@@ -608,7 +608,6 @@ object FormNovaBalanca: TFormNovaBalanca
       Top = 50
       Width = 255
       Height = 125
-      ReadOnly = True
       ScrollBars = ssVertical
       TabOrder = 0
       OnClick = MemoPortReturnClick

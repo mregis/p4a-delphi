@@ -201,6 +201,7 @@ end;
 procedure TFormNovaBalanca.BitBtnIncluirClick(Sender: TObject);
 var i: Integer;
   iniBalanca : TIniFile;
+  s: String;
 begin
 
   // Verificando o nome da Balança
@@ -225,8 +226,8 @@ begin
     end;
 
   Try
-    ComPort.StoreSettings(stIniFile, EditNomeBalanca.Text);
-    iniBalanca:= TIniFile.Create(EditNomeBalanca.Text);
+    s:= GetCurrentDir + PathDelim +  EditNomeBalanca.Text + '.ini';
+    iniBalanca:= TIniFile.Create(s);
     iniBalanca.WriteString('ConfigLeituraPeso', 'Modo', CBModo.Text);
     iniBalanca.WriteString('ConfigLeituraPeso', 'Comando', EditCommand.Text);
     iniBalanca.WriteString('ConfigLeituraPeso', 'InicioLeitura', EditStartRead.Text);
@@ -239,6 +240,8 @@ begin
     iniBalanca.UpdateFile;
     iniBalanca.Free;
     FrmConfig.BalancaList.Add(EditNomeBalanca.Text + '=0');
+    ComPort.StoreSettings(stIniFile, s);
+    BitBtnIncluir.Enabled:= False;
   Except
     Application.MessageBox(PChar('Não foi possível armazer as configurações. ' +
         'Verifique o nome dado a balança e tente novamente.'),

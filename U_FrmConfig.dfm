@@ -445,13 +445,14 @@ object FrmConfig: TFrmConfig
       Left = 18
       Top = 16
       Width = 378
-      Height = 97
+      Height = 121
       BevelInner = bvLowered
       ColCount = 2
       Ctl3D = False
       FixedColor = clOlive
       FixedCols = 0
-      RowCount = 3
+      RowCount = 1
+      FixedRows = 0
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -12

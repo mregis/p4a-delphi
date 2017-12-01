@@ -60,7 +60,6 @@ uses U_NovaBalanca;
 
 procedure TFrmConfig.BitBtnSalvarClick(Sender: TObject);
 var i : Integer;
-// Balancas : TStringList;
 begin
   // Necessário validar campos
   for i := 0 to ComponentCount - 1 do
@@ -92,9 +91,9 @@ begin
     if StringGridBalancas.RowCount > 1 then
       begin
 //        Balancas:= TStringList.Create;
-        for i := 1 to StringGridBalancas.RowCount - 1 do
+        for i := 1 to StringGridBalancas.RowCount do
           begin
-            if FileExists(StringGridBalancas.Cells[1, i]) then
+            if FileExists(GetCurrentDir + PathDelim + StringGridBalancas.Cells[0, i] + '.ini') then
               // Adicionando a balanca configurada
               iniFile.WriteString('Balancas', StringGridBalancas.Cells[0, i],
                 StringGridBalancas.Cells[1, i]);
@@ -111,15 +110,15 @@ var i: Integer;
 begin
   BalancaList:= TStringList.Create;
   Application.CreateForm(TFormNovaBalanca, FormNovaBalanca);
-  for i := 0 to StringGridBalancas.RowCount do
-    BalancaList.Add(StringGridBalancas.Cells[0, i+1] +
-      '='+StringGridBalancas.Cells[1, i+1]);
+  for i := 1 to StringGridBalancas.RowCount - 1 do
+    BalancaList.Add(StringGridBalancas.Cells[0, i] +
+      '='+StringGridBalancas.Cells[1, i]);
 
   FormNovaBalanca.ShowModal;
   SetFocus;
   // Renovando a lista de Balancas exibidas
   StringGridBalancas.RowCount := BalancaList.Count + 1;
-  for i := 1 to BalancaList.Count - 1 do
+  for i := 0 to BalancaList.Count - 1 do
     begin
       StringGridBalancas.Cells[0, i + 1] := BalancaList.Names[i];
       StringGridBalancas.Cells[1, i + 1] := BalancaList.ValueFromIndex[i];
@@ -135,7 +134,7 @@ begin
     begin
       is_default := StringGridBalancas.Cells[1, StringGridBalancas.Row] = '1';
       DeleteRow(StringGridBalancas, StringGridBalancas.Row);
-      if (is_default = true) then
+      if (is_default = true) OR (StringGridBalancas.RowCount= 2) then
           BitBtnMakeDefaultBalancaClick(Self); // Forçando a selecionar outra balança como default
     end;
 
@@ -165,8 +164,9 @@ begin
 end;
 
 procedure TFrmConfig.FormCreate(Sender: TObject);
-var  I, J: Integer;
-Balancas : TStringList;
+var  i: Integer;
+Balancas: TStringList;
+s: String;
 begin
   // Nomeando as colunas da lista de balanças configuradas
   StringGridBalancas.Cells[0, 0] := 'Nome da Balança';
@@ -192,11 +192,13 @@ begin
       begin
         iniFile.ReadSection('Balancas', Balancas);
         StringGridBalancas.RowCount := Balancas.Count + 1;
-        for i := 0 to Balancas.Count - 1 do
+        for i:= 0 to Balancas.Count -1 do
           begin
-            StringGridBalancas.Cells[0, i + 1] := Balancas.Names[i];
-            StringGridBalancas.Cells[1, i + 1] := Balancas.ValueFromIndex[i];
+            s:= iniFile.ReadString ('Balancas', Balancas[i], Balancas[i]);
+            StringGridBalancas.Cells[0, i + 1] := Balancas[i];
+            StringGridBalancas.Cells[1, i + 1] := s;
           end;
+
       end;
 
   finally

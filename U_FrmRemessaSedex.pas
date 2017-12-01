@@ -630,6 +630,22 @@ end;
 procedure TFrmRemessaSedex.EdPesoEnter(Sender: TObject);
 begin
   ComPort.Open;
+  if modo_leitura = 'Comando' then
+    begin
+      if (Length(Trim(comando)) < 1) then
+        begin
+          Application.MessageBox(PChar('A balança está configurada para ' +
+                  'para o modo de ''Comando'' porém não há instrução para ' +
+                  'enviar. Configure a balança novamente!'),
+              'ADS', MB_OK + MB_ICONERROR);
+              BtnSair.SetFocus;
+          ComPort.Close;
+          exit;
+        end;
+    end;
+  // Modo de envio de comando
+  ComPort.WriteStr(comando);
+
 end;
 
 procedure TFrmRemessaSedex.EdPesoExit(Sender: TObject);
@@ -1236,7 +1252,7 @@ procedure TFrmRemessaSedex.CarregaBalanca;
 var iniFile, balancaFile: TiniFile;
 Balancas : TStringList;
 i: Integer;
-s: String;
+s, t: String;
 begin
   try
     IniFile := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
@@ -1246,25 +1262,29 @@ begin
         iniFile.ReadSection('Balancas', Balancas);
         // Se não houver Balanca configurada, gerar alerta
         // Se houver balanca configurada mas não marcada como padrão, utilizar a ultima
-        for i := 0 to Balancas.Count - 1 do
-          if (FileExists(Balancas.Names[i])) then
-            begin
-              Balanca := Balancas.Names[i];
-              if (Balancas.ValueFromIndex[i] = '1') then
-                begin
-                  ComPort.LoadSettings(stIniFile, Balanca);
-                  balancaFile:= TIniFile.Create(Balanca);
-                  modo_leitura:= balancaFile.ReadString('ConfigLeituraPeso', 'Modo', 'Constante');
-                  comando:= balancaFile.ReadString('ConfigLeituraPeso', 'Comando', 'R');
-                  i_ini:= balancaFile.ReadInteger('ConfigLeituraPeso', 'InicioLeitura', 0);
-                  i_fim:= balancaFile.ReadInteger('ConfigLeituraPeso', 'FimLeitura', 0);
-                  s:= balancaFile.ReadString('ConfigLeituraPeso', 'SeparadorDecimal', DecimalSeparator);
-                  dec_sep:= s[1];
-                  unidade:= balancaFile.ReadInteger('ConfigLeituraPeso', 'UnidadeMedida', 1);
-                  balancaFile.Free;
-                  exit;
-                end;
-            end;
+        for i:= 0 to Balancas.Count - 1 do
+          begin
+            s:= GetCurrentDir + PathDelim + Balancas[i] + '.ini';
+            if (FileExists(s)) then
+              begin
+                Balanca := Balancas[i];
+                t:= iniFile.ReadString ('Balancas', Balancas[i], Balancas[i]);
+                if (t = '1') then
+                  begin
+                    ComPort.LoadSettings(stIniFile, s);
+                    balancaFile:= TIniFile.Create(s);
+                    modo_leitura:= balancaFile.ReadString('ConfigLeituraPeso', 'Modo', 'Constante');
+                    comando:= balancaFile.ReadString('ConfigLeituraPeso', 'Comando', 'R');
+                    i_ini:= balancaFile.ReadInteger('ConfigLeituraPeso', 'InicioLeitura', 0);
+                    i_fim:= balancaFile.ReadInteger('ConfigLeituraPeso', 'FimLeitura', 0);
+                    t:= balancaFile.ReadString('ConfigLeituraPeso', 'SeparadorDecimal', DecimalSeparator);
+                    dec_sep:= t[1];
+                    unidade:= balancaFile.ReadInteger('ConfigLeituraPeso', 'UnidadeMedida', 1);
+                    balancaFile.Free;
+                    exit;
+                  end;
+              end;
+          end;
         iniFile.Free;
       end;
 
