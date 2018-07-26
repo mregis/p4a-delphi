@@ -48,6 +48,8 @@ type
     CBUnidadeMedida: TComboBox;
     Label2: TLabel;
     BitBtnReset: TBitBtn;
+    procedure EditReturnedStringMouseLeave(Sender: TObject);
+    procedure EditReturnedStringExit(Sender: TObject);
     procedure EditNomeBalancaKeyPress(Sender: TObject; var Key: Char);
     procedure BitBtnResetClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -149,7 +151,7 @@ begin
           exit;
         end;
       // Garantindo que i_fim jamais seja maior que a string
-      i_fim := Min(i_fim, Length(EditReturnedString.Text));
+      i_fim := Min(i_fim, Length(EditReturnedString.Text) + 1);
       str := copy(EditReturnedString.Text, i_ini, i_fim - i_ini);
     end
   else
@@ -408,11 +410,21 @@ end;
 procedure TFormNovaBalanca.EditReturnedStringClick(Sender: TObject);
 begin
   EditStartRead.Text := IntToStr(EditReturnedString.SelStart + 1);
-  EditEndRead.Text := IntToStr(EditReturnedString.SelStart + EditReturnedString.SelLength + 1);
+  EditEndRead.Text := IntToStr(EditReturnedString.SelStart + 1 + EditReturnedString.SelLength);
+end;
+
+procedure TFormNovaBalanca.EditReturnedStringExit(Sender: TObject);
+begin
+  EditReturnedStringClick(Sender);
 end;
 
 procedure TFormNovaBalanca.EditReturnedStringKeyUp(Sender: TObject;
   var Key: Word; Shift: TShiftState);
+begin
+  EditReturnedStringClick(Sender);
+end;
+
+procedure TFormNovaBalanca.EditReturnedStringMouseLeave(Sender: TObject);
 begin
   EditReturnedStringClick(Sender);
 end;

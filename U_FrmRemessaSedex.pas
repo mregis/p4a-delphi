@@ -629,6 +629,9 @@ end;
 
 procedure TFrmRemessaSedex.EdPesoEnter(Sender: TObject);
 begin
+  if ComPort.Connected then
+      ComPort.Close;
+      
   ComPort.Open;
   if modo_leitura = 'Comando' then
     begin
@@ -638,19 +641,19 @@ begin
                   'para o modo de ''Comando'' porém não há instrução para ' +
                   'enviar. Configure a balança novamente!'),
               'ADS', MB_OK + MB_ICONERROR);
-              BtnSair.SetFocus;
+          BtnSair.SetFocus;
           ComPort.Close;
           exit;
         end;
+      // Modo de envio de comando
+      ComPort.WriteStr(comando);
     end;
-  // Modo de envio de comando
-  ComPort.WriteStr(comando);
-
 end;
 
 procedure TFrmRemessaSedex.EdPesoExit(Sender: TObject);
 begin
-  ComPort.Close;
+  if ComPort.Connected then
+    ComPort.Close;
 end;
 
 procedure TFrmRemessaSedex.EdPesoKeyPress(Sender: TObject; var Key: Char);
@@ -1268,9 +1271,10 @@ begin
             if (FileExists(s)) then
               begin
                 Balanca := Balancas[i];
-                t:= iniFile.ReadString ('Balancas', Balancas[i], Balancas[i]);
-                if (t = '1') then
-                  begin
+                t:= iniFile.ReadString ('Balancas', Balanca, Balanca);
+                if (t = '1') or (i = Balancas.Count - 1) then
+                  begin // Se for a primeira marcada para ser usada ou
+                        // se for a ultima encontrada
                     ComPort.LoadSettings(stIniFile, s);
                     balancaFile:= TIniFile.Create(s);
                     modo_leitura:= balancaFile.ReadString('ConfigLeituraPeso', 'Modo', 'Constante');
@@ -1281,11 +1285,9 @@ begin
                     dec_sep:= t[1];
                     unidade:= balancaFile.ReadInteger('ConfigLeituraPeso', 'UnidadeMedida', 1);
                     balancaFile.Free;
-                    exit;
                   end;
               end;
           end;
-        iniFile.Free;
       end;
 
     if Balanca = null then
@@ -1293,6 +1295,9 @@ begin
         Application.MessageBox(PChar('Nenhuma balanca configurada. '  +
             'Vá até o painel de Configurações e adicione uma.'), 'ADS',ID_OK);
       end;
+
+    iniFile.Free;
+
   Except
     Application.MessageBox(PChar('Erro ao carregar informações da balança'),'ADS',ID_OK);
   end;
@@ -1308,10 +1313,12 @@ begin
     if (modo_leitura = 'Constante') then
       Str := copy(Str, i_ini, i_fim - i_ini);
 
-    peso := StrToPeso(str, dec_sep);
+    peso := StrToPeso(Str, dec_sep);
 
     if (peso > 0) then
       peso := peso / unidade;
+
+    EdPeso.Text:= FloatToStr(peso);
   Except
     Application.MessageBox(PChar('Erro ao ler peso. ' +
             'A balança está corretamente configurada?'),
