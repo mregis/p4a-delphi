@@ -182,13 +182,13 @@ object FrmPreCadToken: TFrmPreCadToken
     object DBGridRelObjetos: TDBGrid
       Left = 0
       Top = 105
-      Width = 785
+      Width = 786
       Height = 313
       Color = clWhite
       DataSource = Dm.DtSAux4
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
@@ -202,9 +202,14 @@ object FrmPreCadToken: TFrmPreCadToken
       OnDrawColumnCell = DBGridRelObjetosDrawColumnCell
       Columns = <
         item
-          DropDownRows = 10
+          Alignment = taCenter
           Expanded = False
           FieldName = 'sigla'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Caption = 'SIGLA'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
@@ -212,51 +217,36 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 35
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'cod'
-          Title.Caption = 'COD'
-          Title.Color = clNavy
-          Title.Font.Charset = DEFAULT_CHARSET
-          Title.Font.Color = clCream
-          Title.Font.Height = -11
-          Title.Font.Name = 'Arial'
-          Title.Font.Style = [fsBold]
-          Width = 45
+          Width = 42
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'pagante'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Caption = 'PAGANTE'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
-          Title.Font.Color = clCream
+          Title.Font.Color = 10930928
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 225
+          Width = 210
           Visible = True
         end
         item
-          Expanded = False
-          FieldName = 'cartao'
-          Title.Caption = 'CARTAO'
-          Title.Color = clNavy
-          Title.Font.Charset = DEFAULT_CHARSET
-          Title.Font.Color = clCream
-          Title.Font.Height = -11
-          Title.Font.Name = 'Arial'
-          Title.Font.Style = [fsBold]
-          Width = 73
-          Visible = True
-        end
-        item
+          Alignment = taCenter
           Expanded = False
           FieldName = 'lote'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Caption = 'LOTE'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
@@ -264,25 +254,36 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 105
           Visible = True
         end
         item
+          Alignment = taCenter
           Expanded = False
           FieldName = 'dtvencto'
-          Title.Caption = 'VENCIMENTO'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Title.Caption = 'DATA VENCIMENTO'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
           Title.Font.Color = clCream
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 72
+          Width = 105
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'carga'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Alignment = taRightJustify
           Title.Caption = 'TOTAL'
           Title.Color = clNavy
@@ -291,12 +292,17 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 85
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'usado'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Alignment = taRightJustify
           Title.Caption = 'UTILIZADO'
           Title.Color = clNavy
@@ -305,12 +311,17 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 85
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'livre'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Alignment = taRightJustify
           Title.Caption = 'DISPONIVEL'
           Title.Color = clNavy
@@ -319,7 +330,7 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 95
           Visible = True
         end>
     end
@@ -504,8 +515,8 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object PanelProgress: TPanel
       AlignWithMargins = True
-      Left = 275
-      Top = 248
+      Left = 278
+      Top = 251
       Width = 315
       Height = 68
       Align = alCustom
@@ -525,6 +536,8 @@ object FrmPreCadToken: TFrmPreCadToken
       TabOrder = 10
       VerticalAlignment = taAlignTop
       Visible = False
+      ExplicitLeft = 275
+      ExplicitTop = 248
       object PanelProgressBar: TProgressBar
         AlignWithMargins = True
         Left = 24

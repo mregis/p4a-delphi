@@ -6,15 +6,16 @@ object Dm: TDm
   object Ads: TZConnection
     ControlsCodePage = cGET_ACP
     UTF8StringsAsWideField = False
-    AutoEncodeStrings = False
-    ClientCodepage = 'LATIN1'
+    ClientCodepage = 'UTF8'
     Properties.Strings = (
-      'codepage=LATIN1')
+      'codepage=UTF8'
+      'controls_cp=GET_ACP'
+      'AutoEncodeStrings=ON')
     Port = 5432
     Database = 'dbads'
     User = 'ads'
     Password = 'ads!.!'
-    Protocol = 'postgresql-8'
+    Protocol = 'postgresql-9'
     Left = 30
     Top = 16
   end
