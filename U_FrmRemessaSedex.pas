@@ -444,7 +444,7 @@ begin
   if v_soma > 0 then
       v_soma := 10 - v_soma;
 
-  CEPr := Format('/%s%d\', [MkEdCep.Text, v_soma]);
+  CEPr := Format('\/%s%d\\', [MkEdCep.Text, v_soma]);
   // Fim Calculo DV CEP
 
   with dm do

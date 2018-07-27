@@ -429,7 +429,7 @@ begin
                 else
                   begin
                     v_soma := 10 - v_soma;
-                    CEPr := '/'+mCEP + intToStr(v_soma)+'\';
+                    CEPr := '\/'+mCEP + intToStr(v_soma)+'\\';
                   end;
               //Gravar dados
                 SqlSdx1.Close;
@@ -441,7 +441,7 @@ begin
                 //                                0           1           2           3            4
                 SqlSdx1.Sql.Add(':sdx_codoperacao,:sdx_conteudo,:sdx_nomdest,:sdx_endedest,:sdx_cidade,:sdx_uf,:sdx_cep,:sdx_numobj3,');
                 //                        5                 6            7            8            9       10     11        12
-                SqlSdx1.Sql.Add(':sdx_numobj4,(SELECT CURRENT_DATE),:seqcarga,:sdx_numobj2,:sdx_cepnet,:sdx_numobj,:sdx_codusu,:sdx_qtd,0.058)');
+                SqlSdx1.Sql.Add(':sdx_numobj4,(SELECT CURRENT_DATE),:seqcarga,:sdx_numobj2,E:sdx_cepnet,:sdx_numobj,:sdx_codusu,:sdx_qtd,0.058)');
                 //                    13                            14         15           16            17            18         19      20
                 SqlSdx1.Params[0].AsString  := '99';
                 SqlSdx1.Params[1].AsString  := '99';
