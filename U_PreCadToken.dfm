@@ -2,7 +2,7 @@ object FrmPreCadToken: TFrmPreCadToken
   Left = 265
   Top = 177
   BorderStyle = bsDialog
-  Caption = 'FrmPreCadToken'
+  Caption = 'Carregar Arquivo de Envios'
   ClientHeight = 495
   ClientWidth = 790
   Color = clBtnFace
@@ -12,7 +12,7 @@ object FrmPreCadToken: TFrmPreCadToken
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
@@ -139,7 +139,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Pitch = fpFixed
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 9
+      TabOrder = 8
     end
     object StrGridDados: TStringGrid
       Left = 0
@@ -165,7 +165,7 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentBiDiMode = False
       ParentCtl3D = False
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 4
       ColWidths = (
         34
         56
@@ -387,7 +387,7 @@ object FrmPreCadToken: TFrmPreCadToken
       MaxLength = 255
       ParentFont = False
       ReadOnly = True
-      TabOrder = 6
+      TabOrder = 5
     end
     object BtnAbrir: TBitBtn
       Left = 18
@@ -446,7 +446,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Style = [fsBold]
       MaxLength = 4
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 6
       Text = '0'
     end
     object EdGrava: TEdit
@@ -464,7 +464,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Style = [fsBold]
       MaxLength = 4
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 7
       Text = '0'
     end
     object NovoLoteChkBox: TCheckBox
@@ -500,12 +500,12 @@ object FrmPreCadToken: TFrmPreCadToken
       ListField = 'tbsdxserv_dsc'
       ListSource = Dm.DtSSdxServ
       ParentFont = False
-      TabOrder = 10
+      TabOrder = 9
     end
     object PanelProgress: TPanel
       AlignWithMargins = True
-      Left = 254
-      Top = 227
+      Left = 266
+      Top = 239
       Width = 315
       Height = 68
       Align = alCustom
@@ -522,11 +522,11 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      TabOrder = 11
+      TabOrder = 10
       VerticalAlignment = taAlignTop
       Visible = False
-      ExplicitLeft = 251
-      ExplicitTop = 224
+      ExplicitLeft = 263
+      ExplicitTop = 236
       object PanelProgressBar: TProgressBar
         AlignWithMargins = True
         Left = 24
@@ -550,7 +550,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 12
+      TabOrder = 11
       OnClick = BtnFecharClick
       Glyph.Data = {
         B60D0000424DB60D000000000000360000002800000030000000180000000100
@@ -678,7 +678,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 13
+      TabOrder = 12
       OnClick = BtnSalvarClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -720,7 +720,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 14
+      TabOrder = 13
       OnClick = BtnLeituraClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -752,7 +752,7 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object BitBtnImprimeARs: TBitBtn
       Left = 599
-      Top = 110
+      Top = 108
       Width = 155
       Height = 28
       Caption = '&Imprimir ARs'
@@ -762,7 +762,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      TabOrder = 15
+      TabOrder = 14
       Visible = False
       OnClick = BitBtnImprimeARsClick
       Glyph.Data = {

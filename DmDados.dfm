@@ -4,11 +4,17 @@ object Dm: TDm
   Height = 984
   Width = 1087
   object Ads: TZConnection
-    Protocol = 'postgresql-8.x'
+    ControlsCodePage = cGET_ACP
+    UTF8StringsAsWideField = False
+    AutoEncodeStrings = False
+    ClientCodepage = 'LATIN1'
+    Properties.Strings = (
+      'codepage=LATIN1')
     Port = 5432
     Database = 'dbads'
     User = 'ads'
     Password = 'ads!.!'
+    Protocol = 'postgresql-8'
     Left = 30
     Top = 16
   end
@@ -270,13 +276,16 @@ object Dm: TDm
     Top = 195
   end
   object Cep: TZConnection
-    Protocol = 'postgresql-7.4'
+    ControlsCodePage = cGET_ACP
+    UTF8StringsAsWideField = False
+    AutoEncodeStrings = False
+    ReadOnly = True
     HostName = '192.168.100.3'
     Port = 5432
     Database = 'dbcep'
     User = 'cartoriores'
     Password = 'cart6539'
-    ReadOnly = True
+    Protocol = 'postgresql-7.4'
     Left = 32
     Top = 872
   end

@@ -6,7 +6,7 @@ uses
   SysUtils,Windows, Messages, Classes, DB, ZAbstractRODataset, ZAbstractDataset, ZDataset,
   ZConnection, RLXLSFilter, RLPDFFilter, RLHTMLFilter, RLFilters,
   RLRichFilter, RpDefine, RpRave, RpCon, RpConDS, RpRender, RpRenderPDF, RpBase,
-  RpSystem, Forms;
+  RpSystem, Forms, ZAbstractConnection;
 
 type
   TDm = class(TDataModule)

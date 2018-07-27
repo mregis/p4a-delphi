@@ -78,8 +78,9 @@ type
   TPagante = record
     cod : Integer; // Código do Produto
     desc : String[50]; // Descrição
-    cartao: String[9];
+    cartao: String[9]; // Numero cartão de Postagem
     qtde: Integer; // Qtde de Número de objetos
+    sigla: String[2]; // Sigla do Produto
   end;
 
 var
@@ -168,6 +169,15 @@ begin
       exit;
     end;
 
+  // Verificando itens de preenchimeno obrigatório
+  if (trim(CboProdutoServSedex.Text) = '') then
+    begin
+      application.MessageBox(PChar('Selecione um Produto!'),
+          'Ads', MB_OK + MB_ICONINFORMATION);
+      exit;
+    end;
+
+
   DBGridRelObjetos.Hide;
   BitBtnImprimeARs.Hide;
   EdQtdreg.Text :=  '0';
@@ -217,7 +227,10 @@ begin
       SqlAux4.SQL.Add('FROM tbsdxserv s ');
       SqlAux4.SQL.Add('    LEFT JOIN public.tbsdx_ect e ON (s.tbsdxserv_prod = e.tbsdxect_prod) ');
       SqlAux4.SQL.Add('     	AND e.tbsdxect_dtvenc >= CURRENT_DATE ');
-      SqlAux4.SQL.Add('WHERE s.tbsdxserv_status = 1 ');
+      SqlAux4.SQL.Add('WHERE s.tbsdxserv_status = 1 AND ');
+      SqlAux4.SQL.Add('(s.tbsdxserv_dsc ILIKE ''%TOKEN%'' OR ');
+      SqlAux4.SQL.Add('s.tbsdxserv_dsc ILIKE ''%TANCODE%'' OR ');
+      SqlAux4.SQL.Add('s.tbsdxserv_dsc ILIKE ''% OL %'')');
       SqlAux4.SQL.Add('GROUP BY s.tbsdxserv_sigla, s.tbsdxserv_prod, ');
       SqlAux4.SQL.Add('    s.tbsdxserv_dsc, s.tbsdxserv_crtpst, ');
       SqlAux4.SQL.Add('    e.tbsdxect_lote, e.tbsdxect_dtcad, ');
@@ -238,14 +251,6 @@ i : Integer;
 begin
   EdGrava.Text :=  '0';
   nLote := '';
-  // Verificando itens de preenchimeno obrigatório
-  if (trim(CboProdutoServSedex.Text) = '') then
-    begin
-      application.MessageBox(PChar('Selecione um Produto!'),
-          'Ads', MB_OK + MB_ICONINFORMATION);
-      exit;
-    end;
-
   // Verificando se é pra gerar um novo número de Lote ou aceitar
   // o que foi passado
   if NovoLoteChkBox.Checked then
@@ -1343,6 +1348,7 @@ var R, _Col, cols, _Line, lines,
   i, iIni, jTemp: Integer;
   cartoes : Array of TPagante;
   dtTemp: TDateTime;
+  sigla_sel: String;
 begin
   BtnAbrir.Enabled :=  false;
   filename := Trim(Edlocal.Text);
@@ -1375,13 +1381,18 @@ begin
     begin
       SqlAux2.Close;
       SqlAux2.SQL.Clear;
-      SqlAux2.SQL.Add('SELECT t.tbsdxserv_prod, t.tbsdxserv_dsc, t.tbsdxserv_crtpst, ');
+      SqlAux2.SQL.Add('SELECT t.tbsdxserv_prod, t.tbsdxserv_dsc, ');
+      SqlAux2.SQL.Add('    t.tbsdxserv_crtpst, t.tbsdxserv_sigla, ');
       SqlAux2.SQL.Add('COUNT(DISTINCT e.tbsdxect_num) AS qt_objs ');
       SqlAux2.SQL.Add('FROM tbsdxserv t ');
       SqlAux2.SQL.Add('    LEFT JOIN public.tbsdx_ect e ON (t.tbsdxserv_prod = e.tbsdxect_prod) ');
       SqlAux2.SQL.Add('        AND e.tbsdxect_dtvenc > CURRENT_DATE AND e.tbsdx_use IS NULL ');
-      SqlAux2.SQL.Add('WHERE t.tbsdxserv_status = 1 ');
-      SqlAux2.SQL.Add('GROUP BY t.tbsdxserv_prod, t.tbsdxserv_dsc, t.tbsdxserv_crtpst');
+      SqlAux2.SQL.Add('WHERE t.tbsdxserv_status = 1 AND ');
+      SqlAux2.SQL.Add('(t.tbsdxserv_dsc ILIKE ''%TOKEN%'' OR ');
+      SqlAux2.SQL.Add('t.tbsdxserv_dsc ILIKE ''%TANCODE%'' OR ');
+      SqlAux2.SQL.Add('t.tbsdxserv_dsc ILIKE ''% OL %'')');
+      SqlAux2.SQL.Add('GROUP BY t.tbsdxserv_prod, t.tbsdxserv_dsc, ');
+      SqlAux2.SQL.Add('    t.tbsdxserv_crtpst, t.tbsdxserv_sigla');
       SqlAux2.Open;
       if SqlAux2.RecordCount > 0 then
         begin
@@ -1393,6 +1404,7 @@ begin
               cartoes[i].desc := SqlAux2.FieldByName('tbsdxserv_dsc').AsString;
               cartoes[i].cartao := SqlAux2.FieldByName('tbsdxserv_crtpst').AsString;
               cartoes[i].qtde := SqlAux2.FieldByName('qt_objs').AsInteger;
+              cartoes[i].sigla := SqlAux2.FieldByName('tbsdxserv_sigla').AsString;
               SqlAux2.next;
               i := i + 1;
             end;
@@ -1438,15 +1450,15 @@ begin
     begin
       for _Col := 1 to cols do // Ciclo da Coluna
         begin
-          ProgressBarStepItOne;          
+          ProgressBarStepItOne;
           {*
-  O padrão definido para as planilhas a serem carregadas é o que segue
-  10 colunas sendo [UF, COD AGENCIA, NOME AGENCIA, QTDE ITENS, DATA EMISSAO,
-  QTDE VOLUMES, PESO, Nº DOCUMENTO, VALOR, PAGANTE]
-  As Colunas UF e Nome de Agência podem ser ignoradas já que os dados de envio
-  serão obtidos a partir do código da Agência. Aqui usaremos estas informações
-  apenas para uma validação simples.
-  Ver Documentação do processo ADS - Atribuição de Números de Objetos Bradesco
+      O padrão definido para as planilhas a serem carregadas é o que segue
+      10 colunas sendo [UF, COD AGENCIA, NOME AGENCIA, QTDE ITENS, DATA EMISSAO,
+      QTDE VOLUMES, PESO, Nº DOCUMENTO, VALOR, PAGANTE]
+      As Colunas UF e Nome de Agência podem ser ignoradas já que os dados de envio
+      serão obtidos a partir do código da Agência. Aqui usaremos estas informações
+      apenas para uma validação simples.
+      Ver Documentação do processo ADS - Atribuição de Números de Objetos Bradesco
           *}
           if (trim(RangeMatrix[_Line, _Col]) <> '') then
               StrGridDados.Cells[(_Col - 1), R] := trim(RangeMatrix[_Line, _Col]);
@@ -1477,7 +1489,10 @@ begin
                               exit;
                             end;
                           StrGridDados.Cells[(_Col - 1), R] :=  Format('%.4d', [SqlAux2.FieldByName('juncao').AsInteger]);
-                          StrGridDados.Cells[_Col, R] :=  SqlAux2.FieldByName('depto').AsString;
+                          if (trim(RangeMatrix[_Line, _Col + 1]) <> '') then
+                            StrGridDados.Cells[_Col, R] := trim(RangeMatrix[_Line, _Col + 1])
+                          else
+                            StrGridDados.Cells[_Col, R] :=  SqlAux2.FieldByName('depto').AsString;
                         end
                       else
                         begin;
@@ -1488,8 +1503,8 @@ begin
                               'ADS', MB_OK + MB_ICONERROR);
                           exit;
                         end;
-                    end;
-                end
+                    end; // end with
+                end;
             end
           // Validando a data
           else if _Col = 5 then
@@ -1556,86 +1571,93 @@ begin
           //  que será interpretada como um inteiro e devemos avisar
           //  ao operador que a informação está incorreta
           else if _Col = 10 then
-            if (trim(RangeMatrix[_Line, _Col]) <> '') and
-                    (TryStrToInt(RangeMatrix[_Line, _Col], jTemp)) and
-                    (StrToInt(RangeMatrix[_Line, _Col]) < 9999) then
-              begin
-                // Buscando do cadastro de destinos qual o pagante vinculado
-                With Dm do
-                  begin
-                    SqlAux2.Close;
-                    SqlAux2.SQL.Clear;
-                    SqlAux2.SQL.Add('SELECT t.tbsdxserv_prod, t.tbsdxserv_dsc, t.tbsdxserv_crtpst ');
-                    SqlAux2.SQL.Add('FROM tbbraddptos d ');
-                    SqlAux2.SQL.Add('    INNER JOIN tbsdxserv t ON (d.cartao_postagem = t.tbsdxserv_cod) ');
-                    SqlAux2.SQL.Add('WHERE d.juncao = :juncao');
-                    SqlAux2.ParamByName('juncao').AsInteger := jTemp;
-                    SqlAux2.Open;
-                  end;
+            begin
+              if ((trim(RangeMatrix[_Line, _Col]) = '') or
+                  not (TryStrToInt(RangeMatrix[_Line, _Col], jTemp))) then
+                begin
+                  application.MessageBox(
+                      PChar('A linha ' + IntToStr(_Line) +
+                        ' não possui informação ' +
+                        'de Junção Pagante válido. Certifique-se ' +
+                        'de que a informação ' + #13#10 +
+                        'esteja presente na coluna 10.'),
+                      'ADS', MB_OK + MB_ICONERROR);
+                  exit;
+                end;
+              sigla_sel := '';
+              if (jTemp > 0) then
+                begin // Buscando do cadastro de destinos qual o pagante vinculado
+                  With Dm do
+                    begin
+                      SqlAux2.Close;
+                      SqlAux2.SQL.Clear;
+                      SqlAux2.SQL.Add('SELECT t.tbsdxserv_prod, t.tbsdxserv_dsc, ');
+                      SqlAux2.SQL.Add('    t.tbsdxserv_sigla, t.tbsdxserv_crtpst ');
+                      SqlAux2.SQL.Add('FROM tbbraddptos d ');
+                      SqlAux2.SQL.Add('    INNER JOIN tbsdxserv t ON (d.cartao_postagem = t.tbsdxserv_cod) ');
+                      SqlAux2.SQL.Add('WHERE d.juncao = :juncao');
+                      SqlAux2.ParamByName('juncao').AsInteger := jTemp;
+                      SqlAux2.Open;
+                    end;
 
-                if dm.SqlAux2.RecordCount > 0 then
-                  begin
-                    for i:= Low(cartoes) to High(cartoes) do
-                      if (cartoes[i].cod = Dm.SqlAux2.FieldByName('tbsdxserv_prod').AsInteger ) then
-                        begin // Cartão encontrado
-                          if (cartoes[i].qtde > StrToInt(RangeMatrix[_Line, 6])) then
-                            begin
-                              // Tem numero de objeto livre
-                              cartoes[i].qtde := cartoes[i].qtde - StrToInt(RangeMatrix[_Line, 6]);
-                              StrGridDados.Cells[_Col, R] := IntToStr(cartoes[i].cod);
-                              StrGridDados.Cells[_Col - 1, R] := RangeMatrix[_Line, _Col];
-                              break;
-                            end
-                          else
-                            begin
-                              application.MessageBox(
-                                    PChar('O pagante ' + cartoes[i].desc + ' referente a linha ' +
-                                      IntToStr(_Line) + #13#10 + ' não possui números ' +
-                                      'de objetos livres suficientes. ' + #13#10 +
-                                      'Necessário requisitar uma nova faixa!'),
-                                    'ADS', MB_OK + MB_ICONERROR);
-                              exit;
-                            end;
-                        end;
-                  end
-                else
-                  begin
-                    application.MessageBox(
-                        PChar('A Junção Pagante referente a linha ' +
+                  if dm.SqlAux2.RecordCount > 0 then
+                    begin
+                      sigla_sel := Dm.SqlAux2.FieldByName('tbsdxserv_sigla').AsString;
+                    end
+                  else
+                    begin
+                      application.MessageBox(
+                          PChar('A Junção Pagante referente a linha ' +
                             IntToStr(_Line) + #13#10 + ' não foi encontrada ' + #13#10 +
                             'Favor conferir as informações!'),
-                        'ADS', MB_OK + MB_ICONERROR);
-                    exit;
+                          'ADS', MB_OK + MB_ICONERROR);
+                      exit;
+                    end;
+                end;
+
+              for i:= Low(cartoes) to High(cartoes) do
+                if ((cartoes[i].sigla = sigla_sel) OR
+                    (cartoes[i].cod = CboProdutoServSedex.KeyValue)) then
+                  begin // Cartão encontrado
+                    if (cartoes[i].qtde > StrToInt(RangeMatrix[_Line, 6])) then
+                      begin
+                        // Tem numero de objeto livre
+                        cartoes[i].qtde := cartoes[i].qtde - StrToInt(RangeMatrix[_Line, 6]);
+                        StrGridDados.Cells[_Col, R] := IntToStr(cartoes[i].cod);
+                        StrGridDados.Cells[_Col - 1, R] := RangeMatrix[_Line, _Col];
+                        break;
+                      end
+                    else
+                      begin
+                        application.MessageBox(
+                            PChar('O pagante ' + cartoes[i].desc + ' referente a linha ' +
+                                IntToStr(_Line) + #13#10 + ' não possui números ' +
+                                'de objetos livres suficientes. ' + #13#10 +
+                                'Necessário requisitar uma nova faixa!'),
+                            'ADS', MB_OK + MB_ICONERROR);
+                        exit;
+                      end;
                   end;
 
-                if i >= High(cartoes) then
+              if i >= High(cartoes) then
                   // Essa condição jamais deverá ocorrer a menos que seja
                   // um bug não previsto. Avisar Operador
-                  begin
-                    application.MessageBox(
-                          PChar('A Junção pagante presente na linha ' +
+                begin
+                  application.MessageBox(
+                      PChar('A Junção pagante presente na linha ' +
                             IntToStr(_Line) + #13#10 + ' não está vinculada a nenhum ' +
                             ' Cartão de Postagem. ' + #13#10 +
-                            'Necessário conferir o cadastro uma nova faixa!'),
-                          'ADS', MB_OK + MB_ICONERROR);
-                    exit;
-                  end;
-              end
-            else
-              begin
-                application.MessageBox(
-                    PChar('A linha ' + IntToStr(_Line) + ' não possui informação ' +
-                      'de Junção Pagante. Certifique-se de que a informação ' + #13#10 +
-                      'esteja presente na coluna 10.'),
-                    'ADS', MB_OK + MB_ICONERROR);
-                exit;
-              end;
+                            'Necessário conferir o cadastro!'),
+                      'ADS', MB_OK + MB_ICONERROR);
+                  exit;
+                end;
+            end;
         end; // end for 2
-        R := R + 1;
+      R := R + 1;
 
-        StrGridDados.Refresh;
-        EdQtdreg.Text := IntToStr(_Line - iIni);
-        EdQtdreg.Refresh;
+      StrGridDados.Refresh;
+      EdQtdreg.Text := IntToStr(_Line - iIni);
+      EdQtdreg.Refresh;
     end;// end for 1
 
   RangeMatrix := Unassigned;
@@ -1868,7 +1890,7 @@ end;
 procedure TFrmPreCadToken.gravatc2;
 var siglaobj, num_obj, siglaprod,
   dv, sqldadosobj, insmov: String;
-  i: Integer;
+  i, prod_sel: Integer;
 begin
   PanelProgressBar.Max := StrGridDados.RowCount - 1;
   nLotes := TStringList.Create;
@@ -1890,6 +1912,7 @@ begin
           '        t.tbsdxect_num = t2.numobj ' + #13#10 +
           '    INNER JOIN tbsdxserv s  ON t2.tbsdxect_prod = s.tbsdxserv_prod ' + #13#10 +
           'WHERE t.tbsdxect_prod = :prod ';
+
       insmov :='INSERT INTO tbsdx02 (sdx_codcli, sdx_idcli, sdx_siglaobj, ' +
                   'sdx_numobj, sdx_paisorigem, sdx_numobj4, sdx_nomdest, ' +
                   'sdx_endedest, sdx_cidade, sdx_uf, sdx_cep, sdx_numseqarq, ' +
@@ -1899,14 +1922,30 @@ begin
                   ':enddest, :ciddest, :ufdest, :cepdest, 99, :numreg, ' +
                   'CURRENT_DATE, :numobj2, :numobj1, :codusu, :sdx_valdec, ' +
                   ':sdx_seqcarga, :qtprod, :sdx_dtmov)';
+
+      SqlAux1.SQL.Text := 'BEGIN';
+      SqlAux1.ExecSQL;
       for i := 0 to StrGridDados.RowCount - 1 do
         begin
           ProgressBarStepItOne;
           if (trim(StrGridDados.Cells[1, i]) <> '') and
               (StrGridDados.Cells[0, i] <> 'UF') then
             begin
-              // Validando que a linha é para o Pagante Correto
-              if (StrToInt(StrGridDados.Cells[9, i]) <> CboProdutoServSedex.KeyValue) then
+              // Verificando se a linha é para o Pagante Correto
+              // Se estiver preenchido com zero, o valor do produto selecionado
+              // no combo de produtos será utilizado
+              if (StrGridDados.Cells[9, i] = '0') then
+                prod_sel := CboProdutoServSedex.KeyValue
+              else
+                if not TryStrToInt(CboProdutoServSedex.KeyValue, prod_sel) then
+                  begin
+                    ShowMessage('Há um problema com o Pagante da linha ' +
+                        IntToStr(i) +
+                        '!' + #13#10 + 'Processo será abortado');
+                    exit;
+                  end;
+
+              if ( prod_sel <> CboProdutoServSedex.KeyValue) then
                 begin
                   ShowMessage('O Pagante da linha ' + IntToStr(i) +
                             ' não coincide com o pagante do produto selecionado. ' +
@@ -1941,7 +1980,7 @@ begin
                 end;
 
               agencias.Add(StrGridDados.Cells[1, i]);
-                
+
               // Próximo número de objeto disponível
               SqlAux3.Close;
               SqlAux3.SQL.Clear;
@@ -1961,8 +2000,12 @@ begin
                 SqlAux1.ParamByName('sigla').AsString := SqlSdxServtbsdxserv_sigla.AsString;
                 SqlAux1.ParamByName('numobj').AsInteger := StrToInt(num_obj + dv);
                 SqlAux1.ParamByName('numobj4').AsString := 'AR' + num_obj + dv + SqlSdxServtbsdxserv_sigla.AsString;
-                SqlAux1.ParamByName('nomdest').AsString := GeraNt(SqlTbBradDeptosjuncao.AsString, 4) +
-                    ': ' + SqlTbBradDeptosdepto.AsString;
+                if (trim(StrGridDados.Cells[2, i]) = '') then
+                  SqlAux1.ParamByName('nomdest').AsString := GeraNt(SqlTbBradDeptosjuncao.AsString, 4) +
+                    ': ' + SqlTbBradDeptosdepto.AsString
+                else
+                  SqlAux1.ParamByName('nomdest').AsString := trim(StrGridDados.Cells[2, i]);
+
                 SqlAux1.ParamByName('enddest').AsString := SqlTbBradDeptosender.AsString;
                 SqlAux1.ParamByName('ciddest').AsString := SqlTbBradDeptoscidade.Text;
                 SqlAux1.ParamByName('ufdest').AsString := SqlTbBradDeptosuf.Text;
@@ -1989,12 +2032,11 @@ begin
                               'WHERE tbsdxect_num = :numobj AND tbsdxect_prod = :prod');
                 SqlAux1.ParamByName('use').AsString := 'S';
                 SqlAux1.ParamByName('numobj').AsString := num_obj;
-                SqlAux1.ParamByName('prod').AsInteger := StrToInt(StrGridDados.Cells[9, i]);;
+                SqlAux1.ParamByName('prod').AsInteger := prod_sel;
                 SqlAux1.ExecSQL;
                 if (SqlAux1.RowsAffected < 1 ) then
                   raise Exception.Create('Numero de objeto ' + num_obj +
                                 ' não pode ser marcado como utilizado.');
-
                 SqlAux1.Close;
               except on e: Exception do
                 begin
@@ -2004,11 +2046,16 @@ begin
                         '. Detalhes: '+ e.Message + #13#10 +
                         'Nro Objeto: ' + siglaobj + num_obj + dv + 'BR'),
                         'Ads', MB_OK + MB_ICONERROR);
+                  SqlAux1.CancelUpdates;
+                  SqlAux1.SQL.Text := 'ROLLBACK';
+                  SqlAux1.ExecSQL;
                   exit;
                 end;
               end;
             end;
         end; // end for
+      SqlAux1.SQL.Text := 'COMMIT';
+      SqlAux1.ExecSQL;
     end; // end with
 end;
 
