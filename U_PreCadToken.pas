@@ -754,7 +754,7 @@ begin
               ProgressBarStepItOne;
             end;
             // Adicionando o cabeção de Cartao de Postagem após ultima coluna
-          StrGridDados.Cells[cols, 0] := 'CARTAO POSTAGEM';
+          StrGridDados.Cells[cols, 0] := 'CARTÃO';
           break;
         end;
       PanelProgressBar.StepBy(cols);
@@ -812,16 +812,23 @@ begin
                       SqlAux2.Open;
                       if SqlAux2.RecordCount > 0 then
                         begin
-                          if (trim(RangeMatrix[_Line, _Col -1]) <> '') and
-                              (SqlAux2.FieldByName('uf').AsString <> trim(RangeMatrix[_Line, _Col -1])) then
+                          if (trim(RangeMatrix[_Line, _Col -1]) <> '') then
                             begin
-                              application.MessageBox(
-                                  PChar('UF do destino presente na linha ' + IntToStr(_Line) + #13#10 +
-                                      '  é diferente do existente no cadastro. Necessário verificar!'),
-                                  'ADS', MB_OK + MB_ICONERROR);
-                              exit;
-                            end;
+                              if (SqlAux2.FieldByName('uf').AsString <> trim(RangeMatrix[_Line, _Col -1])) then
+                                begin
+                                  application.MessageBox(
+                                      PChar('UF do destino presente na linha ' + IntToStr(_Line) + #13#10 +
+                                          '  é diferente do existente no cadastro. Necessário verificar!'),
+                                      'ADS', MB_OK + MB_ICONERROR);
+                                  exit;
+                                end;
+                            end
+                          else
+                            // UF da junção exibida no GRIO
+                            StrGridDados.Cells[(_Col - 2), R] := SqlAux2.FieldByName('uf').AsString;
+                          // Codigo da Juncao
                           StrGridDados.Cells[(_Col - 1), R] :=  Format('%.4d', [SqlAux2.FieldByName('juncao').AsInteger]);
+
                           if (trim(RangeMatrix[_Line, _Col + 1]) <> '') AND
                             (trim(RangeMatrix[_Line, 10]) <> '0') then
                             StrGridDados.Cells[_Col, R] := trim(RangeMatrix[_Line, _Col + 1])
