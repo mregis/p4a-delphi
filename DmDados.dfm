@@ -6,7 +6,11 @@ object Dm: TDm
   object Ads: TZConnection
     ControlsCodePage = cGET_ACP
     UTF8StringsAsWideField = False
-    AutoEncodeStrings = False
+    ClientCodepage = 'UTF8'
+    Properties.Strings = (
+      'codepage=UTF8'
+      'controls_cp=GET_ACP'
+      'AutoEncodeStrings=ON')
     Port = 5432
     Database = 'dbads'
     User = 'ads'

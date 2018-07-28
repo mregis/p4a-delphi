@@ -48,7 +48,6 @@ uses
   U_FrmDigExtratoUnificado in 'U_FrmDigExtratoUnificado.pas' {FrmDigExtratoUnificado},
   U_FrmRelContratoLimiteCreditoEspecial in 'U_FrmRelContratoLimiteCreditoEspecial.pas' {FrmRelContratoLimiteCreditoEspecial},
   UFrTokenBradesco in 'UFrTokenBradesco.pas' {FrmFrTokenBradesco},
-  U_PreCadToken in 'U_PreCadToken.pas' {FrmPreCadToken},
   U_AltTokens in 'U_AltTokens.pas' {FrmAltToken},
   U_FrmConsulta in 'U_FrmConsulta.pas' {FrmConsulta},
   U_CadSedex in 'U_CadSedex.pas' {FrmCadSedex},
@@ -77,6 +76,7 @@ uses
   U_FrmGeraRelatToken in 'U_FrmGeraRelatToken.pas' {FrmGeraRelatToken},
   U_FrmCadToken in 'U_FrmCadToken.pas' {FrmCadToken},
   U_NovaBalanca in 'U_NovaBalanca.pas' {FormNovaBalanca};
+  U_PreCadToken in 'U_PreCadToken.pas' {FrmPreCadToken};
 
 {$R *.res}
 

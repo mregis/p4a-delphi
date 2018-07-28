@@ -2,7 +2,7 @@ object FrmPreCadToken: TFrmPreCadToken
   Left = 265
   Top = 177
   BorderStyle = bsDialog
-  Caption = 'FrmPreCadToken'
+  Caption = 'Carregar Arquivo de Envios'
   ClientHeight = 495
   ClientWidth = 790
   Color = clBtnFace
@@ -12,7 +12,7 @@ object FrmPreCadToken: TFrmPreCadToken
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
@@ -29,6 +29,9 @@ object FrmPreCadToken: TFrmPreCadToken
     Color = clSkyBlue
     ParentColor = False
     TabOrder = 0
+    DesignSize = (
+      786
+      491)
     object lblLotesCriado: TLabel
       Left = 91
       Top = 106
@@ -139,7 +142,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Pitch = fpFixed
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 9
+      TabOrder = 8
     end
     object StrGridDados: TStringGrid
       Left = 0
@@ -165,30 +168,32 @@ object FrmPreCadToken: TFrmPreCadToken
       ParentBiDiMode = False
       ParentCtl3D = False
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 4
       ColWidths = (
         34
-        56
-        144
-        42
-        64
-        64
-        45
-        74
+        50
+        180
+        35
+        90
+        40
+        40
         70
-        79
-        83)
+        65
+        70
+        95)
     end
     object DBGridRelObjetos: TDBGrid
+      AlignWithMargins = True
       Left = 0
       Top = 105
-      Width = 785
+      Width = 786
       Height = 313
+      Anchors = [akLeft, akTop, akRight, akBottom]
       Color = clWhite
       DataSource = Dm.DtSAux4
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
@@ -202,9 +207,15 @@ object FrmPreCadToken: TFrmPreCadToken
       OnDrawColumnCell = DBGridRelObjetosDrawColumnCell
       Columns = <
         item
-          DropDownRows = 10
+          Alignment = taCenter
           Expanded = False
           FieldName = 'sigla'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Title.Alignment = taCenter
           Title.Caption = 'SIGLA'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
@@ -212,25 +223,17 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 35
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'cod'
-          Title.Caption = 'COD'
-          Title.Color = clNavy
-          Title.Font.Charset = DEFAULT_CHARSET
-          Title.Font.Color = clCream
-          Title.Font.Height = -11
-          Title.Font.Name = 'Arial'
-          Title.Font.Style = [fsBold]
-          Width = 45
+          Width = 44
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'pagante'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Caption = 'PAGANTE'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
@@ -238,25 +241,18 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 225
+          Width = 216
           Visible = True
         end
         item
-          Expanded = False
-          FieldName = 'cartao'
-          Title.Caption = 'CARTAO'
-          Title.Color = clNavy
-          Title.Font.Charset = DEFAULT_CHARSET
-          Title.Font.Color = clCream
-          Title.Font.Height = -11
-          Title.Font.Name = 'Arial'
-          Title.Font.Style = [fsBold]
-          Width = 73
-          Visible = True
-        end
-        item
+          Alignment = taCenter
           Expanded = False
           FieldName = 'lote'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Caption = 'LOTE'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
@@ -264,25 +260,37 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 105
           Visible = True
         end
         item
+          Alignment = taCenter
           Expanded = False
           FieldName = 'dtvencto'
-          Title.Caption = 'VENCIMENTO'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Title.Alignment = taCenter
+          Title.Caption = 'DATA VENCIMENTO'
           Title.Color = clNavy
           Title.Font.Charset = DEFAULT_CHARSET
           Title.Font.Color = clCream
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 72
+          Width = 111
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'carga'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Alignment = taRightJustify
           Title.Caption = 'TOTAL'
           Title.Color = clNavy
@@ -291,12 +299,17 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 85
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'usado'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Alignment = taRightJustify
           Title.Caption = 'UTILIZADO'
           Title.Color = clNavy
@@ -305,12 +318,17 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 85
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'livre'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
           Title.Alignment = taRightJustify
           Title.Caption = 'DISPONIVEL'
           Title.Color = clNavy
@@ -319,7 +337,7 @@ object FrmPreCadToken: TFrmPreCadToken
           Title.Font.Height = -11
           Title.Font.Name = 'Arial'
           Title.Font.Style = [fsBold]
-          Width = 73
+          Width = 97
           Visible = True
         end>
     end
@@ -387,7 +405,7 @@ object FrmPreCadToken: TFrmPreCadToken
       MaxLength = 255
       ParentFont = False
       ReadOnly = True
-      TabOrder = 6
+      TabOrder = 5
     end
     object BtnAbrir: TBitBtn
       Left = 18
@@ -446,7 +464,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Style = [fsBold]
       MaxLength = 4
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 6
       Text = '0'
     end
     object EdGrava: TEdit
@@ -464,7 +482,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Style = [fsBold]
       MaxLength = 4
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 7
       Text = '0'
     end
     object NovoLoteChkBox: TCheckBox
@@ -500,12 +518,12 @@ object FrmPreCadToken: TFrmPreCadToken
       ListField = 'tbsdxserv_dsc'
       ListSource = Dm.DtSSdxServ
       ParentFont = False
-      TabOrder = 10
+      TabOrder = 9
     end
     object PanelProgress: TPanel
       AlignWithMargins = True
-      Left = 254
-      Top = 227
+      Left = 242
+      Top = 215
       Width = 315
       Height = 68
       Align = alCustom
@@ -522,11 +540,11 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      TabOrder = 11
+      TabOrder = 10
       VerticalAlignment = taAlignTop
       Visible = False
-      ExplicitLeft = 251
-      ExplicitTop = 224
+      ExplicitLeft = 239
+      ExplicitTop = 212
       object PanelProgressBar: TProgressBar
         AlignWithMargins = True
         Left = 24
@@ -550,7 +568,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 12
+      TabOrder = 11
       OnClick = BtnFecharClick
       Glyph.Data = {
         B60D0000424DB60D000000000000360000002800000030000000180000000100
@@ -678,7 +696,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 13
+      TabOrder = 12
       OnClick = BtnSalvarClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -720,7 +738,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 14
+      TabOrder = 13
       OnClick = BtnLeituraClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -752,7 +770,7 @@ object FrmPreCadToken: TFrmPreCadToken
     end
     object BitBtnImprimeARs: TBitBtn
       Left = 599
-      Top = 110
+      Top = 108
       Width = 155
       Height = 28
       Caption = '&Imprimir ARs'
@@ -762,7 +780,7 @@ object FrmPreCadToken: TFrmPreCadToken
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      TabOrder = 15
+      TabOrder = 14
       Visible = False
       OnClick = BitBtnImprimeARsClick
       Glyph.Data = {
